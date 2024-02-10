@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { BookList } from '@/app/book-list/_components/BookList'
+import { BookList } from '@/app/dashboard/_components/BookList'
 import { Book } from '@/resource/book'
 
 export default function Page() {
