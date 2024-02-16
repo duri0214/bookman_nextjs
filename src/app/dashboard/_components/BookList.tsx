@@ -24,7 +24,7 @@ export function BookList({ books }: Props) {
   return (
     <>
       <main>
-        <Box width='100%'>
+        <Box width='100%' marginTop={5}>
           <Typography variant='h4'>本の一覧</Typography>
           <DataGrid columns={columns} rows={rows} />
         </Box>

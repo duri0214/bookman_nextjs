@@ -175,10 +175,11 @@ export default function Page() {
                 </Paper>
               </Grid>
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
 
             {/* ここに Django から持ってきたデータを表示するコンポーネントを統合します */}
             <BookList {...props} />
+
+            <Copyright sx={{ pt: 4 }} />
           </Container>
         </Box>
       </Box>
