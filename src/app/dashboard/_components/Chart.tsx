@@ -1,7 +1,7 @@
 import { useTheme } from '@mui/material/styles'
 import { axisClasses, LineChart } from '@mui/x-charts'
 import { ChartsTextStyle } from '@mui/x-charts/ChartsText'
-import Title from './Title'
+import Title from '@/components/Title'
 
 // Generate Sales Data
 function createData(time: string, amount?: number): { time: string; amount: number | null } {
