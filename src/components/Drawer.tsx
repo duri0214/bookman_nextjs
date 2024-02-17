@@ -1,8 +1,7 @@
 import MuiDrawer from '@mui/material/Drawer'
 import { styled } from '@mui/material'
 
-// TODO: 共通化するか引数化して（AppBar.tsx）
-const drawerWidth: number = 240
+export const drawerWidth: number = 240
 
 export const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }) => ({
