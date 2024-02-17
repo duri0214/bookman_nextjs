@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import { Book } from '@/resource/book'
 
-type Props = {
+interface Props {
   books: Book[]
 }
 
