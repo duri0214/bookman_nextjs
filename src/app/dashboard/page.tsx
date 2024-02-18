@@ -1,6 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { Book } from '@/resource/book'
+import { useEffect } from 'react'
 import Toolbar from '@mui/material/Toolbar'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -10,40 +9,13 @@ import Orders from '@/app/dashboard/_components/Orders'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
 import { BookList } from '@/app/dashboard/_components/BookList'
+import { useBookList } from '@/app/dashboard/_components/useBookList'
 
 export default function Page() {
-  const [books, setBooks] = useState<Book[]>([])
-
-  // TODO: dbからのデータを取得します。別のところに移したい
+  const { handleLoadingBookList, books } = useBookList()
   useEffect(() => {
-    const fetchData = async (): Promise<Book[]> => {
-      const apiUrl = 'http://127.0.0.1:8000/bookman/api/books/'
-
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'GET',
-        })
-
-        if (response.ok) {
-          const responseData = await response.json()
-          const formattedData: Book[] = responseData.map((result: any) => ({
-            id: result.id,
-            name: result.name,
-            leadText: result.lead_text,
-          }))
-          setBooks(formattedData)
-          return formattedData
-        } else {
-          console.error('Error fetching data:', response.statusText)
-          return []
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error)
-        return []
-      }
-    }
-    fetchData()
-  }, [])
+    handleLoadingBookList().catch((e) => console.error('データの取得に失敗しました: ', e))
+  }, [handleLoadingBookList])
 
   if (!books) {
     return <div>Loading...</div>
