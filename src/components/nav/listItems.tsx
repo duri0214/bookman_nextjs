@@ -3,9 +3,9 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListSubheader from '@mui/material/ListSubheader'
 import HomeIcon from '@mui/icons-material/Home'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import PeopleIcon from '@mui/icons-material/People'
-import BarChartIcon from '@mui/icons-material/BarChart'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import AddHomeIcon from '@mui/icons-material/AddHome'
+import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LayersIcon from '@mui/icons-material/Layers'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 
@@ -19,21 +19,21 @@ export const mainListItems = (
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <DashboardIcon />
       </ListItemIcon>
-      <ListItemText primary='Orders' />
+      <ListItemText primary='ダッシュボード' />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <PeopleIcon />
+        <AddHomeIcon />
       </ListItemIcon>
-      <ListItemText primary='Customers' />
+      <ListItemText primary='館管理' />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <BarChartIcon />
+        <AutoStoriesIcon />
       </ListItemIcon>
-      <ListItemText primary='Reports' />
+      <ListItemText primary='書籍管理' />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
