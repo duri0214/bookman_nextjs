@@ -29,7 +29,7 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='館管理' />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton component='a' href='/book'>
       <ListItemIcon>
         <AutoStoriesIcon />
       </ListItemIcon>
