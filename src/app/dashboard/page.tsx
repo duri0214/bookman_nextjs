@@ -13,9 +13,13 @@ import { useBookList } from '@/app/dashboard/_components/useBookList'
 
 export default function Page() {
   const { handleLoadingBookList, books } = useBookList()
+
+  // 共通のスタイリングを定義
+  const paperStyle = { p: 2, display: 'flex', flexDirection: 'column', height: 240 }
+
   useEffect(() => {
     handleLoadingBookList().catch((e) => console.error('データの取得に失敗しました: ', e))
-  }, [handleLoadingBookList])
+  }, [])
 
   if (!books) {
     return <div>Loading...</div>
@@ -32,35 +36,21 @@ export default function Page() {
         <Grid container spacing={3}>
           {/* Chart */}
           <Grid item xs={12} md={8} lg={9}>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                height: 240,
-              }}
-            >
+            <Paper sx={paperStyle}>
               <Chart />
             </Paper>
           </Grid>
 
           {/* Recent Deposits */}
           <Grid item xs={12} md={4} lg={3}>
-            <Paper
-              sx={{
-                p: 2,
-                display: 'flex',
-                flexDirection: 'column',
-                height: 240,
-              }}
-            >
+            <Paper sx={paperStyle}>
               <Deposits />
             </Paper>
           </Grid>
 
           {/* Recent Orders */}
           <Grid item xs={12}>
-            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+            <Paper sx={paperStyle}>
               <Orders />
             </Paper>
           </Grid>
