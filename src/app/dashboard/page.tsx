@@ -8,7 +8,6 @@ import Deposits from '@/app/dashboard/_components/Deposits'
 import Orders from '@/app/dashboard/_components/Orders'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
-import { BookList } from '@/app/dashboard/_components/BookList'
 import { useBookList } from '@/app/dashboard/_components/useBookList'
 
 export default function Page() {
@@ -23,10 +22,6 @@ export default function Page() {
 
   if (!books) {
     return <div>Loading...</div>
-  }
-
-  const props = {
-    books,
   }
 
   return (
@@ -55,9 +50,6 @@ export default function Page() {
             </Paper>
           </Grid>
         </Grid>
-
-        {/* ここに Django から持ってきたデータを表示するコンポーネントを統合します */}
-        <BookList {...props} />
 
         <Copyright sx={{ pt: 4 }} />
       </Container>
