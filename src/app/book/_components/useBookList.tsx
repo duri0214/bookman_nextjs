@@ -28,22 +28,12 @@ interface IBookRaw {
 }
 
 /**
- * Represents a book.
- * @interface
- */
-interface IBook {
-  id: number
-  name: string
-  leadText: string
-}
-
-/**
  * IBookRawから、bookリソース に変換したもの
  *
  * @param {Array} data - The raw book data to be formatted.
  * @return {Array} - The formatted book data.
  */
-const convertBookData = (data: IBookRaw[]): IBook[] =>
+const convertBookData = (data: IBookRaw[]): Book[] =>
   data.map((result: IBookRaw) => ({
     id: result.id,
     name: result.name,
