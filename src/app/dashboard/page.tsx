@@ -1,5 +1,4 @@
 'use client'
-import { useEffect } from 'react'
 import Toolbar from '@mui/material/Toolbar'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
@@ -8,21 +7,10 @@ import Deposits from '@/app/dashboard/_components/Deposits'
 import Orders from '@/app/dashboard/_components/Orders'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
-import { useBookList } from '@/app/dashboard/_components/useBookList'
 
 export default function Page() {
-  const { handleLoadingBookList, books } = useBookList()
-
   // 共通のスタイリングを定義
   const paperStyle = { p: 2, display: 'flex', flexDirection: 'column', height: 240 }
-
-  useEffect(() => {
-    handleLoadingBookList().catch((e) => console.error('データの取得に失敗しました: ', e))
-  }, [])
-
-  if (!books) {
-    return <div>Loading...</div>
-  }
 
   return (
     <>
