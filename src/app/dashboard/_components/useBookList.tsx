@@ -49,6 +49,7 @@ const convertBookData = (data: IBookRaw[]): IBook[] =>
     name: result.name,
     leadText: result.lead_text,
   }))
+
 /**
  * API fetch とエラーハンドリング
  *
