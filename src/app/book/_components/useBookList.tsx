@@ -1,31 +1,7 @@
 import { useState } from 'react'
-import { Book } from '@/resource/book'
+import { Book, IBookRaw } from '@/resource/book'
 
 const API_BOOK_URL = 'http://127.0.0.1:8000/bookman/api/books/'
-
-interface IAuthor {
-  name: string
-}
-
-interface ICategory {
-  name: string
-  color: string
-}
-
-/**
- * Djangoから返却される book data
- *
- * @interface IBookRaw
- */
-interface IBookRaw {
-  id: number
-  name: string
-  thumbnail: string | null
-  category: ICategory
-  authors: IAuthor[]
-  lead_text: string
-  publication_date: string
-}
 
 /**
  * IBookRawから、bookリソース に変換したもの
@@ -36,6 +12,8 @@ interface IBookRaw {
 const convertBookData = (data: IBookRaw[]): Book[] =>
   data.map((result: IBookRaw) => ({
     id: result.id,
+    category: result.category,
+    authors: result.authors.map((author) => author.name).join(', '),
     name: result.name,
     leadText: result.lead_text,
   }))
