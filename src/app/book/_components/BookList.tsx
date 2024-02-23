@@ -23,7 +23,7 @@ export function BookList({ books }: Props) {
     { field: 'category', headerName: 'カテゴリ', width: 100 },
     { field: 'name', headerName: '名前', width: 200 },
     { field: 'authors', headerName: '著者', width: 150 },
-    { field: 'leadText', headerName: 'あらすじ', width: 450 },
+    { field: 'leadText', headerName: 'あらすじ', width: 400 },
   ]
   return (
     <>
