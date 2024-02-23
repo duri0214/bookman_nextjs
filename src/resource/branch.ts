@@ -18,3 +18,10 @@ export interface Branch {
   phone: string
   remark: string
 }
+
+export interface IBranchRequest {
+  name: string
+  address: string
+  phone: string
+  remark: string
+}
