@@ -11,6 +11,7 @@ export function useCreateBranchDialog() {
 
   const onCloseDialog = () => {
     setIsDialogOpen(false)
+    setFormValues({})
   }
 
   /**
@@ -29,6 +30,7 @@ export function useCreateBranchDialog() {
   const onCreateBranch = () => {
     // ... create branch logic
     console.log(formValues)
+    setFormValues({})
   }
 
   return { isDialogOpen, openDialog, onCloseDialog, formValues, onInputChange, onCreateBranch }
