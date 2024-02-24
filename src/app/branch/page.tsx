@@ -8,13 +8,12 @@ import { useBranchList } from './_components/useBranchList'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { BranchList } from './_components/BranchList'
-import { CreateBranchDialog } from './_components/CreateBranchDialog'
-import { useCreateBranchDialog } from './_components/useCreateBranchDialog'
+import { CreateDialog } from './_components/CreateDialog'
+import { useCreateDialog } from './_components/useCreateDialog'
 
 export default function Page() {
   const { handleLoadingBranchList, branches } = useBranchList()
-  const { isDialogOpen, openDialog, onCloseDialog, onInputChange, onCreateBranch } =
-    useCreateBranchDialog()
+  const { isDialogOpen, openDialog, onCloseDialog, onInputChange, onCreate } = useCreateDialog()
 
   useEffect(() => {
     handleLoadingBranchList().catch((e) => console.error('データの取得に失敗しました: ', e))
@@ -32,7 +31,7 @@ export default function Page() {
     isDialogOpen,
     onCloseDialog,
     onInputChange,
-    onCreateBranch,
+    onCreate,
   }
 
   return (
@@ -46,7 +45,7 @@ export default function Page() {
                 新規登録
               </Button>
               <BranchList {...branchListProps} />
-              <CreateBranchDialog {...dialogProps} />
+              <CreateDialog {...dialogProps} />
             </Paper>
           </Grid>
         </Grid>

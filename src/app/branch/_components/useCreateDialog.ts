@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from 'react'
 import { IBranchRequest } from '@/resource/branch'
 
-export function useCreateBranchDialog() {
+export function useCreateDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formValues, setFormValues] = useState<Partial<IBranchRequest>>({})
 
@@ -27,11 +27,11 @@ export function useCreateBranchDialog() {
     }))
   }
 
-  const onCreateBranch = () => {
+  const onCreate = () => {
     // ... create branch logic
     console.log(formValues)
     setFormValues({})
   }
 
-  return { isDialogOpen, openDialog, onCloseDialog, formValues, onInputChange, onCreateBranch }
+  return { isDialogOpen, openDialog, onCloseDialog, formValues, onInputChange, onCreate }
 }

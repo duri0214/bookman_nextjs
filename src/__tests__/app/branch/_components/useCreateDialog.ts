@@ -1,10 +1,10 @@
 import { ChangeEvent } from 'react'
 import { act, renderHook } from '@testing-library/react'
-import { useCreateBranchDialog } from '@/app/branch/_components/useCreateBranchDialog'
+import { useCreateDialog } from '@/app/branch/_components/useCreateDialog'
 
-describe('useCreateBranchDialog', () => {
+describe('useCreateDialog', () => {
   test('openDialogが呼び出された時にダイアログが開くべき', () => {
-    const { result } = renderHook(useCreateBranchDialog)
+    const { result } = renderHook(useCreateDialog)
     act(() => {
       result.current.openDialog()
     })
@@ -12,7 +12,7 @@ describe('useCreateBranchDialog', () => {
   })
 
   test('closeDialogが呼び出された時にダイアログが閉じるべき', () => {
-    const { result } = renderHook(useCreateBranchDialog)
+    const { result } = renderHook(useCreateDialog)
     act(() => {
       result.current.onCloseDialog()
     })
@@ -20,7 +20,7 @@ describe('useCreateBranchDialog', () => {
   })
 
   test('handleInputChangeが呼び出された時にformValuesが更新されるべき', () => {
-    const { result } = renderHook(useCreateBranchDialog)
+    const { result } = renderHook(useCreateDialog)
     const inputEvent = {
       target: { name: 'testName', value: 'testValue' },
     } as ChangeEvent<HTMLInputElement>
@@ -31,7 +31,7 @@ describe('useCreateBranchDialog', () => {
   })
 
   test('handleInputChangeが複数回呼び出されたときにformValuesが複数回更新されるべき', () => {
-    const { result } = renderHook(useCreateBranchDialog)
+    const { result } = renderHook(useCreateDialog)
     act(() => {
       result.current.onInputChange({
         target: { name: 'firstName', value: 'John' },
