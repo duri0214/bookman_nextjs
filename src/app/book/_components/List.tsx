@@ -7,7 +7,7 @@ interface Props {
   books: Book[]
 }
 
-export function BookList({ books }: Props) {
+export function List({ books }: Props) {
   if (!books || books.length === 0) {
     return <Typography variant='h5'>No data available.</Typography>
   }
