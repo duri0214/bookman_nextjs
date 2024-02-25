@@ -4,19 +4,19 @@ import { Button } from '@mui/material'
 import Toolbar from '@mui/material/Toolbar'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
-import { useBranchList } from './_components/useBranchList'
+import { useList } from './_components/useList'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
-import { BranchList } from './_components/BranchList'
+import { List } from './_components/List'
 import { CreateDialog } from './_components/CreateDialog'
 import { useCreateDialog } from './_components/useCreateDialog'
 
 export default function Page() {
-  const { handleLoadingBranchList, branches } = useBranchList()
+  const { loading, branches } = useList()
   const { isDialogOpen, openDialog, onCloseDialog, onInputChange, onCreate } = useCreateDialog()
 
   useEffect(() => {
-    handleLoadingBranchList().catch((e) => console.error('データの取得に失敗しました: ', e))
+    loading().catch((e) => console.error('データの取得に失敗しました: ', e))
   }, [])
 
   if (!branches) {
@@ -44,7 +44,7 @@ export default function Page() {
               <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
                 新規登録
               </Button>
-              <BranchList {...branchListProps} />
+              <List {...branchListProps} />
               <CreateDialog {...dialogProps} />
             </Paper>
           </Grid>

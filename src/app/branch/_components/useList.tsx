@@ -37,12 +37,12 @@ const loadBranchList = async (apiUrl: string): Promise<any[]> => {
  * APIにアクセスし、そして branch のリストを返します
  *
  * @returns {Object} An object containing the following functions and properties:
- *   - handleLoadingBranchList: A function that loads the branch list from the API and updates the state with the formatted data.
+ *   - loading: A function that loads the branch list from the API and updates the state with the formatted data.
  *   - branches: An array of branch objects.
  * @throws {Error} If the API request fails or the data is not in the expected format.
  * @example
- * const { handleLoadingBranchList, branches } = useBranchList();
- * handleLoadingBranchList()
+ * const { loading, branches } = useList();
+ * loading()
  *   .then((formattedData) => {
  *     console.log(formattedData);
  *     console.log(branches);
@@ -51,15 +51,15 @@ const loadBranchList = async (apiUrl: string): Promise<any[]> => {
  *     console.error(error);
  *   });
  */
-export const useBranchList = () => {
+export const useList = () => {
   const [branches, setBranches] = useState<Branch[]>([])
 
-  const handleLoadingBranchList = async (): Promise<Branch[]> => {
+  const loading = async (): Promise<Branch[]> => {
     const responseData = await loadBranchList(API_BRANCH_URL)
     const formattedData: Branch[] = convertBranchData(responseData)
     setBranches(formattedData)
     return formattedData
   }
 
-  return { handleLoadingBranchList, branches }
+  return { loading, branches }
 }
