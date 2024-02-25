@@ -5,19 +5,19 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
 
-interface CreateBranchDialogProps {
+interface CreateDialogProps {
   isDialogOpen: boolean
   onCloseDialog: () => void
   onInputChange: (event: ChangeEvent<HTMLInputElement>) => void
-  onCreateBranch: () => void
+  onCreate: () => void
 }
 
-export const CreateBranchDialog = ({
+export const CreateDialog = ({
   isDialogOpen,
   onCloseDialog,
   onInputChange,
-  onCreateBranch,
-}: CreateBranchDialogProps) => {
+  onCreate,
+}: CreateDialogProps) => {
   return (
     <Dialog open={isDialogOpen} onClose={onCloseDialog}>
       <DialogTitle>新規登録</DialogTitle>
@@ -25,34 +25,43 @@ export const CreateBranchDialog = ({
         <TextField
           autoFocus
           margin='dense'
+          id='category'
+          name='category'
+          label='カテゴリー'
+          fullWidth
+          onChange={onInputChange}
+        />
+        <TextField
+          autoFocus
+          margin='dense'
           id='name'
           name='name'
-          label='図書館の名前'
+          label='名前'
+          fullWidth
+          onChange={onInputChange}
+        />
+        <TextField
+          autoFocus
+          margin='dense'
+          id='author'
+          name='author'
+          label='著者'
           fullWidth
           onChange={onInputChange}
         />
         <TextField
           margin='dense'
-          id='address'
-          name='address'
-          label='図書館の住所'
+          id='leadText'
+          name='leadText'
+          label='あらすじ'
           fullWidth
           onChange={onInputChange}
         />
         <TextField
           margin='dense'
-          id='phone'
-          name='phone'
-          label='図書館の電話番号'
-          fullWidth
-          onChange={onInputChange}
-        />
-        <TextField
-          margin='dense'
-          id='remark'
-          name='remark'
-          label='備考'
-          multiline
+          id='publication_date'
+          name='publication_date'
+          label='出版年月日'
           fullWidth
           onChange={onInputChange}
         />
@@ -61,7 +70,7 @@ export const CreateBranchDialog = ({
         <Button onClick={onCloseDialog} color='primary'>
           キャンセル
         </Button>
-        <Button onClick={onCreateBranch} color='primary'>
+        <Button onClick={onCreate} color='primary'>
           登録
         </Button>
       </DialogActions>

@@ -29,3 +29,10 @@ export interface Book {
   authors: string
   leadText: string
 }
+
+export interface IBookRequest {
+  category: string
+  name: string
+  authors: string
+  leadText: string
+}
