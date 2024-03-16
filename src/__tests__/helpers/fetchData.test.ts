@@ -8,7 +8,8 @@ describe('fetchData function', () => {
   it('successfully fetches data from an API', async () => {
     const mockSuccessResponse = Promise.resolve({
       data: {
-        data: 'Test data',
+        id: 'xxx',
+        name: 'Test data',
       },
       status: 200,
       statusText: 'OK',
