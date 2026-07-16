@@ -1,48 +1,101 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Bookman Next.js
+
+Bookman のフロントエンドです。
+
+Next.js / React / MUI で画面を作り、同じ親フォルダにある `bookman_backend` の Django REST Framework API と連携します。
+
+```text
+dev/
+  portfolio/
+  bookman_backend/
+  bookman_nextjs/
+```
 
 ## Codex 運用
 
 このリポジトリは、同じ親フォルダにある `portfolio/.codex` を Codex 運用ルールとスキルの管理元として参照します。
 
-```text
-dev/
-  portfolio/
-  bookman_nextjs/
-```
-
 詳細は `AGENTS.md` を参照してください。
 
-## Getting Started
+## 初回セットアップ
 
-First, run the development server:
+フロントエンドの依存関係をインストールします。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```console
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+バックエンド側も同じ親フォルダに配置しておきます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```console
+cd ../bookman_backend
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+必要に応じて仮想環境を有効化し、DB migration と fixture 読み込みを実行します。
 
-## Learn More
+```console
+.\venv311\Scripts\Activate.ps1
+python manage.py migrate
+python manage.py loaddata bookman/fixtures/m_branch-data.json
+python manage.py loaddata bookman/fixtures/m_category-data.json
+python manage.py loaddata bookman/fixtures/author-data.json
+python manage.py loaddata bookman/fixtures/book-data.json
+```
 
-To learn more about Next.js, take a look at the following resources:
+## サーバーの起動
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Bookman はフロントエンドとバックエンドを両方起動して動かします。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+ターミナル 1 でバックエンドを起動します。
 
-## Deploy on Vercel
+```console
+cd ../bookman_backend
+.\venv311\Scripts\Activate.ps1
+python manage.py runserver 127.0.0.1:8000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+ターミナル 2 でフロントエンドを起動します。
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```console
+cd ../bookman_nextjs
+npm run dev
+```
+
+ブラウザで http://localhost:3000 を開きます。
+
+フロントエンドは現在、以下の Django API を参照します。
+
+- `http://127.0.0.1:8000/bookman/api/branches/`
+- `http://127.0.0.1:8000/bookman/api/books/`
+
+## テストと検証
+
+通常は Codex に「テスト実行して」「lint と build まで確認して」と依頼すれば十分です。
+
+手元で実行する場合は、以下を使います。
+
+```console
+npm test
+npm run lint
+npm run build
+```
+
+依存関係の脆弱性も確認する場合は、次を実行します。
+
+```console
+npm audit
+```
+
+バックエンド側のテストは `bookman_backend` で実行します。
+
+```console
+cd ../bookman_backend
+.\venv311\Scripts\Activate.ps1
+python manage.py test
+```
+
+## 主な画面
+
+- `/dashboard`
+- `/branch`
+- `/book`
