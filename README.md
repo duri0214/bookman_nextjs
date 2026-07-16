@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Codex 運用
+
+このリポジトリは、同じ親フォルダにある `portfolio/.codex` を Codex 運用ルールとスキルの管理元として参照します。
+
+```text
+dev/
+  portfolio/
+  bookman_nextjs/
+```
+
+詳細は `AGENTS.md` を参照してください。
+
 ## Getting Started
 
 First, run the development server:
