@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Branch, IBranchRaw } from '@/resource/branch'
 
 const API_BRANCH_URL = 'http://127.0.0.1:8000/bookman/api/branches/'
@@ -22,10 +22,10 @@ const convertBranchData = (data: IBranchRaw[]): Branch[] =>
  * API fetch とエラーハンドリング
  *
  * @param {string} apiUrl - The URL of the API to fetch the branch list from.
- * @returns {Promise<any[]>} - A promise that resolves to an array of branch data.
+ * @returns {Promise<IBranchRaw[]>} - A promise that resolves to an array of branch data.
  * @throws {Error} - If the API request fails or returns an error status.
  */
-const loadBranchList = async (apiUrl: string): Promise<any[]> => {
+const loadBranchList = async (apiUrl: string): Promise<IBranchRaw[]> => {
   const response = await fetch(apiUrl, { method: 'GET' })
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`)
@@ -54,12 +54,12 @@ const loadBranchList = async (apiUrl: string): Promise<any[]> => {
 export const useList = () => {
   const [branches, setBranches] = useState<Branch[]>([])
 
-  const loading = async (): Promise<Branch[]> => {
+  const loading = useCallback(async (): Promise<Branch[]> => {
     const responseData = await loadBranchList(API_BRANCH_URL)
     const formattedData: Branch[] = convertBranchData(responseData)
     setBranches(formattedData)
     return formattedData
-  }
+  }, [])
 
   return { loading, branches }
 }

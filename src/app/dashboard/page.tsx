@@ -11,6 +11,7 @@ import Container from '@mui/material/Container'
 export default function Page() {
   // 共通のスタイリングを定義
   const paperStyle = { p: 2, display: 'flex', flexDirection: 'column', height: 240 }
+  const ordersPaperStyle = { ...paperStyle, height: 320 }
 
   return (
     <>
@@ -18,22 +19,22 @@ export default function Page() {
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           {/* Chart */}
-          <Grid item xs={12} md={8} lg={9}>
+          <Grid size={{ xs: 12, md: 8, lg: 9 }}>
             <Paper sx={paperStyle}>
               <Chart />
             </Paper>
           </Grid>
 
           {/* Recent Deposits */}
-          <Grid item xs={12} md={4} lg={3}>
+          <Grid size={{ xs: 12, md: 4, lg: 3 }}>
             <Paper sx={paperStyle}>
               <Deposits />
             </Paper>
           </Grid>
 
           {/* Recent Orders */}
-          <Grid item xs={12}>
-            <Paper sx={paperStyle}>
+          <Grid size={{ xs: 12 }}>
+            <Paper sx={ordersPaperStyle}>
               <Orders />
             </Paper>
           </Grid>

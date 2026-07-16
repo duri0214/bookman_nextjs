@@ -1,4 +1,4 @@
-import axios, {AxiosResponse} from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 /**
  * フェッチデータリクエストのレスポンスを表します
@@ -26,7 +26,7 @@ export const fetchData = async (url: string): Promise<IFetchDataResponse> => {
       status: response.status,
       statusText: response.statusText,
     }
-  } catch (error) {
+  } catch {
     throw { data: null, status: 'error', statusText: 'Error occurred.' }
   }
 }
