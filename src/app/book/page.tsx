@@ -1,6 +1,6 @@
 'use client'
-import { useEffect } from 'react'
-import { Button } from '@mui/material'
+import { useEffect, useState } from 'react'
+import { Alert, Button } from '@mui/material'
 import Toolbar from '@mui/material/Toolbar'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
@@ -13,10 +13,16 @@ import { useCreateDialog } from './_components/useCreateDialog'
 
 export default function Page() {
   const { loading, books } = useList()
+  const [hasFetchError, setHasFetchError] = useState(false)
   const { isDialogOpen, openDialog, onCloseDialog, onInputChange, onCreate } = useCreateDialog()
 
   useEffect(() => {
-    loading().catch((e) => console.error('データの取得に失敗しました: ', e))
+    loading()
+      .then(() => setHasFetchError(false))
+      .catch((e) => {
+        setHasFetchError(true)
+        console.error('データの取得に失敗しました: ', e)
+      })
   }, [loading])
 
   if (!books) {
@@ -39,6 +45,13 @@ export default function Page() {
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
+          {hasFetchError && (
+            <Grid size={{ xs: 12 }}>
+              <Alert severity='warning'>
+                書籍データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。
+              </Alert>
+            </Grid>
+          )}
           <Grid size={{ xs: 12 }}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
               <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
