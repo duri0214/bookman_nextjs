@@ -27,6 +27,23 @@ Next.js 16 を使うため、Node.js は `20.9.0` 以上が必要です。
 node --version
 ```
 
+Node.js が古い場合は、Windows では LTS 版を入れて PowerShell を開き直します。
+
+```console
+winget install OpenJS.NodeJS.LTS
+node --version
+npm --version
+```
+
+複数の Node.js バージョンを切り替えたい場合は、`nvm-windows` を使います。
+
+```console
+winget install CoreyButler.NVMforWindows
+nvm install 22
+nvm use 22
+node --version
+```
+
 フロントエンドの依存関係をインストールします。
 
 ```console
