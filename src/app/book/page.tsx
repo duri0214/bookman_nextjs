@@ -4,7 +4,7 @@ import { Button } from '@mui/material'
 import Toolbar from '@mui/material/Toolbar'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
-import { useList } from '@/app/book/_components/useList'
+import { useList } from './_components/useList'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { List } from './_components/List'
@@ -17,7 +17,7 @@ export default function Page() {
 
   useEffect(() => {
     loading().catch((e) => console.error('データの取得に失敗しました: ', e))
-  }, [])
+  }, [loading])
 
   if (!books) {
     return <div>Loading...</div>
@@ -39,7 +39,7 @@ export default function Page() {
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12 }}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
               <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
                 新規登録

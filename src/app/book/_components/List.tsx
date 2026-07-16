@@ -28,7 +28,7 @@ export function List({ books }: Props) {
   return (
     <>
       <main>
-        <Box width='100%'>
+        <Box sx={{ width: '100%' }}>
           <DataGrid columns={columns} rows={rows} />
         </Box>
       </main>
