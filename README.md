@@ -93,6 +93,8 @@ npm run dev
 - `http://127.0.0.1:8000/bookman/api/branches/`
 - `http://127.0.0.1:8000/bookman/api/books/`
 
+バックエンドが起動していない場合、`/branch` や `/book` ではブラウザの console に `データの取得に失敗しました` と表示されます。現時点ではモックデータへの切り替えは未対応です。
+
 ## テストと検証
 
 通常は Codex に「テスト実行して」「lint と build まで確認して」と依頼すれば十分です。
