@@ -96,9 +96,19 @@ npm run dev
 バックエンドが起動していない場合、`/branch` や `/book` では画面上にデータ取得エラーが表示されます。
 
 フロントエンド単体で一覧画面を確認したい場合は、開発用モックデータへ切り替えられます。
+Next.js では、ローカル開発の個人設定は `.env.local` に書きます。`.env` も読み込めますが、個人ごとに変わる値は Git 管理しない `.env.local` に置くのが基本です。
 
 ```console
-$env:NEXT_PUBLIC_USE_MOCK_DATA="true"
+copy .env.example .env.local
+```
+
+`.env.local` を編集します。
+
+```env
+USE_MOCK_DATA=true
+```
+
+```console
 npm run dev
 ```
 

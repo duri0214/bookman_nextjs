@@ -1,8 +1,7 @@
-import { useCallback, useState } from 'react'
 import { Book, IBookRaw } from '@/resource/book'
 
 const API_BOOK_URL = 'http://127.0.0.1:8000/bookman/api/books/'
-const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'
+const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
 const MOCK_BOOKS: IBookRaw[] = [
   {
@@ -25,6 +24,12 @@ const MOCK_BOOKS: IBookRaw[] = [
   },
 ]
 
+interface BookListData {
+  books: Book[]
+  errorMessage: string | null
+  isMockData: boolean
+}
+
 const convertBookData = (data: IBookRaw[]): Book[] =>
   data.map((result: IBookRaw) => ({
     id: result.id,
@@ -35,48 +40,37 @@ const convertBookData = (data: IBookRaw[]): Book[] =>
   }))
 
 const loadBookList = async (apiUrl: string): Promise<IBookRaw[]> => {
-  const response = await fetch(apiUrl, { method: 'GET' })
+  const response = await fetch(apiUrl, { method: 'GET', cache: 'no-store' })
   if (!response.ok) {
     throw new Error(`Failed to fetch data: ${response.statusText}`)
   }
   return response.json()
 }
 
-export const useList = () => {
-  const [books, setBooks] = useState<Book[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [isMockData, setIsMockData] = useState(false)
-
-  const loading = useCallback(async (): Promise<Book[]> => {
-    setIsLoading(true)
-    setErrorMessage(null)
-    setIsMockData(false)
-
-    try {
-      const responseData = await loadBookList(API_BOOK_URL)
-      const formattedData: Book[] = convertBookData(responseData)
-      setBooks(formattedData)
-      return formattedData
-    } catch (e) {
-      console.error('データの取得に失敗しました: ', e)
-
-      if (USE_MOCK_DATA) {
-        const formattedData: Book[] = convertBookData(MOCK_BOOKS)
-        setBooks(formattedData)
-        setIsMockData(true)
-        return formattedData
-      }
-
-      setBooks([])
-      setErrorMessage(
-        '書籍データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
-      )
-      return []
-    } finally {
-      setIsLoading(false)
+export const getBookListData = async (): Promise<BookListData> => {
+  try {
+    const responseData = await loadBookList(API_BOOK_URL)
+    return {
+      books: convertBookData(responseData),
+      errorMessage: null,
+      isMockData: false,
     }
-  }, [])
+  } catch (e) {
+    console.error('データの取得に失敗しました: ', e)
 
-  return { loading, books, isLoading, errorMessage, isMockData }
+    if (USE_MOCK_DATA) {
+      return {
+        books: convertBookData(MOCK_BOOKS),
+        errorMessage: null,
+        isMockData: true,
+      }
+    }
+
+    return {
+      books: [],
+      errorMessage:
+        '書籍データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
+      isMockData: false,
+    }
+  }
 }
