@@ -1,6 +1,6 @@
 import { Book, IBookRaw } from '@/resource/book'
+import { getBookmanApiUrl } from '@/helpers/apiClient'
 
-const API_BOOK_URL = 'http://127.0.0.1:8000/bookman/api/books/'
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
 const MOCK_BOOKS: IBookRaw[] = [
@@ -49,7 +49,7 @@ const loadBookList = async (apiUrl: string): Promise<IBookRaw[]> => {
 
 export const getBookListData = async (): Promise<BookListData> => {
   try {
-    const responseData = await loadBookList(API_BOOK_URL)
+    const responseData = await loadBookList(getBookmanApiUrl('books'))
     return {
       books: convertBookData(responseData),
       errorMessage: null,
