@@ -25,9 +25,10 @@ Next.js 16 を使うため、Node.js は `20.9.0` 以上が必要です。
 
 ```console
 node --version
+npm --version
 ```
 
-Node.js が古い、または `node` / `npm` コマンドが見つからない場合は、Windows では LTS 版を入れます。
+Node.js を1種類だけ使う場合は、Windows では LTS 版を入れます。通常はこちらで十分です。
 
 ```console
 winget install OpenJS.NodeJS.LTS
@@ -40,13 +41,14 @@ node --version
 npm --version
 ```
 
-複数の Node.js バージョンを切り替えたい場合は、`nvm-windows` を使います。
+複数の Node.js バージョンをプロジェクトごとに切り替えたい場合だけ、`nvm-windows` を使います。`nvm-windows` は Python でいう `pyenv` に近い Node.js 本体のバージョン管理ツールです。npm は Python でいう `pip` に近いパッケージ管理ツールです。
 
 ```console
 winget install CoreyButler.NVMforWindows
-nvm install 22
-nvm use 22
+nvm install 24.18.0
+nvm use 24.18.0
 node --version
+npm --version
 ```
 
 フロントエンドの依存関係をインストールします。
