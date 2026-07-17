@@ -1,6 +1,6 @@
 import { Branch, IBranchRaw } from '@/resource/branch'
+import { getBookmanApiUrl } from '@/helpers/apiClient'
 
-const API_BRANCH_URL = 'http://127.0.0.1:8000/bookman/api/branches/'
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
 const MOCK_BRANCHES: IBranchRaw[] = [
@@ -45,7 +45,7 @@ const loadBranchList = async (apiUrl: string): Promise<IBranchRaw[]> => {
 
 export const getBranchListData = async (): Promise<BranchListData> => {
   try {
-    const responseData = await loadBranchList(API_BRANCH_URL)
+    const responseData = await loadBranchList(getBookmanApiUrl('branches'))
     return {
       branches: convertBranchData(responseData),
       errorMessage: null,

@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios'
+import { BookmanApiEndpoint, getBookmanApiUrl } from '@/helpers/apiClient'
 
 /**
  * フェッチデータリクエストのレスポンスを表します
@@ -30,3 +31,6 @@ export const fetchData = async (url: string): Promise<IFetchDataResponse> => {
     throw { data: null, status: 'error', statusText: 'Error occurred.' }
   }
 }
+
+export const fetchBookmanData = async (endpoint: BookmanApiEndpoint): Promise<IFetchDataResponse> =>
+  fetchData(getBookmanApiUrl(endpoint))
