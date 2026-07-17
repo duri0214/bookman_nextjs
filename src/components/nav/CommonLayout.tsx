@@ -1,4 +1,7 @@
+'use client'
+
 import { ReactNode, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Box, createTheme, ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { AppBar } from '@/components/nav/AppBar'
@@ -14,15 +17,16 @@ import Divider from '@mui/material/Divider'
 import List from '@mui/material/List'
 import { mainListItems, secondaryListItems } from '@/components/nav/listItems'
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme()
 
 interface Props {
-  title: string
   children: ReactNode
+  routeTitles: Record<string, string>
 }
 
-export function CommonLayout({ title, children }: Props) {
+export function CommonLayout({ children, routeTitles }: Props) {
+  const pathname = usePathname()
+  const title = routeTitles[pathname] ?? 'Bookman'
   const [open, setOpen] = useState(true)
   const toggleDrawer = () => {
     setOpen(!open)

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -11,25 +12,25 @@ import AssignmentIcon from '@mui/icons-material/Assignment'
 
 export const mainListItems = (
   <>
-    <ListItemButton component='a' href='/'>
+    <ListItemButton component={Link} href='/'>
       <ListItemIcon>
         <HomeIcon />
       </ListItemIcon>
       <ListItemText primary='Home' />
     </ListItemButton>
-    <ListItemButton component='a' href='/dashboard'>
+    <ListItemButton component={Link} href='/dashboard'>
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
       <ListItemText primary='ダッシュボード' />
     </ListItemButton>
-    <ListItemButton component='a' href='/branch'>
+    <ListItemButton component={Link} href='/branch'>
       <ListItemIcon>
         <AddHomeIcon />
       </ListItemIcon>
       <ListItemText primary='館管理' />
     </ListItemButton>
-    <ListItemButton component='a' href='/book'>
+    <ListItemButton component={Link} href='/book'>
       <ListItemIcon>
         <AutoStoriesIcon />
       </ListItemIcon>

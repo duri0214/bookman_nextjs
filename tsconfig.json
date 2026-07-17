@@ -18,6 +18,9 @@
       }
     ],
     "paths": {
+      "@/app/book/*": ["./src/app/(bookman)/book/*"],
+      "@/app/branch/*": ["./src/app/(bookman)/branch/*"],
+      "@/app/dashboard/*": ["./src/app/(bookman)/dashboard/*"],
       "@/*": ["./src/*"]
     },
     "target": "ES2017"
