@@ -1,6 +1,6 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { Alert, Button } from '@mui/material'
+import { useEffect } from 'react'
+import { Alert, Button, Typography } from '@mui/material'
 import Toolbar from '@mui/material/Toolbar'
 import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
@@ -12,22 +12,12 @@ import { CreateDialog } from './_components/CreateDialog'
 import { useCreateDialog } from './_components/useCreateDialog'
 
 export default function Page() {
-  const { loading, books } = useList()
-  const [hasFetchError, setHasFetchError] = useState(false)
+  const { loading, books, isLoading, errorMessage, isMockData } = useList()
   const { isDialogOpen, openDialog, onCloseDialog, onInputChange, onCreate } = useCreateDialog()
 
   useEffect(() => {
-    loading()
-      .then(() => setHasFetchError(false))
-      .catch((e) => {
-        setHasFetchError(true)
-        console.error('データの取得に失敗しました: ', e)
-      })
+    void loading()
   }, [loading])
-
-  if (!books) {
-    return <div>Loading...</div>
-  }
 
   const branchListProps = {
     books,
@@ -45,19 +35,34 @@ export default function Page() {
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
-          {hasFetchError && (
+          {errorMessage && (
             <Grid size={{ xs: 12 }}>
-              <Alert severity='warning'>
-                書籍データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。
+              <Alert severity='warning'>{errorMessage}</Alert>
+            </Grid>
+          )}
+          {isMockData && (
+            <Grid size={{ xs: 12 }}>
+              <Alert severity='info'>
+                バックエンド API に接続できないため、開発用モックデータを表示しています。
               </Alert>
             </Grid>
           )}
           <Grid size={{ xs: 12 }}>
             <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-              <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
+              <Button
+                variant='contained'
+                color='primary'
+                onClick={openDialog}
+                disabled={isLoading}
+                sx={{ mb: 5 }}
+              >
                 新規登録
               </Button>
-              <List {...branchListProps} />
+              {isLoading ? (
+                <Typography variant='body1'>読み込み中...</Typography>
+              ) : (
+                <List {...branchListProps} />
+              )}
               <CreateDialog {...dialogProps} />
             </Paper>
           </Grid>

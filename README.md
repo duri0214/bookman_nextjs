@@ -93,7 +93,14 @@ npm run dev
 - `http://127.0.0.1:8000/bookman/api/branches/`
 - `http://127.0.0.1:8000/bookman/api/books/`
 
-バックエンドが起動していない場合、`/branch` や `/book` ではブラウザの console に `データの取得に失敗しました` と表示されます。現時点ではモックデータへの切り替えは未対応です。
+バックエンドが起動していない場合、`/branch` や `/book` では画面上にデータ取得エラーが表示されます。
+
+フロントエンド単体で一覧画面を確認したい場合は、開発用モックデータへ切り替えられます。
+
+```console
+$env:NEXT_PUBLIC_USE_MOCK_DATA="true"
+npm run dev
+```
 
 ## テストと検証
 

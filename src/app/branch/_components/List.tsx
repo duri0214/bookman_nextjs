@@ -9,7 +9,7 @@ interface Props {
 
 export function List({ branches }: Props) {
   if (!branches || branches.length === 0) {
-    return <Typography variant='h5'>No data available.</Typography>
+    return <Typography variant='body1'>支店データはまだありません。</Typography>
   }
   const rows: GridRowsProp = branches.map((branch) => ({
     id: branch.id,

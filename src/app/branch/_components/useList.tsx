@@ -2,6 +2,24 @@ import { useCallback, useState } from 'react'
 import { Branch, IBranchRaw } from '@/resource/branch'
 
 const API_BRANCH_URL = 'http://127.0.0.1:8000/bookman/api/branches/'
+const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true'
+
+const MOCK_BRANCHES: IBranchRaw[] = [
+  {
+    id: 1,
+    name: '本店',
+    address: '東京都千代田区丸の内1-1-1',
+    phone: '03-0000-0000',
+    remark: '開発用モックデータ',
+  },
+  {
+    id: 2,
+    name: '大阪支店',
+    address: '大阪府大阪市北区梅田1-1-1',
+    phone: '06-0000-0000',
+    remark: '開発用モックデータ',
+  },
+]
 
 /**
  * IBranchRawから、branchリソース に変換したもの
@@ -53,13 +71,39 @@ const loadBranchList = async (apiUrl: string): Promise<IBranchRaw[]> => {
  */
 export const useList = () => {
   const [branches, setBranches] = useState<Branch[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isMockData, setIsMockData] = useState(false)
 
   const loading = useCallback(async (): Promise<Branch[]> => {
-    const responseData = await loadBranchList(API_BRANCH_URL)
-    const formattedData: Branch[] = convertBranchData(responseData)
-    setBranches(formattedData)
-    return formattedData
+    setIsLoading(true)
+    setErrorMessage(null)
+    setIsMockData(false)
+
+    try {
+      const responseData = await loadBranchList(API_BRANCH_URL)
+      const formattedData: Branch[] = convertBranchData(responseData)
+      setBranches(formattedData)
+      return formattedData
+    } catch (e) {
+      console.error('データの取得に失敗しました: ', e)
+
+      if (USE_MOCK_DATA) {
+        const formattedData: Branch[] = convertBranchData(MOCK_BRANCHES)
+        setBranches(formattedData)
+        setIsMockData(true)
+        return formattedData
+      }
+
+      setBranches([])
+      setErrorMessage(
+        '支店データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
+      )
+      return []
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
-  return { loading, branches }
+  return { loading, branches, isLoading, errorMessage, isMockData }
 }
