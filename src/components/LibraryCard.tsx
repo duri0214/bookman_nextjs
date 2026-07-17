@@ -1,5 +1,8 @@
 import styles from './LibraryCard.module.css'
 
+export const LIBRARY_CARD_FRONT_ROWS = 8
+export const LIBRARY_CARD_BACK_ROWS = 11
+
 type LibraryCardProps = {
   columns?: [string, string, string]
   rows?: number
@@ -8,7 +11,7 @@ type LibraryCardProps = {
 
 export default function LibraryCard({
   columns = ['貸出日', '返却日', '氏名'],
-  rows = 3,
+  rows = LIBRARY_CARD_FRONT_ROWS,
   animated = false,
 }: LibraryCardProps) {
   const cells = Array.from({ length: columns.length * rows })

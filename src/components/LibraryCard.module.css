@@ -1,7 +1,7 @@
 .card {
   position: relative;
-  width: min(390px, 82vw);
-  aspect-ratio: 1.58;
+  width: min(310px, 76vw);
+  aspect-ratio: 0.66;
   padding: 1.2rem 1.35rem 1.35rem;
   overflow: hidden;
   color: #557f9f;
@@ -57,7 +57,7 @@
   z-index: 1;
   display: grid;
   grid-template-columns: 0.9fr 0.9fr 1.5fr;
-  grid-auto-rows: 32px;
+  grid-auto-rows: 28px;
   border-top: 1px solid rgba(80, 129, 166, 0.46);
   border-left: 1px solid rgba(80, 129, 166, 0.46);
 }
