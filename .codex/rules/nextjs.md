@@ -36,6 +36,8 @@ Next.js App Router を前提に、React と Next.js の責務を分けてシン�
 - API クライアントは集約し、画面コンポーネント内に URL、HTTP method、レスポンス整形を散らさない。
 - API レスポンスは TypeScript 型で受け、画面で必要な形へ変換する処理を明示する。
 - Server Component や server-only helper だけで読む環境変数には `NEXT_PUBLIC_` prefix を付けない。`NEXT_PUBLIC_` はブラウザへ公開してよい値に限定する。
+- `NEXT_PUBLIC_` は不用意に使わない。環境変数で切り替える必要がある frontend 値は原則少ないため、サーバー側でデータ取得や状態判定を済ませられないか先に検討する。
+- `NEXT_PUBLIC_` が必要だと判断した場合でも、実装前にユーザーへ用途と公開される値を説明し、使用可否を確認する。
 
 ## データ取得とエラー処理
 
