@@ -5,17 +5,17 @@ jest.mock('axios')
 
 describe('fetchData function', () => {
   const testUrl = 'https://testurl.com'
-  const originalBookmanApiBaseUrl = process.env.NEXT_PUBLIC_BOOKMAN_API_BASE_URL
+  const originalBookmanApiBaseUrl = process.env.BOOKMAN_API_BASE_URL
 
   afterEach(() => {
     jest.clearAllMocks()
 
     if (originalBookmanApiBaseUrl === undefined) {
-      delete process.env.NEXT_PUBLIC_BOOKMAN_API_BASE_URL
+      delete process.env.BOOKMAN_API_BASE_URL
       return
     }
 
-    process.env.NEXT_PUBLIC_BOOKMAN_API_BASE_URL = originalBookmanApiBaseUrl
+    process.env.BOOKMAN_API_BASE_URL = originalBookmanApiBaseUrl
   })
   it('successfully fetches data from an API', async () => {
     const mockSuccessResponse = Promise.resolve({
@@ -42,7 +42,7 @@ describe('fetchData function', () => {
   })
 
   it('fetches data from a Bookman API endpoint', async () => {
-    process.env.NEXT_PUBLIC_BOOKMAN_API_BASE_URL = 'https://example.com/bookman/api'
+    process.env.BOOKMAN_API_BASE_URL = 'https://example.com/bookman/api'
     const mockSuccessResponse = Promise.resolve({
       data: [],
       status: 200,

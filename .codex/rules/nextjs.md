@@ -35,6 +35,7 @@ Next.js App Router を前提に、React と Next.js の責務を分けてシン�
 - frontend 側には、API 呼び出し、画面状態、入力検証、表示整形を置く。
 - API クライアントは集約し、画面コンポーネント内に URL、HTTP method、レスポンス整形を散らさない。
 - API レスポンスは TypeScript 型で受け、画面で必要な形へ変換する処理を明示する。
+- Server Component や server-only helper だけで読む環境変数には `NEXT_PUBLIC_` prefix を付けない。`NEXT_PUBLIC_` はブラウザへ公開してよい値に限定する。
 
 ## データ取得とエラー処理
 

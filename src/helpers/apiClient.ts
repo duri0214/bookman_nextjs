@@ -12,7 +12,7 @@ const trimTrailingSlash = (value: string): string => value.replace(/\/+$/, '')
 const trimLeadingSlash = (value: string): string => value.replace(/^\/+/, '')
 
 export const getBookmanApiBaseUrl = (): string =>
-  trimTrailingSlash(process.env.NEXT_PUBLIC_BOOKMAN_API_BASE_URL || DEFAULT_BOOKMAN_API_BASE_URL)
+  trimTrailingSlash(process.env.BOOKMAN_API_BASE_URL || DEFAULT_BOOKMAN_API_BASE_URL)
 
 export const getBookmanApiUrl = (endpoint: BookmanApiEndpoint): string =>
   `${getBookmanApiBaseUrl()}/${trimLeadingSlash(BOOKMAN_API_ENDPOINTS[endpoint])}`

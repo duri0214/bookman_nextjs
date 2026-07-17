@@ -100,7 +100,7 @@ npm run dev
 - `http://127.0.0.1:8000/bookman/api/branches/`
 - `http://127.0.0.1:8000/bookman/api/books/`
 
-API の接続先は `NEXT_PUBLIC_BOOKMAN_API_BASE_URL` で変更できます。未指定の場合は `http://127.0.0.1:8000/bookman/api` を使います。
+API の接続先は `BOOKMAN_API_BASE_URL` で変更できます。未指定の場合は `http://127.0.0.1:8000/bookman/api` を使います。
 
 バックエンドが起動していない場合、`/branch` や `/book` では画面上にデータ取得エラーが表示されます。
 
@@ -114,7 +114,7 @@ copy .env.example .env.local
 `.env.local` を編集します。
 
 ```env
-NEXT_PUBLIC_BOOKMAN_API_BASE_URL=http://127.0.0.1:8000/bookman/api
+BOOKMAN_API_BASE_URL=http://127.0.0.1:8000/bookman/api
 USE_MOCK_DATA=true
 ```
 
