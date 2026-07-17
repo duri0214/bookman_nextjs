@@ -25,23 +25,30 @@ Next.js 16 を使うため、Node.js は `20.9.0` 以上が必要です。
 
 ```console
 node --version
+npm --version
 ```
 
-Node.js が古い場合は、Windows では LTS 版を入れて PowerShell を開き直します。
+Node.js を1種類だけ使う場合は、Windows では LTS 版を入れます。通常はこちらで十分です。
 
 ```console
 winget install OpenJS.NodeJS.LTS
+```
+
+PowerShell を開き直してから、バージョンを確認します。
+
+```console
 node --version
 npm --version
 ```
 
-複数の Node.js バージョンを切り替えたい場合は、`nvm-windows` を使います。
+複数の Node.js バージョンをプロジェクトごとに切り替えたい場合だけ、`nvm-windows` を使います。`nvm-windows` は Python でいう `pyenv` に近い Node.js 本体のバージョン管理ツールです。npm は Python でいう `pip` に近いパッケージ管理ツールです。
 
 ```console
 winget install CoreyButler.NVMforWindows
-nvm install 22
-nvm use 22
+nvm install 24.18.0
+nvm use 24.18.0
 node --version
+npm --version
 ```
 
 フロントエンドの依存関係をインストールします。
@@ -93,7 +100,24 @@ npm run dev
 - `http://127.0.0.1:8000/bookman/api/branches/`
 - `http://127.0.0.1:8000/bookman/api/books/`
 
-バックエンドが起動していない場合、`/branch` や `/book` ではブラウザの console に `データの取得に失敗しました` と表示されます。現時点ではモックデータへの切り替えは未対応です。
+バックエンドが起動していない場合、`/branch` や `/book` では画面上にデータ取得エラーが表示されます。
+
+フロントエンド単体で一覧画面を確認したい場合は、開発用モックデータへ切り替えられます。
+Next.js では、ローカル開発の個人設定は `.env.local` に書きます。`.env` も読み込めますが、個人ごとに変わる値は Git 管理しない `.env.local` に置くのが基本です。
+
+```console
+copy .env.example .env.local
+```
+
+`.env.local` を編集します。
+
+```env
+USE_MOCK_DATA=true
+```
+
+```console
+npm run dev
+```
 
 ## テストと検証
 

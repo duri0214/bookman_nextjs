@@ -9,7 +9,7 @@ interface Props {
 
 export function List({ books }: Props) {
   if (!books || books.length === 0) {
-    return <Typography variant='h5'>No data available.</Typography>
+    return <Typography variant='body1'>書籍データはまだありません。</Typography>
   }
   const rows: GridRowsProp = books.map((book, index) => ({
     id: index + 1,
