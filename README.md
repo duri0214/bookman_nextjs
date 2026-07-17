@@ -27,10 +27,15 @@ Next.js 16 を使うため、Node.js は `20.9.0` 以上が必要です。
 node --version
 ```
 
-Node.js が古い場合は、Windows では LTS 版を入れて PowerShell を開き直します。
+Node.js が古い、または `node` / `npm` コマンドが見つからない場合は、Windows では LTS 版を入れます。
 
 ```console
 winget install OpenJS.NodeJS.LTS
+```
+
+PowerShell を開き直してから、バージョンを確認します。
+
+```console
 node --version
 npm --version
 ```
