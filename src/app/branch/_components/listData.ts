@@ -6,17 +6,17 @@ const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 const MOCK_BRANCHES: IBranchRaw[] = [
   {
     id: 1,
-    name: '本店',
-    address: '東京都千代田区丸の内1-1-1',
+    name: '図書館 本店',
+    address: '東京都千代田区図書館町1-1-1',
     phone: '03-0000-0000',
-    remark: '開発用モックデータ',
+    remark: '中央図書館の開発用モックデータ',
   },
   {
     id: 2,
-    name: '大阪支店',
-    address: '大阪府大阪市北区梅田1-1-1',
+    name: '図書館 児童書分館',
+    address: '東京都千代田区図書館町2-1-1',
     phone: '06-0000-0000',
-    remark: '開発用モックデータ',
+    remark: '児童書分館の開発用モックデータ',
   },
 ]
 
