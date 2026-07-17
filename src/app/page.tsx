@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import LibraryCard from '@/components/LibraryCard'
 import styles from './page.module.css'
 
 export default function Home() {
@@ -6,25 +7,7 @@ export default function Home() {
     <main className={styles.main}>
       <section className={styles.hero} aria-labelledby='home-title'>
         <div className={styles.cardStage} aria-hidden='true'>
-          <div className={styles.libraryCard}>
-            <div className={styles.cardTopLine} />
-            <div className={styles.cardNumber}>No.</div>
-            <div className={styles.cardNameLine} />
-            <div className={styles.cardGrid}>
-              <span>貸出日</span>
-              <span>返却日</span>
-              <span>氏名</span>
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-          </div>
+          <LibraryCard animated />
         </div>
 
         <div className={styles.content}>
