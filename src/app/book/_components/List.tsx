@@ -15,8 +15,9 @@ export function List({ books }: Props) {
     id: index + 1,
     name: book.name,
     authors: book.authors,
-    category: book.category.name,
+    category: book.category?.name ?? '',
     leadText: book.leadText,
+    publicationDate: book.publicationDate,
   }))
   const columns: GridColDef[] = [
     { field: 'id', headerName: '#', width: 50 },
@@ -24,6 +25,7 @@ export function List({ books }: Props) {
     { field: 'name', headerName: '名前', width: 200 },
     { field: 'authors', headerName: '著者', width: 150 },
     { field: 'leadText', headerName: 'あらすじ', width: 400 },
+    { field: 'publicationDate', headerName: '出版年月日', width: 120 },
   ]
   return (
     <>

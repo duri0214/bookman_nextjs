@@ -15,13 +15,25 @@ interface Props {
 }
 
 export function PageClient({ books, errorMessage, isMockData }: Props) {
-  const { isDialogOpen, openDialog, onCloseDialog, onInputChange, onCreate } = useCreateDialog()
+  const {
+    isDialogOpen,
+    openDialog,
+    onCloseDialog,
+    formValues,
+    onInputChange,
+    onCreate,
+    isCreating,
+    createErrorMessage,
+  } = useCreateDialog()
 
   const dialogProps = {
     isDialogOpen,
     onCloseDialog,
+    formValues,
     onInputChange,
     onCreate,
+    isCreating,
+    createErrorMessage,
   }
 
   return (
