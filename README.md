@@ -95,6 +95,17 @@ npm run dev
 
 ブラウザで http://localhost:3000 を開きます。
 
+`npm run dev` は開発用サーバーです。Next.js の開発用インジケーターなど、開発中だけ表示されるUIがあります。
+
+本番相当の動作をローカルで確認する場合は、ビルドしてから本番用サーバーを起動します。
+
+```console
+npm run build
+npm run start
+```
+
+`npm run start` は、直前に作成された `.next` のビルド結果を使って起動します。コードを変更した後は、もう一度 `npm run build` を実行してから `npm run start` します。
+
 フロントエンドは現在、以下の Django API を参照します。
 
 - `http://127.0.0.1:8000/bookman/api/branches/`
