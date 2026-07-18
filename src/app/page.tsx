@@ -21,9 +21,10 @@ export default function Home() {
             <Link className={styles.primaryAction} href='/branch'>
               図書館を管理
             </Link>
-            <Link className={styles.secondaryAction} href='/book'>
+            <button className={styles.secondaryAction} type='button' disabled>
               本をかりる
-            </Link>
+              <span>未実装</span>
+            </button>
           </div>
         </div>
       </section>

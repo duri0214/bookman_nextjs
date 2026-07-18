@@ -65,8 +65,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.55rem;
   min-height: 52px;
   padding: 0 1.35rem;
+  font: inherit;
   font-weight: 800;
   color: #243039;
   background: rgba(248, 244, 234, 0.82);
@@ -87,8 +89,25 @@
   border-color: rgba(38, 72, 65, 0.42);
 }
 
+.secondaryAction:disabled {
+  color: rgba(36, 48, 57, 0.52);
+  cursor: not-allowed;
+  background: rgba(248, 244, 234, 0.52);
+  border-color: rgba(36, 48, 57, 0.18);
+  box-shadow: none;
+}
+
+.secondaryAction span {
+  padding: 0.14rem 0.42rem;
+  color: rgba(36, 48, 57, 0.58);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(80, 129, 166, 0.12);
+  border-radius: 999px;
+}
+
 .primaryAction:hover,
-.secondaryAction:hover {
+.secondaryAction:not(:disabled):hover {
   transform: translate(-2px, -2px);
   box-shadow: 0 12px 24px rgba(36, 48, 57, 0.14);
 }
