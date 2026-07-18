@@ -86,16 +86,31 @@ cd ../bookman_backend
 python manage.py runserver 127.0.0.1:8000
 ```
 
-ターミナル 2 でフロントエンドを起動します。
+ターミナル 2 でフロントエンドの開発用サーバーを起動します。
 
 ```console
 cd ../bookman_nextjs
 npm run dev
 ```
 
+`npm run dev` は開発用サーバーです。Next.js の開発用インジケーターなど、開発中だけ表示されるUIがあります。
+
 ブラウザで http://localhost:3000 を開きます。
 
-フロントエンドは現在、以下の Django API を参照します。
+### 本番相当で確認する場合
+
+ローカルで本番相当の動作を確認する場合は、開発用サーバーではなく、ビルドしてから本番用サーバーを起動します。
+
+```console
+npm run build
+npm run start
+```
+
+`npm run start` は、直前に作成された `.next` のビルド結果を使って起動します。コードを変更した後は、もう一度 `npm run build` を実行してから `npm run start` します。
+
+### API 接続
+
+通常の開発では、フロントエンドは以下の Django API を参照します。
 
 - `http://127.0.0.1:8000/bookman/api/branches/`
 - `http://127.0.0.1:8000/bookman/api/books/`
@@ -103,6 +118,8 @@ npm run dev
 API の接続先は `BOOKMAN_API_BASE_URL` で変更できます。未指定の場合は `http://127.0.0.1:8000/bookman/api` を使います。
 
 バックエンドが起動していない場合、`/branch` や `/book` では画面上にデータ取得エラーが表示されます。
+
+### モックデータで確認する場合
 
 フロントエンド単体で一覧画面を確認したい場合は、開発用モックデータへ切り替えられます。
 Next.js では、ローカル開発の個人設定は `.env.local` に書きます。`.env` も読み込めますが、個人ごとに変わる値は Git 管理しない `.env.local` に置くのが基本です。
@@ -116,10 +133,6 @@ copy .env.example .env.local
 ```env
 BOOKMAN_API_BASE_URL=http://127.0.0.1:8000/bookman/api
 USE_MOCK_DATA=true
-```
-
-```console
-npm run dev
 ```
 
 ## テストと検証

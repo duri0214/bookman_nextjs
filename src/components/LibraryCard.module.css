@@ -1,0 +1,92 @@
+.card {
+  position: relative;
+  width: min(310px, 76vw);
+  aspect-ratio: 0.66;
+  padding: 1.2rem 1.35rem 1.35rem;
+  overflow: hidden;
+  color: #557f9f;
+  background: #f8f4ea;
+  border: 1px solid rgba(80, 129, 166, 0.36);
+  border-radius: 4px;
+  box-shadow:
+    16px 18px 0 rgba(80, 129, 166, 0.14),
+    28px 30px 38px rgba(36, 48, 57, 0.14);
+  transform-style: preserve-3d;
+}
+
+.card::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: repeating-linear-gradient(0deg, transparent 0 26px, rgba(80, 129, 166, 0.16) 27px);
+  pointer-events: none;
+}
+
+.animated {
+  animation: cardTurn 9s ease-in-out infinite;
+}
+
+.topLine {
+  position: relative;
+  z-index: 1;
+  height: 7px;
+  margin: -1.2rem -1.35rem 1rem;
+  background: #3f8cca;
+}
+
+.number {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  margin: 0 auto 1.05rem;
+  color: rgba(63, 140, 202, 0.7);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.nameLine {
+  position: relative;
+  z-index: 1;
+  height: 18px;
+  margin-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(80, 129, 166, 0.38);
+}
+
+.grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 0.9fr 0.9fr 1.5fr;
+  grid-auto-rows: 28px;
+  border-top: 1px solid rgba(80, 129, 166, 0.46);
+  border-left: 1px solid rgba(80, 129, 166, 0.46);
+}
+
+.grid span {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 0.55rem;
+  color: rgba(63, 106, 142, 0.72);
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-right: 1px solid rgba(80, 129, 166, 0.46);
+  border-bottom: 1px solid rgba(80, 129, 166, 0.46);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated {
+    animation: none;
+  }
+}
+
+@keyframes cardTurn {
+  0%,
+  100% {
+    transform: rotateY(-9deg) rotateZ(-2deg);
+  }
+
+  50% {
+    transform: rotateY(9deg) rotateZ(2deg);
+  }
+}
