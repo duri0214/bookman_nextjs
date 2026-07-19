@@ -21,9 +21,25 @@ export interface IBookRaw {
   category: number
   authors: number[]
   lead_text: string
+  total_amount: number
+  branch_stocks: IBookBranchStockRaw[]
   amount: number
   isbn: string
   publication_date: string
+}
+
+export interface IBookBranchStockRaw {
+  id: number
+  branch: number
+  branch_name: string
+  amount: number
+}
+
+export interface BookBranchStock {
+  id: number
+  branchId: number
+  branchName: string
+  amount: number
 }
 
 export interface Book {
@@ -32,6 +48,8 @@ export interface Book {
   name: string
   authors: string
   leadText: string
+  totalAmount: number
+  branchStocks: BookBranchStock[]
   publicationDate: string
 }
 

@@ -1,4 +1,5 @@
 import { Book, IAuthor, IBookRaw, ICategory } from '@/resource/book'
+import { Branch, IBranchRaw } from '@/resource/branch'
 import { getBookmanApiUrl } from '@/helpers/apiClient'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
@@ -11,6 +12,11 @@ const MOCK_BOOKS: IBookRaw[] = [
     category: 1,
     authors: [1],
     lead_text: '開発用モックデータです。',
+    total_amount: 3,
+    branch_stocks: [
+      { id: 1, branch: 1, branch_name: '図書館 本店', amount: 2 },
+      { id: 2, branch: 2, branch_name: '図書館 児童書分館', amount: 1 },
+    ],
     amount: 1,
     isbn: '9780000000001',
     publication_date: '2026-01-01',
@@ -22,6 +28,8 @@ const MOCK_BOOKS: IBookRaw[] = [
     category: 2,
     authors: [2],
     lead_text: 'バックエンド未起動時の表示確認に使うデータです。',
+    total_amount: 1,
+    branch_stocks: [{ id: 3, branch: 1, branch_name: '図書館 本店', amount: 1 }],
     amount: 1,
     isbn: '9780000000002',
     publication_date: '2026-01-02',
@@ -40,9 +48,19 @@ const MOCK_AUTHORS: IAuthor[] = [
 
 interface BookListData {
   books: Book[]
+  branches: Branch[]
   errorMessage: string | null
   isMockData: boolean
 }
+
+const convertBranchData = (branches: IBranchRaw[]): Branch[] =>
+  branches.map((branch) => ({
+    id: branch.id,
+    name: branch.name,
+    address: branch.address,
+    phone: branch.phone,
+    remark: branch.remark,
+  }))
 
 const convertBookData = (
   books: IBookRaw[],
@@ -60,6 +78,13 @@ const convertBookData = (
       .map((authorId) => authorsById.get(authorId)?.name ?? `#${authorId}`)
       .join(', '),
     leadText: result.lead_text,
+    totalAmount: result.total_amount,
+    branchStocks: result.branch_stocks.map((branchStock) => ({
+      id: branchStock.id,
+      branchId: branchStock.branch,
+      branchName: branchStock.branch_name,
+      amount: branchStock.amount,
+    })),
     publicationDate: result.publication_date,
   }))
 }
@@ -74,14 +99,16 @@ const loadBookmanData = async <T>(apiUrl: string): Promise<T> => {
 
 export const getBookListData = async (): Promise<BookListData> => {
   try {
-    const [books, categories, authors] = await Promise.all([
+    const [books, categories, authors, branches] = await Promise.all([
       loadBookmanData<IBookRaw[]>(getBookmanApiUrl('books')),
       loadBookmanData<ICategory[]>(getBookmanApiUrl('categories')),
       loadBookmanData<IAuthor[]>(getBookmanApiUrl('authors')),
+      loadBookmanData<IBranchRaw[]>(getBookmanApiUrl('branches')),
     ])
 
     return {
       books: convertBookData(books, categories, authors),
+      branches: convertBranchData(branches),
       errorMessage: null,
       isMockData: false,
     }
@@ -91,6 +118,22 @@ export const getBookListData = async (): Promise<BookListData> => {
     if (USE_MOCK_DATA) {
       return {
         books: convertBookData(MOCK_BOOKS, MOCK_CATEGORIES, MOCK_AUTHORS),
+        branches: convertBranchData([
+          {
+            id: 1,
+            name: '図書館 本店',
+            address: '東京都千代田区図書館町1-1-1',
+            phone: '03-0000-0000',
+            remark: '中央図書館の開発用モックデータ',
+          },
+          {
+            id: 2,
+            name: '図書館 児童書分館',
+            address: '東京都千代田区図書館町2-1-1',
+            phone: '06-0000-0000',
+            remark: '児童書分館の開発用モックデータ',
+          },
+        ]),
         errorMessage: null,
         isMockData: true,
       }
@@ -98,6 +141,7 @@ export const getBookListData = async (): Promise<BookListData> => {
 
     return {
       books: [],
+      branches: [],
       errorMessage:
         '書籍データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
       isMockData: false,
