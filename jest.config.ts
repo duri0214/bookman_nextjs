@@ -9,6 +9,7 @@ const createJestConfig = nextJest({
 // Add any custom config to be passed to Jest
 const config: Config = {
   coverageProvider: 'v8',
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
   moduleNameMapper: {
     '^@/app/book/(.*)$': '<rootDir>/src/app/(bookman)/book/$1',
     '^@/app/branch/(.*)$': '<rootDir>/src/app/(bookman)/branch/$1',

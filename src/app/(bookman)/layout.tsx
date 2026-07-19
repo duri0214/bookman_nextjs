@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { CommonLayout } from '@/components/nav/CommonLayout'
 
 const routeTitles = {
-  '/dashboard': 'Dashboard',
+  '/dashboard': '自治体ダッシュボード',
   '/branch': '館管理',
   '/book': '書籍管理',
 } as const

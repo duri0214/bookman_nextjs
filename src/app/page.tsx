@@ -18,8 +18,8 @@ export default function Home() {
           </p>
 
           <div className={styles.actions} aria-label='主要機能'>
-            <Link className={styles.primaryAction} href='/branch'>
-              図書館を管理
+            <Link className={styles.primaryAction} href='/dashboard'>
+              ダッシュボードを見る
             </Link>
             <button className={styles.secondaryAction} type='button' disabled>
               本をかりる

@@ -36,11 +36,11 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='書籍管理' />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton disabled>
       <ListItemIcon>
         <LayersIcon />
       </ListItemIcon>
-      <ListItemText primary='Integrations' />
+      <ListItemText primary='貸出・予約（未実装）' />
     </ListItemButton>
   </>
 )
@@ -48,25 +48,25 @@ export const mainListItems = (
 export const secondaryListItems = (
   <>
     <ListSubheader component='div' inset>
-      Saved reports
+      業務指標
     </ListSubheader>
-    <ListItemButton>
+    <ListItemButton disabled>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary='Current month' />
+      <ListItemText primary='今月の貸出（未接続）' />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton disabled>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary='Last quarter' />
+      <ListItemText primary='予約状況（未接続）' />
     </ListItemButton>
-    <ListItemButton>
+    <ListItemButton disabled>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary='Year-end sale' />
+      <ListItemText primary='表彰候補（未接続）' />
     </ListItemButton>
   </>
 )
