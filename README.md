@@ -66,7 +66,7 @@ cd ../bookman_backend
 必要に応じて仮想環境を有効化し、DB migration と fixture 読み込みを実行します。
 
 ```console
-.\venv311\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 python manage.py migrate
 python manage.py loaddata bookman/fixtures/m_branch-data.json
 python manage.py loaddata bookman/fixtures/m_category-data.json
@@ -82,7 +82,7 @@ Bookman はフロントエンドとバックエンドを両方起動して動か
 
 ```console
 cd ../bookman_backend
-.\venv311\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 python manage.py runserver 127.0.0.1:8000
 ```
 
@@ -157,7 +157,7 @@ npm audit
 
 ```console
 cd ../bookman_backend
-.\venv311\Scripts\Activate.ps1
+.\venv\Scripts\Activate.ps1
 python manage.py test
 ```
 
