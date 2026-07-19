@@ -33,6 +33,9 @@ export const TransferDialog = ({
 }: TransferDialogProps) => {
   const sourceBranchStocks =
     selectedBook?.branchStocks.filter((branchStock) => branchStock.amount > 0) ?? []
+  const destinationBranches = branches.filter(
+    (branch) => branch.id.toString() !== formValues.fromBranch,
+  )
 
   return (
     <Dialog open={isTransferDialogOpen} onClose={onCloseTransferDialog} fullWidth maxWidth='sm'>
@@ -76,7 +79,7 @@ export const TransferDialog = ({
           disabled={isTransferring}
           onChange={onTransferInputChange}
         >
-          {branches.map((branch) => (
+          {destinationBranches.map((branch) => (
             <MenuItem key={branch.id} value={branch.id}>
               {branch.name}
             </MenuItem>

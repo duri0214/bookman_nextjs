@@ -90,10 +90,23 @@ export function useTransferDialog() {
   }
 
   const onTransferInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFormValues((currentValues) => ({
-      ...currentValues,
-      [event.target.name]: event.target.value,
-    }))
+    const { name, value } = event.target
+
+    setFormValues((currentValues) => {
+      const nextValues = {
+        ...currentValues,
+        [name]: value,
+      }
+
+      if (name === 'fromBranch' && currentValues.toBranch === value) {
+        return {
+          ...nextValues,
+          toBranch: '',
+        }
+      }
+
+      return nextValues
+    })
     setTransferErrorMessage(null)
   }
 

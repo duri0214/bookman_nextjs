@@ -111,6 +111,29 @@ describe('useTransferDialog', () => {
     expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 
+  test('移動元を変更して移動先と同じ支店になった時に移動先をクリアするべき', () => {
+    /**
+     * シナリオ:
+     * - 入力: 移動先に支店2を選択済みのフォーム。
+     * - 処理: 移動元を支店2に変更する。
+     * - 期待値: 移動元と移動先が同じにならないよう、移動先が空に戻ること。
+     */
+    const { result } = renderHook(useTransferDialog)
+
+    act(() => {
+      result.current.openTransferDialog(book)
+      result.current.onTransferInputChange({
+        target: { name: 'toBranch', value: '2' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onTransferInputChange({
+        target: { name: 'fromBranch', value: '2' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    expect(result.current.formValues.fromBranch).toBe('2')
+    expect(result.current.formValues.toBranch).toBe('')
+  })
+
   test('移動冊数が移動元所蔵数を超える時にAPIを呼ばずエラーを保持するべき', async () => {
     /**
      * シナリオ:
