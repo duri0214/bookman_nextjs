@@ -78,7 +78,7 @@ export function useTransferDialog() {
     setFormValues({
       fromBranch: firstStockedBranch?.branchId.toString() ?? '',
       toBranch: '',
-      amount: '',
+      amount: '1',
     })
     setTransferErrorMessage(null)
   }

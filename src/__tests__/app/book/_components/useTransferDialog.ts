@@ -36,7 +36,7 @@ describe('useTransferDialog', () => {
      * シナリオ:
      * - 入力: 支店別所蔵数を持つ書籍。
      * - 処理: openTransferDialog を呼び出す。
-     * - 期待値: ダイアログが開き、先頭の所蔵支店が移動元初期値になること。
+     * - 期待値: ダイアログが開き、先頭の所蔵支店と冊数1が初期値になること。
      */
     const { result } = renderHook(useTransferDialog)
 
@@ -47,6 +47,7 @@ describe('useTransferDialog', () => {
     expect(result.current.isTransferDialogOpen).toBe(true)
     expect(result.current.selectedBook).toEqual(book)
     expect(result.current.formValues.fromBranch).toBe('1')
+    expect(result.current.formValues.amount).toBe('1')
   })
 
   test('openTransferDialogが呼び出された時に0冊の支店を初期移動元にしないべき', () => {
