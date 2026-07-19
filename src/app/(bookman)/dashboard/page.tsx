@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -140,7 +139,7 @@ export default async function Page() {
                       <Typography sx={{ color: '#53606a' }}>{action.helperText}</Typography>
                     </Box>
                     {action.href ? (
-                      <Button component={Link} href={action.href} variant='outlined'>
+                      <Button href={action.href} variant='outlined'>
                         開く
                       </Button>
                     ) : (
