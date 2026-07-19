@@ -49,6 +49,28 @@ describe('useTransferDialog', () => {
     expect(result.current.formValues.fromBranch).toBe('1')
   })
 
+  test('openTransferDialogが呼び出された時に0冊の支店を初期移動元にしないべき', () => {
+    /**
+     * シナリオ:
+     * - 入力: 先頭に0冊の支店、次に在庫あり支店を持つ書籍。
+     * - 処理: openTransferDialog を呼び出す。
+     * - 期待値: 0冊支店を飛ばし、在庫あり支店が移動元初期値になること。
+     */
+    const { result } = renderHook(useTransferDialog)
+
+    act(() => {
+      result.current.openTransferDialog({
+        ...book,
+        branchStocks: [
+          { id: 3, branchId: 3, branchName: '空支店', amount: 0 },
+          { id: 4, branchId: 4, branchName: '在庫あり支店', amount: 1 },
+        ],
+      })
+    })
+
+    expect(result.current.formValues.fromBranch).toBe('4')
+  })
+
   test('onTransferが成功した時に支店間移動APIへPOSTして一覧を再取得するべき', async () => {
     /**
      * シナリオ:

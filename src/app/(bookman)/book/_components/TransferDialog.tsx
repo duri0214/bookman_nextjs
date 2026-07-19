@@ -31,6 +31,9 @@ export const TransferDialog = ({
   isTransferring,
   transferErrorMessage,
 }: TransferDialogProps) => {
+  const sourceBranchStocks =
+    selectedBook?.branchStocks.filter((branchStock) => branchStock.amount > 0) ?? []
+
   return (
     <Dialog open={isTransferDialogOpen} onClose={onCloseTransferDialog} fullWidth maxWidth='sm'>
       <DialogTitle>支店間移動</DialogTitle>
@@ -56,7 +59,7 @@ export const TransferDialog = ({
           disabled={isTransferring}
           onChange={onTransferInputChange}
         >
-          {selectedBook?.branchStocks.map((branchStock) => (
+          {sourceBranchStocks.map((branchStock) => (
             <MenuItem key={branchStock.branchId} value={branchStock.branchId}>
               {branchStock.branchName}（{branchStock.amount}冊）
             </MenuItem>

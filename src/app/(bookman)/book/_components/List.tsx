@@ -12,22 +12,26 @@ export function List({ books, onTransferClick }: Props) {
   if (!books || books.length === 0) {
     return <Typography variant='body1'>書籍データはまだありません。</Typography>
   }
-  const rows: GridRowsProp = books.map((book, index) => ({
-    id: book.id,
-    rowNumber: index + 1,
-    name: book.name,
-    authors: book.authors,
-    category: book.category?.name ?? '',
-    leadText: book.leadText,
-    totalAmount: book.totalAmount,
-    branchStocks:
-      book.branchStocks.length > 0
-        ? book.branchStocks
-            .map((branchStock) => `${branchStock.branchName}: ${branchStock.amount}冊`)
-            .join(' / ')
-        : '支店別所蔵なし',
-    publicationDate: book.publicationDate,
-  }))
+  const rows: GridRowsProp = books.map((book, index) => {
+    const stockedBranches = book.branchStocks.filter((branchStock) => branchStock.amount > 0)
+
+    return {
+      id: book.id,
+      rowNumber: index + 1,
+      name: book.name,
+      authors: book.authors,
+      category: book.category?.name ?? '',
+      leadText: book.leadText,
+      totalAmount: book.totalAmount,
+      branchStocks:
+        stockedBranches.length > 0
+          ? stockedBranches
+              .map((branchStock) => `${branchStock.branchName}: ${branchStock.amount}冊`)
+              .join(' / ')
+          : '支店別所蔵なし',
+      publicationDate: book.publicationDate,
+    }
+  })
   const columns: GridColDef[] = [
     { field: 'rowNumber', headerName: '#', width: 50 },
     { field: 'category', headerName: 'カテゴリ', width: 100 },
@@ -39,11 +43,12 @@ export function List({ books, onTransferClick }: Props) {
       sortable: false,
       renderCell: (params) => {
         const book = books.find((book) => book.id === params.id)
+        const canTransfer = !!book && book.branchStocks.some((branchStock) => branchStock.amount > 0)
         return (
           <Button
             size='small'
             variant='outlined'
-            disabled={!book || book.branchStocks.length === 0}
+            disabled={!canTransfer}
             onClick={() => book && onTransferClick(book)}
           >
             支店間移動

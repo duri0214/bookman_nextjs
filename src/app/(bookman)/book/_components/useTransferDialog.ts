@@ -64,15 +64,19 @@ export function useTransferDialog() {
   const sourceStock = useMemo(
     () =>
       selectedBook?.branchStocks.find(
-        (branchStock) => branchStock.branchId === toPositiveInteger(formValues.fromBranch),
+        (branchStock) =>
+          branchStock.branchId === toPositiveInteger(formValues.fromBranch) &&
+          branchStock.amount > 0,
       ),
     [formValues.fromBranch, selectedBook],
   )
 
   const openTransferDialog = (book: Book) => {
+    const firstStockedBranch = book.branchStocks.find((branchStock) => branchStock.amount > 0)
+
     setSelectedBook(book)
     setFormValues({
-      fromBranch: book.branchStocks[0]?.branchId.toString() ?? '',
+      fromBranch: firstStockedBranch?.branchId.toString() ?? '',
       toBranch: '',
       amount: '',
     })
