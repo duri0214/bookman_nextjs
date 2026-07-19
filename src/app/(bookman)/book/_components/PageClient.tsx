@@ -4,17 +4,21 @@ import { Alert, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { Book } from '@/resource/book'
+import { Branch } from '@/resource/branch'
 import { CreateDialog } from './CreateDialog'
 import { List } from './List'
+import { TransferDialog } from './TransferDialog'
 import { useCreateDialog } from './useCreateDialog'
+import { useTransferDialog } from './useTransferDialog'
 
 interface Props {
   books: Book[]
+  branches: Branch[]
   errorMessage: string | null
   isMockData: boolean
 }
 
-export function PageClient({ books, errorMessage, isMockData }: Props) {
+export function PageClient({ books, branches, errorMessage, isMockData }: Props) {
   const {
     isDialogOpen,
     openDialog,
@@ -25,6 +29,17 @@ export function PageClient({ books, errorMessage, isMockData }: Props) {
     isCreating,
     createErrorMessage,
   } = useCreateDialog()
+  const {
+    selectedBook,
+    isTransferDialogOpen,
+    openTransferDialog,
+    onCloseTransferDialog,
+    formValues: transferFormValues,
+    onTransferInputChange,
+    onTransfer,
+    isTransferring,
+    transferErrorMessage,
+  } = useTransferDialog()
 
   const dialogProps = {
     isDialogOpen,
@@ -55,8 +70,19 @@ export function PageClient({ books, errorMessage, isMockData }: Props) {
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             新規登録
           </Button>
-          <List books={books} />
+          <List books={books} onTransferClick={openTransferDialog} />
           <CreateDialog {...dialogProps} />
+          <TransferDialog
+            selectedBook={selectedBook}
+            branches={branches}
+            isTransferDialogOpen={isTransferDialogOpen}
+            onCloseTransferDialog={onCloseTransferDialog}
+            formValues={transferFormValues}
+            onTransferInputChange={onTransferInputChange}
+            onTransfer={onTransfer}
+            isTransferring={isTransferring}
+            transferErrorMessage={transferErrorMessage}
+          />
         </Paper>
       </Grid>
     </Grid>

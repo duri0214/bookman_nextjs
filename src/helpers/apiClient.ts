@@ -4,6 +4,7 @@ export const BOOKMAN_API_ENDPOINTS = {
   branches: 'branches/',
   books: 'books/',
   booksCreate: 'books/create/',
+  branchBookStocks: 'branch-book-stocks/',
   authors: 'authors/',
   categories: 'categories/',
 } as const

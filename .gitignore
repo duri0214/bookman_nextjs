@@ -11,6 +11,7 @@
 
 # next.js
 /.next/
+/.next.bak-*/
 /out/
 
 # production
@@ -22,6 +23,7 @@
 
 # debug
 npm-debug.log*
+next-start*.log
 yarn-debug.log*
 yarn-error.log*
 
