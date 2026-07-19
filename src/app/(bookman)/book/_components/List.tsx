@@ -32,15 +32,10 @@ export function List({ books, onTransferClick }: Props) {
     { field: 'rowNumber', headerName: '#', width: 50 },
     { field: 'category', headerName: 'カテゴリ', width: 100 },
     { field: 'name', headerName: '名前', width: 200 },
-    { field: 'authors', headerName: '著者', width: 150 },
-    { field: 'totalAmount', headerName: '合計所蔵数', width: 100 },
-    { field: 'branchStocks', headerName: '支店別所蔵数', width: 320 },
-    { field: 'leadText', headerName: 'あらすじ', width: 400 },
-    { field: 'publicationDate', headerName: '出版年月日', width: 120 },
     {
       field: 'transfer',
-      headerName: '移動',
-      width: 100,
+      headerName: '支店間移動',
+      width: 120,
       sortable: false,
       renderCell: (params) => {
         const book = books.find((book) => book.id === params.id)
@@ -51,11 +46,16 @@ export function List({ books, onTransferClick }: Props) {
             disabled={!book || book.branchStocks.length === 0}
             onClick={() => book && onTransferClick(book)}
           >
-            移動
+            支店間移動
           </Button>
         )
       },
     },
+    { field: 'authors', headerName: '著者', width: 150 },
+    { field: 'totalAmount', headerName: '合計所蔵数', width: 100 },
+    { field: 'branchStocks', headerName: '支店別所蔵数', width: 320 },
+    { field: 'leadText', headerName: 'あらすじ', width: 400 },
+    { field: 'publicationDate', headerName: '出版年月日', width: 120 },
   ]
   return (
     <>
