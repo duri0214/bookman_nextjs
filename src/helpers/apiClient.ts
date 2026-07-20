@@ -7,6 +7,7 @@ export const BOOKMAN_API_ENDPOINTS = {
   branchBookStocks: 'branch-book-stocks/',
   authors: 'authors/',
   categories: 'categories/',
+  customers: 'customers/',
 } as const
 
 export type BookmanApiEndpoint = keyof typeof BOOKMAN_API_ENDPOINTS

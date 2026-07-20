@@ -9,6 +9,7 @@ import AddHomeIcon from '@mui/icons-material/AddHome'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LayersIcon from '@mui/icons-material/Layers'
 import AssignmentIcon from '@mui/icons-material/Assignment'
+import PeopleIcon from '@mui/icons-material/People'
 
 export const mainListItems = (
   <>
@@ -36,11 +37,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='書籍管理' />
     </ListItemButton>
-    <ListItemButton disabled>
+    <ListItemButton component={Link} href='/customer'>
+      <ListItemIcon>
+        <PeopleIcon />
+      </ListItemIcon>
+      <ListItemText primary='利用者台帳' />
+    </ListItemButton>
+    <ListItemButton component={Link} href='/lending'>
       <ListItemIcon>
         <LayersIcon />
       </ListItemIcon>
-      <ListItemText primary='貸出・予約（未実装）' />
+      <ListItemText primary='貸出・返却' />
     </ListItemButton>
   </>
 )
