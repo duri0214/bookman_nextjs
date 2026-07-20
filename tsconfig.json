@@ -20,7 +20,9 @@
     "paths": {
       "@/app/book/*": ["./src/app/(bookman)/book/*"],
       "@/app/branch/*": ["./src/app/(bookman)/branch/*"],
+      "@/app/customer/*": ["./src/app/(bookman)/customer/*"],
       "@/app/dashboard/*": ["./src/app/(bookman)/dashboard/*"],
+      "@/app/lending/*": ["./src/app/(bookman)/lending/*"],
       "@/*": ["./src/*"]
     },
     "target": "ES2017"

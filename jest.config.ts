@@ -13,7 +13,9 @@ const config: Config = {
   moduleNameMapper: {
     '^@/app/book/(.*)$': '<rootDir>/src/app/(bookman)/book/$1',
     '^@/app/branch/(.*)$': '<rootDir>/src/app/(bookman)/branch/$1',
+    '^@/app/customer/(.*)$': '<rootDir>/src/app/(bookman)/customer/$1',
     '^@/app/dashboard/(.*)$': '<rootDir>/src/app/(bookman)/dashboard/$1',
+    '^@/app/lending/(.*)$': '<rootDir>/src/app/(bookman)/lending/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testEnvironment: 'jsdom',

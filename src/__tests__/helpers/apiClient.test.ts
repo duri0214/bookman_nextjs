@@ -29,7 +29,7 @@ describe('apiClient', () => {
   /**
    * シナリオ:
    * - 入力: BOOKMAN_API_BASE_URL が未設定の環境。
-   * - 処理: branches / books / booksCreate / branchBookStocks / authors / categories の endpoint URL を組み立てる。
+   * - 処理: branches / books / booksCreate / branchBookStocks / authors / categories / customers の endpoint URL を組み立てる。
    * - 期待値: 既存バックエンド仕様と同じ URL が返ること。
    */
   test('builds existing backend endpoint URLs from the default base URL', () => {
@@ -45,6 +45,7 @@ describe('apiClient', () => {
     )
     expect(getBookmanApiUrl('authors')).toBe('http://127.0.0.1:8000/bookman/api/authors/')
     expect(getBookmanApiUrl('categories')).toBe('http://127.0.0.1:8000/bookman/api/categories/')
+    expect(getBookmanApiUrl('customers')).toBe('http://127.0.0.1:8000/bookman/api/customers/')
   })
 
   /**
