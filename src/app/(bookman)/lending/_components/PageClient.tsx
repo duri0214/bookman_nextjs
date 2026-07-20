@@ -26,6 +26,7 @@ export function PageClient({
   isMockData,
 }: Props) {
   const {
+    branchBookStocks: displayBranchBookStocks,
     formValues,
     onInputChange,
     onCreate,
@@ -103,9 +104,9 @@ export function PageClient({
                 value={formValues.branchBookStock}
                 onChange={onInputChange}
                 fullWidth
-                disabled={branchBookStocks.length === 0 || isCreating}
+                disabled={displayBranchBookStocks.length === 0 || isCreating}
               >
-                {branchBookStocks.map((branchBookStock) => (
+                {displayBranchBookStocks.map((branchBookStock) => (
                   <MenuItem key={branchBookStock.id} value={branchBookStock.id}>
                     {branchBookStock.bookName} / {branchBookStock.branchName}（貸出可能{' '}
                     {branchBookStock.availableAmount}冊）

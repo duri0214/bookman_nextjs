@@ -9,12 +9,16 @@ export const dynamic = 'force-dynamic'
 export default async function Page() {
   const { customers, staffMembers, branchBookStocks, lendings, errorMessage, isMockData } =
     await getLendingPageData()
+  const pageClientKey = branchBookStocks
+    .map((branchBookStock) => `${branchBookStock.id}:${branchBookStock.availableAmount}`)
+    .join('|')
 
   return (
     <>
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <PageClient
+          key={pageClientKey}
           customers={customers}
           staffMembers={staffMembers}
           branchBookStocks={branchBookStocks}

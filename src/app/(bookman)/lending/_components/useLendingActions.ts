@@ -59,6 +59,7 @@ const parseApiErrorMessage = async (
 export function useLendingActions(branchBookStocks: BranchBookStock[]) {
   const router = useRouter()
   const defaultReturnDate = useMemo(() => new Date().toISOString().slice(0, 10), [])
+  const [displayBranchBookStocks, setDisplayBranchBookStocks] = useState(branchBookStocks)
   const [formValues, setFormValues] = useState<ILendingFormValues>({
     ...initialFormValues,
     returnDate: defaultReturnDate,
@@ -68,7 +69,7 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
   const [message, setMessage] = useState<string | null>(null)
   const [messageSeverity, setMessageSeverity] = useState<'success' | 'error'>('success')
 
-  const selectedStock = branchBookStocks.find(
+  const selectedStock = displayBranchBookStocks.find(
     (branchBookStock) => branchBookStock.id === toPositiveInteger(formValues.branchBookStock),
   )
 
@@ -114,6 +115,7 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
 
     setIsCreating(true)
     setMessage(null)
+    const branchBookStockId = toPositiveInteger(formValues.branchBookStock)
 
     try {
       const response = await fetch(LENDING_API_PATH, {
@@ -129,6 +131,16 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
         return
       }
 
+      setDisplayBranchBookStocks((currentBranchBookStocks) =>
+        currentBranchBookStocks.map((branchBookStock) =>
+          branchBookStock.id === branchBookStockId
+            ? {
+                ...branchBookStock,
+                availableAmount: Math.max(branchBookStock.availableAmount - 1, 0),
+              }
+            : branchBookStock,
+        ),
+      )
       setFormValues({ ...initialFormValues, returnDate: defaultReturnDate })
       showSuccess('貸出を登録しました。')
       router.refresh()
@@ -167,6 +179,7 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
   }
 
   return {
+    branchBookStocks: displayBranchBookStocks,
     formValues,
     onInputChange,
     onCreate,

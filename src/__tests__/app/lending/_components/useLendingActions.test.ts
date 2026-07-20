@@ -79,6 +79,40 @@ describe('useLendingActions', () => {
     expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 
+  test('onCreateが成功した時に支店別所蔵の貸出可能冊数を即時反映するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 貸出可能冊数1の支店別所蔵を選択したフォーム入力。
+     * - 処理: onCreate を呼び出す。
+     * - 期待値: 貸出成功後、画面表示用の貸出可能冊数が1冊減ること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(() => useLendingActions(branchBookStocks))
+
+    act(() => {
+      result.current.onInputChange({
+        target: { name: 'branchBookStock', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'customer', value: '20' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'contactStaff', value: '30' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    expect(result.current.branchBookStocks).toEqual([
+      {
+        ...branchBookStocks[0],
+        availableAmount: 0,
+      },
+    ])
+  })
+
   test('業務エラーcodeが返った時に画面用メッセージを保持するべき', async () => {
     /**
      * シナリオ:
