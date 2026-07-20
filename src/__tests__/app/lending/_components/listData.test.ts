@@ -37,6 +37,27 @@ describe('lending listData', () => {
     ])
   })
 
+  test('convertBranchBookStockDataが貸出可能冊数の欠落を所蔵数で補完しないべき', () => {
+    /**
+     * シナリオ:
+     * - 入力: available_amount を含まない支店別所蔵APIレスポンス。
+     * - 処理: convertBranchBookStockData を呼び出す。
+     * - 期待値: amount で補完せず、API契約違反として例外を投げること。
+     */
+    const responseWithoutAvailableAmount = {
+      id: 10,
+      branch: 1,
+      book: 2,
+      amount: 3,
+      branch_name: '中央図書館',
+      book_name: 'Bookman 入門',
+    } as Parameters<typeof convertBranchBookStockData>[0][number]
+
+    expect(() =>
+      convertBranchBookStockData([responseWithoutAvailableAmount]),
+    ).toThrow('支店別所蔵APIの available_amount が不足しています。')
+  })
+
   test('convertStaffDataが職員APIレスポンスを画面表示用データへ変換するべき', () => {
     /**
      * シナリオ:

@@ -3,7 +3,7 @@ export interface IBranchBookStockRaw {
   branch: number
   book: number
   amount: number
-  available_amount?: number
+  available_amount: number
   branch_name?: string
   book_name?: string
 }

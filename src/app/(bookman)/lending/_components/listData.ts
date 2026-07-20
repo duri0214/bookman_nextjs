@@ -80,15 +80,21 @@ const loadBookmanData = async <T>(apiUrl: string): Promise<T> => {
 export const convertBranchBookStockData = (
   branchBookStocks: IBranchBookStockRaw[],
 ): BranchBookStock[] =>
-  branchBookStocks.map((branchBookStock) => ({
-    id: branchBookStock.id,
-    branchId: branchBookStock.branch,
-    bookId: branchBookStock.book,
-    branchName: branchBookStock.branch_name ?? `支店 #${branchBookStock.branch}`,
-    bookName: branchBookStock.book_name ?? `書籍 #${branchBookStock.book}`,
-    amount: branchBookStock.amount,
-    availableAmount: branchBookStock.available_amount ?? branchBookStock.amount,
-  }))
+  branchBookStocks.map((branchBookStock) => {
+    if (typeof branchBookStock.available_amount !== 'number') {
+      throw new Error('支店別所蔵APIの available_amount が不足しています。')
+    }
+
+    return {
+      id: branchBookStock.id,
+      branchId: branchBookStock.branch,
+      bookId: branchBookStock.book,
+      branchName: branchBookStock.branch_name ?? `支店 #${branchBookStock.branch}`,
+      bookName: branchBookStock.book_name ?? `書籍 #${branchBookStock.book}`,
+      amount: branchBookStock.amount,
+      availableAmount: branchBookStock.available_amount,
+    }
+  })
 
 export const convertStaffData = (staffMembers: ILibraryStaffRaw[]): LibraryStaff[] =>
   staffMembers.map((staff) => ({
