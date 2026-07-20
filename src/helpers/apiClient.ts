@@ -8,6 +8,9 @@ export const BOOKMAN_API_ENDPOINTS = {
   authors: 'authors/',
   categories: 'categories/',
   customers: 'customers/',
+  staff: 'staff/',
+  lendings: 'lendings/',
+  lendingReturn: 'lendings/return/',
 } as const
 
 export type BookmanApiEndpoint = keyof typeof BOOKMAN_API_ENDPOINTS
