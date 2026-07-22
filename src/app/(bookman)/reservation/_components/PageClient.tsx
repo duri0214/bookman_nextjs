@@ -61,7 +61,7 @@ export function PageClient({
     branchBookStocks.length === 0
       ? '支店別所蔵データがありません。'
       : hasReservableBranchBookStock
-        ? '貸出可能冊数が0冊の支店別所蔵に予約できます。'
+        ? `${reservableBranchBookStocks.length}件の支店別所蔵が予約条件を満たしています。`
         : '貸出可能冊数が0冊の支店別所蔵がないため、現在予約できる本はありません。'
 
   const rows: GridRowsProp = reservations.map((reservation, index) => ({
@@ -155,6 +155,16 @@ export function PageClient({
           <Alert severity='info'>
             予約できるのは、同じ支店の同じ本がすべて貸出中または取り置き中で、貸出可能冊数が0冊の支店別所蔵です。
           </Alert>
+          {hasReservableBranchBookStock ? (
+            <Alert severity='success'>
+              現在、予約条件を満たした支店別所蔵が{reservableBranchBookStocks.length}
+              件あります。支店別所蔵と利用者を選択して予約登録できます。
+            </Alert>
+          ) : (
+            <Alert severity='warning'>
+              現在、予約条件を満たした支店別所蔵はありません。対象の本の貸出可能冊数が0冊になると、この画面で選択できます。
+            </Alert>
+          )}
           {message && <Alert severity={messageSeverity}>{message}</Alert>}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
