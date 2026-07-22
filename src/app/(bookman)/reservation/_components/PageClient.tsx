@@ -56,6 +56,13 @@ export function PageClient({
     messageSeverity,
     selectedStock,
   } = useReservationActions(branchBookStocks)
+  const hasReservableBranchBookStock = reservableBranchBookStocks.length > 0
+  const branchBookStockHelperText =
+    branchBookStocks.length === 0
+      ? '支店別所蔵データがありません。'
+      : hasReservableBranchBookStock
+        ? '貸出可能冊数が0冊の支店別所蔵に予約できます。'
+        : '貸出可能冊数が0冊の支店別所蔵がないため、現在予約できる本はありません。'
 
   const rows: GridRowsProp = reservations.map((reservation, index) => ({
     id: reservation.id,
@@ -155,10 +162,15 @@ export function PageClient({
                 value={formValues.branchBookStock}
                 onChange={onInputChange}
                 fullWidth
-                disabled={reservableBranchBookStocks.length === 0 || isCreating}
+                disabled={branchBookStocks.length === 0 || isCreating}
+                helperText={branchBookStockHelperText}
               >
-                {reservableBranchBookStocks.map((branchBookStock) => (
-                  <MenuItem key={branchBookStock.id} value={branchBookStock.id}>
+                {branchBookStocks.map((branchBookStock) => (
+                  <MenuItem
+                    key={branchBookStock.id}
+                    value={branchBookStock.id}
+                    disabled={branchBookStock.availableAmount > 0}
+                  >
                     {branchBookStock.bookName} / {branchBookStock.branchName}（貸出可能{' '}
                     {branchBookStock.availableAmount}冊）
                   </MenuItem>
