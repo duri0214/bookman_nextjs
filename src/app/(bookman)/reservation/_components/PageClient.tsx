@@ -156,7 +156,7 @@ export function PageClient({
             予約登録
           </Typography>
           <Alert severity='info'>
-            予約できるのは、同じ支店の同じ本がすべて貸出中または取り置き中で、貸出可能冊数が0冊の支店別所蔵です。
+            予約できるのは、同じ支店の同じ本がすべて貸出中または取り置き中で、貸出可能冊数が0冊の支店別所蔵です。同じ本を貸出中の利用者は予約できません。
           </Alert>
           {hasReservableBranchBookStock ? (
             <Alert severity='success'>
@@ -204,7 +204,7 @@ export function PageClient({
                 disabled={customers.length === 0 || isCreating || !selectedStock}
                 helperText={
                   selectedStock
-                    ? '選択した本を貸出中の利用者は予約できません。'
+                    ? '選択した本を貸出中の利用者は選択できません。'
                     : '先に支店別所蔵を選択してください。'
                 }
               >
