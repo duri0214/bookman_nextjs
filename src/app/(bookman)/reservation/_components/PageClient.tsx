@@ -159,18 +159,15 @@ export function PageClient({
             <Alert severity='success'>
               現在、予約条件を満たした支店別所蔵が{reservableBranchBookStocks.length}
               件あります。支店別所蔵と利用者を選択して予約登録できます。
-              <Typography variant='body2' sx={{ mt: 0.5 }}>
-                予約できる本は、受け取り支店において貸出可能冊数が0冊のものです。また、同じ本を貸出中の利用者は予約できません。
-              </Typography>
             </Alert>
           ) : (
             <Alert severity='warning'>
               現在、予約条件を満たした支店別所蔵はありません。対象の本の貸出可能冊数が0冊になると、この画面で選択できます。
-              <Typography variant='body2' sx={{ mt: 0.5 }}>
-                予約できる本は、受け取り支店において貸出可能冊数が0冊のものです。また、同じ本を貸出中の利用者は予約できません。
-              </Typography>
             </Alert>
           )}
+          <Typography variant='body2' color='text.secondary'>
+            予約できる本は、受け取り支店において貸出可能冊数が0冊のものです。同じ本を貸出中の利用者は予約できません。
+          </Typography>
           {message && <Alert severity={messageSeverity}>{message}</Alert>}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
