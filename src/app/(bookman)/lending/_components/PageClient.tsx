@@ -39,7 +39,8 @@ export function PageClient({
     message,
     messageSeverity,
     selectedStock,
-  } = useLendingActions(branchBookStocks)
+    selectedHeldReservation,
+  } = useLendingActions(branchBookStocks, heldReservations)
 
   const activeLendings = lendings.filter((lending) => lending.active)
   const selectedStockActiveLendingCount = selectedStock
@@ -199,6 +200,12 @@ export function PageClient({
                 </Typography>
                 <Typography variant='body2'>貸出可能 {selectedStock.availableAmount}冊</Typography>
               </Stack>
+              {selectedHeldReservation && (
+                <Typography variant='body2' color='success.main'>
+                  {selectedHeldReservation.customerName}
+                  は取り置き中のため、この本を貸出登録できます。
+                </Typography>
+              )}
             </Box>
           )}
           <Stack direction='row' sx={{ justifyContent: 'flex-end' }}>

@@ -1,6 +1,7 @@
 import { ChangeEvent } from 'react'
 import { act, renderHook } from '@testing-library/react'
 import { BranchBookStock } from '@/resource/lending'
+import { Reservation } from '@/resource/reservation'
 import { useLendingActions } from '@/app/lending/_components/useLendingActions'
 
 const mockRefresh = jest.fn()
@@ -20,6 +21,30 @@ const branchBookStocks: BranchBookStock[] = [
     bookName: 'Bookman 入門',
     amount: 3,
     availableAmount: 1,
+  },
+]
+
+const unavailableBranchBookStocks: BranchBookStock[] = [
+  {
+    ...branchBookStocks[0],
+    availableAmount: 0,
+  },
+]
+
+const heldReservations: Reservation[] = [
+  {
+    id: 8,
+    branchBookStockId: 10,
+    bookName: 'Bookman 入門',
+    branchName: '中央図書館',
+    customerId: 20,
+    customerName: '佐藤 花子',
+    status: 'held',
+    statusLabel: '取り置き中',
+    holdExpiresOn: '2026-01-27',
+    createdAt: '2026-01-20T09:00:00+09:00',
+    needsStaffFollowUp: true,
+    isExpiredHold: false,
   },
 ]
 
@@ -145,6 +170,51 @@ describe('useLendingActions', () => {
     expect(result.current.message).toBe('同じ利用者が同じ本をすでに借りています。')
     expect(result.current.messageSeverity).toBe('error')
     expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  test('取り置き中の利用者は貸出可能冊数0でも貸出登録APIへPOSTできるべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 貸出可能冊数0の支店別所蔵と、その支店別所蔵で取り置き中の利用者。
+     * - 処理: onCreate を呼び出す。
+     * - 期待値: 取り置き対象者への貸出として、貸出登録APIへPOSTすること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(() =>
+      useLendingActions(unavailableBranchBookStocks, heldReservations),
+    )
+
+    act(() => {
+      result.current.onInputChange({
+        target: { name: 'branchBookStock', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'customer', value: '20' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'contactStaff', value: '30' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    expect(result.current.selectedHeldReservation?.customerName).toBe('佐藤 花子')
+
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/lendings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        branch_book_stock: 10,
+        customer: 20,
+        contact_staff: 30,
+        return_date: '2026-01-20',
+      }),
+    })
+    expect(result.current.message).toBe('貸出を登録しました。')
   })
 
   test('onReturnが成功した時に返却APIへPOSTして一覧を再取得するべき', async () => {
