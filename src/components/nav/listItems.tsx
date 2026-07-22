@@ -10,6 +10,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LayersIcon from '@mui/icons-material/Layers'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import PeopleIcon from '@mui/icons-material/People'
+import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 
 export const mainListItems = (
   <>
@@ -49,6 +50,12 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='貸出・返却' />
     </ListItemButton>
+    <ListItemButton component={Link} href='/reservation'>
+      <ListItemIcon>
+        <EventAvailableIcon />
+      </ListItemIcon>
+      <ListItemText primary='予約・取り置き' />
+    </ListItemButton>
   </>
 )
 
@@ -63,11 +70,11 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary='今月の貸出（未接続）' />
     </ListItemButton>
-    <ListItemButton disabled>
+    <ListItemButton component={Link} href='/reservation'>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary='予約状況（未接続）' />
+      <ListItemText primary='予約状況' />
     </ListItemButton>
     <ListItemButton disabled>
       <ListItemIcon>

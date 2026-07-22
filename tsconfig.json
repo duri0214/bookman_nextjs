@@ -23,6 +23,7 @@
       "@/app/customer/*": ["./src/app/(bookman)/customer/*"],
       "@/app/dashboard/*": ["./src/app/(bookman)/dashboard/*"],
       "@/app/lending/*": ["./src/app/(bookman)/lending/*"],
+      "@/app/reservation/*": ["./src/app/(bookman)/reservation/*"],
       "@/*": ["./src/*"]
     },
     "target": "ES2017"

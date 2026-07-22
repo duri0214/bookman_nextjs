@@ -2,7 +2,12 @@
 
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BranchBookStock, ILendingFormValues, ILendingRequest } from '@/resource/lending'
+import {
+  BranchBookStock,
+  ILendingFormValues,
+  ILendingRequest,
+  ILendingReturnResponseRaw,
+} from '@/resource/lending'
 
 const LENDING_API_PATH = '/api/bookman/lendings'
 const LENDING_RETURN_API_PATH = '/api/bookman/lendings/return'
@@ -169,7 +174,17 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
         return
       }
 
-      showSuccess('返却を受け付けました。')
+      const responseBody = (
+        typeof response.json === 'function' ? await response.json().catch(() => null) : null
+      ) as ILendingReturnResponseRaw | null
+      const heldReservation = responseBody?.held_reservation
+      if (heldReservation) {
+        const customerName = heldReservation.customer_name ?? '予約利用者'
+        const bookName = heldReservation.book_name ? `（${heldReservation.book_name}）` : ''
+        showSuccess(`${customerName}に貸し出せるようになりました${bookName}。`)
+      } else {
+        showSuccess('返却を受け付けました。')
+      }
       router.refresh()
     } catch {
       showError('返却処理に失敗しました。バックエンドの状態を確認してください。')

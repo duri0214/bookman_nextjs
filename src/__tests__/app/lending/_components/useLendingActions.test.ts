@@ -171,4 +171,33 @@ describe('useLendingActions', () => {
     expect(result.current.message).toBe('返却を受け付けました。')
     expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
+
+  test('onReturnが取り置き予約を返した時に貸出可能メッセージを表示するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 返却APIが held_reservation を含む成功レスポンスを返す状態。
+     * - 処理: onReturn を呼び出す。
+     * - 期待値: 予約利用者に貸し出せるようになった旨のメッセージを表示すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        held_reservation: {
+          id: 8,
+          customer_name: '佐藤 花子',
+          book_name: 'Bookman 入門',
+          branch_name: '中央図書館',
+          hold_expires_on: '2026-01-27',
+        },
+      }),
+    } as Response)
+    const { result } = renderHook(() => useLendingActions(branchBookStocks))
+
+    await act(async () => {
+      await result.current.onReturn(5)
+    })
+
+    expect(result.current.message).toBe('佐藤 花子に貸し出せるようになりました（Bookman 入門）。')
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
 })
