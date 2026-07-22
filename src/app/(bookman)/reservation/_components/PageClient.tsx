@@ -156,7 +156,7 @@ export function PageClient({
             予約登録
           </Typography>
           <Alert severity='info'>
-            予約できるのは、同じ支店にある本に貸出可能冊数が残っていない場合です。また、同じ本を貸出中の利用者は予約できません。
+            予約できるのは、選択した支店別所蔵の貸出可能冊数が0冊の場合です。また、同じ本を貸出中の利用者は予約できません。
           </Alert>
           {hasReservableBranchBookStock ? (
             <Alert severity='success'>
