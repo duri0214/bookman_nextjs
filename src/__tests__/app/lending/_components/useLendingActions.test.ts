@@ -200,4 +200,45 @@ describe('useLendingActions', () => {
     expect(result.current.message).toBe('佐藤 花子に貸し出せるようになりました（Bookman 入門）。')
     expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
+
+  test('branchBookStocksのprops更新時にフラッシュメッセージを維持したまま一覧を同期するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 貸出登録成功後に、親から更新後の支店別所蔵propsが渡る状態。
+     * - 処理: useLendingActions を rerender する。
+     * - 期待値: 支店別所蔵表示はpropsに同期され、登録成功メッセージは維持されること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result, rerender } = renderHook(({ stocks }) => useLendingActions(stocks), {
+      initialProps: { stocks: branchBookStocks },
+    })
+
+    act(() => {
+      result.current.onInputChange({
+        target: { name: 'branchBookStock', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'customer', value: '20' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'contactStaff', value: '30' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    rerender({
+      stocks: [
+        {
+          ...branchBookStocks[0],
+          availableAmount: 0,
+        },
+      ],
+    })
+
+    expect(result.current.branchBookStocks[0].availableAmount).toBe(0)
+    expect(result.current.message).toBe('貸出を登録しました。')
+  })
 })

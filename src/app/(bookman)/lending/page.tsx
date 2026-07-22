@@ -16,17 +16,12 @@ export default async function Page() {
     errorMessage,
     isMockData,
   } = await getLendingPageData()
-  const pageClientKey = branchBookStocks
-    .map((branchBookStock) => `${branchBookStock.id}:${branchBookStock.availableAmount}`)
-    .concat(heldReservations.map((reservation) => `held:${reservation.id}`))
-    .join('|')
 
   return (
     <>
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <PageClient
-          key={pageClientKey}
           customers={customers}
           staffMembers={staffMembers}
           branchBookStocks={branchBookStocks}
