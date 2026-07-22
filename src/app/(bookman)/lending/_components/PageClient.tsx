@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { Customer } from '@/resource/customer'
 import { BranchBookStock, Lending, LibraryStaff } from '@/resource/lending'
+import { Reservation } from '@/resource/reservation'
 import { useLendingActions } from './useLendingActions'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
   staffMembers: LibraryStaff[]
   branchBookStocks: BranchBookStock[]
   lendings: Lending[]
+  heldReservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
 }
@@ -22,6 +24,7 @@ export function PageClient({
   staffMembers,
   branchBookStocks,
   lendings,
+  heldReservations,
   errorMessage,
   isMockData,
 }: Props) {
@@ -94,6 +97,20 @@ export function PageClient({
           <Typography component='h2' variant='h6'>
             貸出登録
           </Typography>
+          {heldReservations.length > 0 && (
+            <Alert severity='info'>
+              取り置き中の利用者が{heldReservations.length}
+              名います。取り置き分は貸出可能冊数から差し引かれています。
+              <Typography variant='body2' sx={{ mt: 0.5 }}>
+                {heldReservations
+                  .map(
+                    (reservation) =>
+                      `${reservation.bookName} / ${reservation.branchName}: ${reservation.customerName}`,
+                  )
+                  .join('、')}
+              </Typography>
+            </Alert>
+          )}
           {message && <Alert severity={messageSeverity}>{message}</Alert>}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>

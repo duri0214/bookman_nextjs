@@ -7,10 +7,18 @@ import { getLendingPageData } from './_components/listData'
 export const dynamic = 'force-dynamic'
 
 export default async function Page() {
-  const { customers, staffMembers, branchBookStocks, lendings, errorMessage, isMockData } =
-    await getLendingPageData()
+  const {
+    customers,
+    staffMembers,
+    branchBookStocks,
+    lendings,
+    heldReservations,
+    errorMessage,
+    isMockData,
+  } = await getLendingPageData()
   const pageClientKey = branchBookStocks
     .map((branchBookStock) => `${branchBookStock.id}:${branchBookStock.availableAmount}`)
+    .concat(heldReservations.map((reservation) => `held:${reservation.id}`))
     .join('|')
 
   return (
@@ -23,6 +31,7 @@ export default async function Page() {
           staffMembers={staffMembers}
           branchBookStocks={branchBookStocks}
           lendings={lendings}
+          heldReservations={heldReservations}
           errorMessage={errorMessage}
           isMockData={isMockData}
         />

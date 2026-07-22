@@ -1,5 +1,6 @@
 import {
   convertBranchBookStockData,
+  convertHeldReservationData,
   convertLendingData,
   convertStaffData,
 } from '@/app/lending/_components/listData'
@@ -53,9 +54,9 @@ describe('lending listData', () => {
       book_name: 'Bookman 入門',
     } as Parameters<typeof convertBranchBookStockData>[0][number]
 
-    expect(() =>
-      convertBranchBookStockData([responseWithoutAvailableAmount]),
-    ).toThrow('支店別所蔵APIの available_amount が不足しています。')
+    expect(() => convertBranchBookStockData([responseWithoutAvailableAmount])).toThrow(
+      '支店別所蔵APIの available_amount が不足しています。',
+    )
   })
 
   test('convertStaffDataが職員APIレスポンスを画面表示用データへ変換するべき', () => {
@@ -108,6 +109,53 @@ describe('lending listData', () => {
         contactStaffName: '田中 職員',
         lendingDate: '2026-01-20',
         returnedAt: null,
+      },
+    ])
+  })
+
+  test('convertHeldReservationDataが取り置き中予約だけを貸出画面用データへ変換するべき', () => {
+    /**
+     * シナリオ:
+     * - 入力: 取り置き中と取消済みを含む予約APIレスポンス。
+     * - 処理: convertHeldReservationData を呼び出す。
+     * - 期待値: 取り置き中だけが貸出可能冊数の補足表示用データへ変換されること。
+     */
+    expect(
+      convertHeldReservationData([
+        {
+          id: 8,
+          branch_book_stock: 10,
+          book_name: 'Bookman 入門',
+          branch_name: '中央図書館',
+          customer: 20,
+          customer_name: '佐藤 花子',
+          status: 'held',
+          hold_expires_on: '2026-01-27',
+          created_at: '2026-01-20T09:00:00+09:00',
+        },
+        {
+          id: 9,
+          branch_book_stock: 10,
+          customer: 21,
+          status: 'canceled',
+          hold_expires_on: null,
+          created_at: '2026-01-20T09:00:00+09:00',
+        },
+      ]),
+    ).toEqual([
+      {
+        id: 8,
+        branchBookStockId: 10,
+        bookName: 'Bookman 入門',
+        branchName: '中央図書館',
+        customerId: 20,
+        customerName: '佐藤 花子',
+        status: 'held',
+        statusLabel: '取り置き中',
+        holdExpiresOn: '2026-01-27',
+        createdAt: '2026-01-20T09:00:00+09:00',
+        needsStaffFollowUp: true,
+        isExpiredHold: false,
       },
     ])
   })

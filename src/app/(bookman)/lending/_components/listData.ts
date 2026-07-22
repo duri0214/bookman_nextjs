@@ -8,6 +8,7 @@ import {
   Lending,
   LibraryStaff,
 } from '@/resource/lending'
+import { IReservationRaw, Reservation } from '@/resource/reservation'
 import { convertCustomerData } from '@/app/customer/_components/listData'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
@@ -60,11 +61,34 @@ const MOCK_LENDINGS: ILendingRaw[] = [
   },
 ]
 
+const MOCK_RESERVATIONS: IReservationRaw[] = [
+  {
+    id: 1,
+    branch_book_stock: 1,
+    book_name: 'Bookman 入門',
+    branch_name: '中央図書館',
+    customer: 2,
+    customer_name: '佐藤 花子',
+    status: 'held',
+    hold_expires_on: '2026-01-27',
+    created_at: '2026-01-20T09:00:00+09:00',
+  },
+]
+
+const RESERVATION_STATUS_LABELS = {
+  waiting: '予約待ち',
+  held: '取り置き中',
+  canceled: '取消済み',
+  expired: '期限切れ',
+  fulfilled: '貸出済み',
+} as const
+
 interface LendingPageData {
   customers: Customer[]
   staffMembers: LibraryStaff[]
   branchBookStocks: BranchBookStock[]
   lendings: Lending[]
+  heldReservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
 }
@@ -120,36 +144,64 @@ export const convertLendingData = (lendings: ILendingRaw[]): Lending[] =>
     returnedAt: lending.returned_at ?? null,
   }))
 
+export const convertHeldReservationData = (reservations: IReservationRaw[]): Reservation[] =>
+  reservations
+    .filter((reservation) => reservation.status === 'held')
+    .map((reservation) => ({
+      id: reservation.id,
+      branchBookStockId: reservation.branch_book_stock,
+      bookName: reservation.book_name ?? `支店別所蔵 #${reservation.branch_book_stock}`,
+      branchName: reservation.branch_name ?? '',
+      customerId: reservation.customer,
+      customerName: reservation.customer_name ?? `利用者 #${reservation.customer}`,
+      status: reservation.status,
+      statusLabel: RESERVATION_STATUS_LABELS[reservation.status],
+      holdExpiresOn: reservation.hold_expires_on,
+      createdAt: reservation.created_at,
+      needsStaffFollowUp: true,
+      isExpiredHold: false,
+    }))
+
 const buildData = (
   customers: ICustomerRaw[],
   staffMembers: ILibraryStaffRaw[],
   branchBookStocks: IBranchBookStockRaw[],
   lendings: ILendingRaw[],
+  reservations: IReservationRaw[],
   isMockData: boolean,
 ): LendingPageData => ({
   customers: convertCustomerData(customers),
   staffMembers: convertStaffData(staffMembers),
   branchBookStocks: convertBranchBookStockData(branchBookStocks),
   lendings: convertLendingData(lendings),
+  heldReservations: convertHeldReservationData(reservations),
   errorMessage: null,
   isMockData,
 })
 
 export const getLendingPageData = async (): Promise<LendingPageData> => {
   try {
-    const [customers, staffMembers, branchBookStocks, lendings] = await Promise.all([
+    const [customers, staffMembers, branchBookStocks, lendings, reservations] = await Promise.all([
       loadBookmanData<ICustomerRaw[]>(getBookmanApiUrl('customers')),
       loadBookmanData<ILibraryStaffRaw[]>(getBookmanApiUrl('staff')),
       loadBookmanData<IBranchBookStockRaw[]>(getBookmanApiUrl('branchBookStocks')),
       loadBookmanData<ILendingRaw[]>(getBookmanApiUrl('lendings')),
+      loadBookmanData<IReservationRaw[]>(getBookmanApiUrl('reservations')),
     ])
 
-    return buildData(customers, staffMembers, branchBookStocks, lendings, false)
+    return buildData(customers, staffMembers, branchBookStocks, lendings, reservations, false)
   } catch (e) {
     console.error('貸出データの取得に失敗しました: ', e)
 
     if (USE_MOCK_DATA) {
-      return buildData(MOCK_CUSTOMERS, MOCK_STAFF, MOCK_BRANCH_BOOK_STOCKS, MOCK_LENDINGS, true)
+      return buildData(
+        MOCK_CUSTOMERS,
+        MOCK_STAFF,
+        MOCK_BRANCH_BOOK_STOCKS,
+        MOCK_LENDINGS,
+        MOCK_RESERVATIONS,
+        true,
+      )
     }
 
     return {
@@ -157,6 +209,7 @@ export const getLendingPageData = async (): Promise<LendingPageData> => {
       staffMembers: [],
       branchBookStocks: [],
       lendings: [],
+      heldReservations: [],
       errorMessage:
         '貸出データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
       isMockData: false,
