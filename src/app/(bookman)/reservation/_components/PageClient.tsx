@@ -152,6 +152,9 @@ export function PageClient({
           <Typography component='h2' variant='h6'>
             予約登録
           </Typography>
+          <Alert severity='info'>
+            予約できるのは、同じ支店の同じ本がすべて貸出中または取り置き中で、貸出可能冊数が0冊の支店別所蔵です。
+          </Alert>
           {message && <Alert severity={messageSeverity}>{message}</Alert>}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
