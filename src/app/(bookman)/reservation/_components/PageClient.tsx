@@ -5,13 +5,14 @@ import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { Customer } from '@/resource/customer'
-import { BranchBookStock } from '@/resource/lending'
+import { BranchBookStock, Lending } from '@/resource/lending'
 import { Reservation } from '@/resource/reservation'
 import { useReservationActions } from './useReservationActions'
 
 interface Props {
   customers: Customer[]
   branchBookStocks: BranchBookStock[]
+  lendings: Lending[]
   reservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
@@ -38,6 +39,7 @@ const statusColor = (
 export function PageClient({
   customers,
   branchBookStocks,
+  lendings,
   reservations,
   errorMessage,
   isMockData,
@@ -55,7 +57,8 @@ export function PageClient({
     message,
     messageSeverity,
     selectedStock,
-  } = useReservationActions(branchBookStocks)
+    customersLendingSelectedBook,
+  } = useReservationActions(branchBookStocks, lendings)
   const hasReservableBranchBookStock = reservableBranchBookStocks.length > 0
   const branchBookStockHelperText =
     branchBookStocks.length === 0
@@ -198,10 +201,19 @@ export function PageClient({
                 value={formValues.customer}
                 onChange={onInputChange}
                 fullWidth
-                disabled={customers.length === 0 || isCreating}
+                disabled={customers.length === 0 || isCreating || !selectedStock}
+                helperText={
+                  selectedStock
+                    ? '選択した本を貸出中の利用者は予約できません。'
+                    : '先に支店別所蔵を選択してください。'
+                }
               >
                 {customers.map((customer) => (
-                  <MenuItem key={customer.id} value={customer.id}>
+                  <MenuItem
+                    key={customer.id}
+                    value={customer.id}
+                    disabled={customersLendingSelectedBook.has(customer.id)}
+                  >
                     {customer.name}（上限 {customer.maxLendingCount}冊）
                   </MenuItem>
                 ))}

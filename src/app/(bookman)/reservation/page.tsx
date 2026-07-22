@@ -5,7 +5,7 @@ import { PageClient } from './_components/PageClient'
 import { getReservationPageData } from './_components/listData'
 
 export default async function ReservationPage() {
-  const { customers, branchBookStocks, reservations, errorMessage, isMockData } =
+  const { customers, branchBookStocks, lendings, reservations, errorMessage, isMockData } =
     await getReservationPageData()
 
   return (
@@ -15,6 +15,7 @@ export default async function ReservationPage() {
         <PageClient
           customers={customers}
           branchBookStocks={branchBookStocks}
+          lendings={lendings}
           reservations={reservations}
           errorMessage={errorMessage}
           isMockData={isMockData}

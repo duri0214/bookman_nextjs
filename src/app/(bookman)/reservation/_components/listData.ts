@@ -1,9 +1,9 @@
 import { getBookmanApiUrl } from '@/helpers/apiClient'
 import { Customer, ICustomerRaw } from '@/resource/customer'
-import { BranchBookStock, IBranchBookStockRaw } from '@/resource/lending'
+import { BranchBookStock, IBranchBookStockRaw, ILendingRaw, Lending } from '@/resource/lending'
 import { IReservationRaw, Reservation, ReservationStatus } from '@/resource/reservation'
 import { convertCustomerData } from '@/app/customer/_components/listData'
-import { convertBranchBookStockData } from '@/app/lending/_components/listData'
+import { convertBranchBookStockData, convertLendingData } from '@/app/lending/_components/listData'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
@@ -47,6 +47,23 @@ const MOCK_RESERVATIONS: IReservationRaw[] = [
   },
 ]
 
+const MOCK_LENDINGS: ILendingRaw[] = [
+  {
+    id: 1,
+    branch_book_stock: 1,
+    customer: 1,
+    contact_staff: 1,
+    return_date: '2026-01-30',
+    active: true,
+    book_name: 'Bookman 入門',
+    branch_name: '中央図書館',
+    customer_name: '山田 太郎',
+    contact_staff_name: '田中 職員',
+    lending_date: '2026-01-20',
+    returned_at: null,
+  },
+]
+
 const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
   waiting: '予約待ち',
   held: '取り置き中',
@@ -58,6 +75,7 @@ const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
 interface ReservationPageData {
   customers: Customer[]
   branchBookStocks: BranchBookStock[]
+  lendings: Lending[]
   reservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
@@ -99,11 +117,13 @@ export const convertReservationData = (reservations: IReservationRaw[]): Reserva
 const buildData = (
   customers: ICustomerRaw[],
   branchBookStocks: IBranchBookStockRaw[],
+  lendings: ILendingRaw[],
   reservations: IReservationRaw[],
   isMockData: boolean,
 ): ReservationPageData => ({
   customers: convertCustomerData(customers),
   branchBookStocks: convertBranchBookStockData(branchBookStocks),
+  lendings: convertLendingData(lendings),
   reservations: convertReservationData(reservations),
   errorMessage: null,
   isMockData,
@@ -111,23 +131,31 @@ const buildData = (
 
 export const getReservationPageData = async (): Promise<ReservationPageData> => {
   try {
-    const [customers, branchBookStocks, reservations] = await Promise.all([
+    const [customers, branchBookStocks, lendings, reservations] = await Promise.all([
       loadBookmanData<ICustomerRaw[]>(getBookmanApiUrl('customers')),
       loadBookmanData<IBranchBookStockRaw[]>(getBookmanApiUrl('branchBookStocks')),
+      loadBookmanData<ILendingRaw[]>(getBookmanApiUrl('lendings')),
       loadBookmanData<IReservationRaw[]>(getBookmanApiUrl('reservations')),
     ])
 
-    return buildData(customers, branchBookStocks, reservations, false)
+    return buildData(customers, branchBookStocks, lendings, reservations, false)
   } catch (e) {
     console.error('予約データの取得に失敗しました: ', e)
 
     if (USE_MOCK_DATA) {
-      return buildData(MOCK_CUSTOMERS, MOCK_BRANCH_BOOK_STOCKS, MOCK_RESERVATIONS, true)
+      return buildData(
+        MOCK_CUSTOMERS,
+        MOCK_BRANCH_BOOK_STOCKS,
+        MOCK_LENDINGS,
+        MOCK_RESERVATIONS,
+        true,
+      )
     }
 
     return {
       customers: [],
       branchBookStocks: [],
+      lendings: [],
       reservations: [],
       errorMessage:
         '予約データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',

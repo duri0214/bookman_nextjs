@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BranchBookStock } from '@/resource/lending'
+import { BranchBookStock, Lending } from '@/resource/lending'
 import { IReservationFormValues, IReservationRequest } from '@/resource/reservation'
 
 const RESERVATION_API_PATH = '/api/bookman/reservations'
@@ -53,7 +53,7 @@ const parseApiErrorMessage = async (
   return fallbackMessage
 }
 
-export function useReservationActions(branchBookStocks: BranchBookStock[]) {
+export function useReservationActions(branchBookStocks: BranchBookStock[], lendings: Lending[]) {
   const router = useRouter()
   const reservableBranchBookStocks = useMemo(
     () => branchBookStocks.filter((branchBookStock) => branchBookStock.availableAmount <= 0),
@@ -68,6 +68,17 @@ export function useReservationActions(branchBookStocks: BranchBookStock[]) {
 
   const selectedStock = branchBookStocks.find(
     (branchBookStock) => branchBookStock.id === toPositiveInteger(formValues.branchBookStock),
+  )
+  const customersLendingSelectedBook = new Set(
+    lendings
+      .filter((lending) => lending.active)
+      .filter((lending) => {
+        const lendingStock = branchBookStocks.find(
+          (branchBookStock) => branchBookStock.id === lending.branchBookStockId,
+        )
+        return selectedStock !== undefined && lendingStock?.bookId === selectedStock.bookId
+      })
+      .map((lending) => lending.customerId),
   )
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +104,10 @@ export function useReservationActions(branchBookStocks: BranchBookStock[]) {
 
     if (selectedStock && selectedStock.availableAmount > 0) {
       return '対象の本は貸出可能冊数が残っているため予約できません。貸出画面から貸出登録してください。'
+    }
+
+    if (customersLendingSelectedBook.has(toPositiveInteger(formValues.customer) ?? 0)) {
+      return '同じ本を貸出中の利用者は予約できません。'
     }
 
     return null
@@ -202,5 +217,6 @@ export function useReservationActions(branchBookStocks: BranchBookStock[]) {
     message,
     messageSeverity,
     selectedStock,
+    customersLendingSelectedBook,
   }
 }

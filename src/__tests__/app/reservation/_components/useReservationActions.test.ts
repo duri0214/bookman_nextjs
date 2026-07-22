@@ -1,6 +1,6 @@
 import { ChangeEvent } from 'react'
 import { act, renderHook } from '@testing-library/react'
-import { BranchBookStock } from '@/resource/lending'
+import { BranchBookStock, Lending } from '@/resource/lending'
 import { useReservationActions } from '@/app/reservation/_components/useReservationActions'
 
 const mockRefresh = jest.fn()
@@ -32,6 +32,23 @@ const branchBookStocks: BranchBookStock[] = [
   },
 ]
 
+const lendings: Lending[] = [
+  {
+    id: 5,
+    branchBookStockId: 10,
+    customerId: 20,
+    contactStaffId: 30,
+    returnDate: '2026-01-30',
+    active: true,
+    bookName: 'Bookman 入門',
+    branchName: '中央図書館',
+    customerName: '山田 太郎',
+    contactStaffName: '田中 職員',
+    lendingDate: '2026-01-20',
+    returnedAt: null,
+  },
+]
+
 describe('useReservationActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -46,7 +63,7 @@ describe('useReservationActions', () => {
      * - 期待値: 数値化したpayloadで予約登録APIへPOSTし、一覧を再取得すること。
      */
     jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
-    const { result } = renderHook(() => useReservationActions(branchBookStocks))
+    const { result } = renderHook(() => useReservationActions(branchBookStocks, []))
 
     act(() => {
       result.current.onInputChange({
@@ -82,7 +99,7 @@ describe('useReservationActions', () => {
      * - 処理: onCreate を呼び出す。
      * - 期待値: 予約登録APIを呼ばず、貸出登録へ誘導するエラーを表示すること。
      */
-    const { result } = renderHook(() => useReservationActions(branchBookStocks))
+    const { result } = renderHook(() => useReservationActions(branchBookStocks, []))
 
     act(() => {
       result.current.onInputChange({
@@ -111,7 +128,7 @@ describe('useReservationActions', () => {
      * - 期待値: 予約取消APIへPOSTし、一覧を再取得すること。
      */
     jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
-    const { result } = renderHook(() => useReservationActions(branchBookStocks))
+    const { result } = renderHook(() => useReservationActions(branchBookStocks, []))
 
     await act(async () => {
       await result.current.onCancel(7)
@@ -126,5 +143,32 @@ describe('useReservationActions', () => {
     })
     expect(result.current.message).toBe('予約を取り消しました。')
     expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  test('同じ本を貸出中の利用者は予約登録APIへPOSTしないべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 選択した支店別所蔵の本をすでに貸出中の利用者。
+     * - 処理: onCreate を呼び出す。
+     * - 期待値: 予約登録APIを呼ばず、同じ本を貸出中の利用者は予約できないメッセージを表示すること。
+     */
+    const { result } = renderHook(() => useReservationActions(branchBookStocks, lendings))
+
+    act(() => {
+      result.current.onInputChange({
+        target: { name: 'branchBookStock', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'customer', value: '20' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(result.current.message).toBe('同じ本を貸出中の利用者は予約できません。')
+    expect(result.current.customersLendingSelectedBook.has(20)).toBe(true)
   })
 })
