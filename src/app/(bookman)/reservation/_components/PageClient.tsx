@@ -274,6 +274,9 @@ export function PageClient({
               <ToggleButton value='all'>すべて</ToggleButton>
             </ToggleButtonGroup>
           </Stack>
+          <Typography variant='body2' color='text.secondary'>
+            取り置き期間は1週間です。
+          </Typography>
           {filteredReservations.length === 0 ? (
             <Typography variant='body1'>
               {reservations.length === 0
