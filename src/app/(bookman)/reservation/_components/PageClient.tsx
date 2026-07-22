@@ -1,9 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { Alert, Box, Button, Chip, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { Customer } from '@/resource/customer'
 import { BranchBookStock, Lending } from '@/resource/lending'
 import { Reservation } from '@/resource/reservation'
@@ -17,6 +20,8 @@ interface Props {
   errorMessage: string | null
   isMockData: boolean
 }
+
+type ReservationFilter = 'open' | 'all'
 
 const statusColor = (
   status: Reservation['status'],
@@ -59,6 +64,7 @@ export function PageClient({
     selectedStock,
     customersLendingSelectedBook,
   } = useReservationActions(branchBookStocks, lendings)
+  const [reservationFilter, setReservationFilter] = useState<ReservationFilter>('open')
   const hasReservableBranchBookStock = reservableBranchBookStocks.length > 0
   const branchBookStockHelperText =
     branchBookStocks.length === 0
@@ -67,7 +73,14 @@ export function PageClient({
         ? `${reservableBranchBookStocks.length}件の支店別所蔵が予約条件を満たしています。`
         : '貸出可能冊数が0冊の支店別所蔵がないため、現在予約できる本はありません。'
 
-  const rows: GridRowsProp = reservations.map((reservation, index) => ({
+  const filteredReservations = reservations.filter((reservation) => {
+    if (reservationFilter === 'all') {
+      return true
+    }
+    return reservation.status === 'waiting' || reservation.status === 'held'
+  })
+
+  const rows: GridRowsProp = filteredReservations.map((reservation, index) => ({
     id: reservation.id,
     rowNumber: index + 1,
     bookName: reservation.bookName,
@@ -238,11 +251,35 @@ export function PageClient({
       </Grid>
       <Grid size={{ xs: 12 }}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography component='h2' variant='h6'>
-            予約・取り置き一覧
-          </Typography>
-          {reservations.length === 0 ? (
-            <Typography variant='body1'>予約データはまだありません。</Typography>
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={1.5}
+            sx={{ justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' } }}
+          >
+            <Typography component='h2' variant='h6'>
+              予約・取り置き一覧
+            </Typography>
+            <ToggleButtonGroup
+              value={reservationFilter}
+              exclusive
+              size='small'
+              onChange={(_, value: ReservationFilter | null) => {
+                if (value) {
+                  setReservationFilter(value)
+                }
+              }}
+              aria-label='予約一覧フィルタ'
+            >
+              <ToggleButton value='open'>未完了のみ</ToggleButton>
+              <ToggleButton value='all'>すべて</ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+          {filteredReservations.length === 0 ? (
+            <Typography variant='body1'>
+              {reservations.length === 0
+                ? '予約データはまだありません。'
+                : '選択中のフィルタに該当する予約データはありません。'}
+            </Typography>
           ) : (
             <Box sx={{ width: '100%' }}>
               <DataGrid columns={columns} rows={rows} />
