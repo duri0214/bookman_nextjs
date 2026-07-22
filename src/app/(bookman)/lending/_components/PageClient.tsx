@@ -42,6 +42,13 @@ export function PageClient({
   } = useLendingActions(branchBookStocks)
 
   const activeLendings = lendings.filter((lending) => lending.active)
+  const selectedStockActiveLendingCount = selectedStock
+    ? activeLendings.filter((lending) => lending.branchBookStockId === selectedStock.id).length
+    : 0
+  const selectedStockHeldReservationCount = selectedStock
+    ? heldReservations.filter((reservation) => reservation.branchBookStockId === selectedStock.id)
+        .length
+    : 0
   const rows: GridRowsProp = activeLendings.map((lending, index) => ({
     id: lending.id,
     rowNumber: index + 1,
@@ -180,10 +187,19 @@ export function PageClient({
             </Grid>
           </Grid>
           {selectedStock && (
-            <Typography variant='body2' color='text.secondary'>
-              {selectedStock.bookName} / {selectedStock.branchName} は貸出可能{' '}
-              {selectedStock.availableAmount}冊です。
-            </Typography>
+            <Box sx={{ display: 'grid', gap: 0.5 }}>
+              <Typography variant='body2' color='text.secondary'>
+                {selectedStock.bookName} / {selectedStock.branchName} の内訳
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                <Typography variant='body2'>所蔵数 {selectedStock.amount}冊</Typography>
+                <Typography variant='body2'>貸出中 {selectedStockActiveLendingCount}冊</Typography>
+                <Typography variant='body2'>
+                  取り置き中 {selectedStockHeldReservationCount}冊
+                </Typography>
+                <Typography variant='body2'>貸出可能 {selectedStock.availableAmount}冊</Typography>
+              </Stack>
+            </Box>
           )}
           <Stack direction='row' sx={{ justifyContent: 'flex-end' }}>
             <Button variant='contained' onClick={onCreate} disabled={isCreating}>
