@@ -13,12 +13,22 @@ class JsonResponse {
   private body: unknown
 
   constructor(body: unknown, init?: ResponseInit) {
+    if (init?.status === 204 && body !== null) {
+      throw new TypeError('Response with null body status cannot have body')
+    }
     this.body = body
     this.status = init?.status ?? 200
   }
 
   async json() {
     return this.body
+  }
+
+  async text() {
+    if (this.body === null) {
+      return ''
+    }
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
   }
 
   static json(body: unknown, init?: ResponseInit) {
@@ -87,6 +97,7 @@ describe('search-conditions detail route', () => {
     )
 
     expect(response.status).toBe(204)
+    expect(await response.text()).toBe('')
     expect(global.fetch).toHaveBeenCalledWith(
       'http://127.0.0.1:8000/bookman/api/search-conditions/7/?staff=10',
       { method: 'DELETE', cache: 'no-store' },

@@ -39,6 +39,9 @@ export async function PATCH(
       cache: 'no-store',
     })
     const responseText = await response.text()
+    if (response.status === 204) {
+      return new Response(null, { status: response.status })
+    }
 
     return Response.json(parseResponseBody(responseText), { status: response.status })
   } catch {
