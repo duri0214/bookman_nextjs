@@ -17,6 +17,7 @@ const config: Config = {
     '^@/app/dashboard/(.*)$': '<rootDir>/src/app/(bookman)/dashboard/$1',
     '^@/app/lending/(.*)$': '<rootDir>/src/app/(bookman)/lending/$1',
     '^@/app/reservation/(.*)$': '<rootDir>/src/app/(bookman)/reservation/$1',
+    '^@/app/staff/(.*)$': '<rootDir>/src/app/(bookman)/staff/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testEnvironment: 'jsdom',
