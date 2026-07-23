@@ -27,6 +27,10 @@ export async function DELETE(_request: Request, { params }: Params) {
       cache: 'no-store',
     })
     const responseText = await response.text()
+    if (!responseText) {
+      return new Response(null, { status: response.status })
+    }
+
     const responseBody = parseResponseBody(responseText)
 
     return Response.json(responseBody, { status: response.status })
