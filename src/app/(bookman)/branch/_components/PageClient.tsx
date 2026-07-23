@@ -3,18 +3,20 @@
 import { Alert, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
-import { Branch } from '@/resource/branch'
+import { Branch, BranchClosedDay } from '@/resource/branch'
+import { ClosedDaySettings } from './ClosedDaySettings'
 import { CreateDialog } from './CreateDialog'
 import { List } from './List'
 import { useCreateDialog } from './useCreateDialog'
 
 interface Props {
   branches: Branch[]
+  closedDays: BranchClosedDay[]
   errorMessage: string | null
   isMockData: boolean
 }
 
-export function PageClient({ branches, errorMessage, isMockData }: Props) {
+export function PageClient({ branches, closedDays, errorMessage, isMockData }: Props) {
   const {
     isDialogOpen,
     openDialog,
@@ -57,6 +59,11 @@ export function PageClient({ branches, errorMessage, isMockData }: Props) {
           </Button>
           <List branches={branches} />
           <CreateDialog {...dialogProps} />
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+          <ClosedDaySettings branches={branches} closedDays={closedDays} />
         </Paper>
       </Grid>
     </Grid>

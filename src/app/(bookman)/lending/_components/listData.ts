@@ -142,6 +142,9 @@ export const convertLendingData = (lendings: ILendingRaw[]): Lending[] =>
     contactStaffName: lending.contact_staff_name ?? `職員 #${lending.contact_staff}`,
     lendingDate: lending.lending_date ?? '',
     returnedAt: lending.returned_at ?? null,
+    originalReturnDate: lending.original_return_date ?? null,
+    returnDateAdjusted: Boolean(lending.return_date_adjusted),
+    returnDateAdjustmentReason: lending.return_date_adjustment_reason ?? '',
   }))
 
 export const convertHeldReservationData = (reservations: IReservationRaw[]): Reservation[] =>

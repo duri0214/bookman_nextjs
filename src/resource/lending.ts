@@ -45,6 +45,9 @@ export interface ILendingRaw {
   contact_staff_name?: string
   lending_date?: string
   returned_at?: string | null
+  original_return_date?: string | null
+  return_date_adjusted?: boolean
+  return_date_adjustment_reason?: string
 }
 
 export interface ILendingReturnResponseRaw {
@@ -71,7 +74,12 @@ export interface Lending {
   contactStaffName: string
   lendingDate: string
   returnedAt: string | null
+  originalReturnDate: string | null
+  returnDateAdjusted: boolean
+  returnDateAdjustmentReason: string
 }
+
+export type ILendingCreateResponseRaw = ILendingRaw
 
 export interface ILendingFormValues {
   branchBookStock: string

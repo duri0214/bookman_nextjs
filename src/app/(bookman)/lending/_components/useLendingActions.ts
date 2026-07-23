@@ -4,6 +4,7 @@ import { ChangeEvent, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   BranchBookStock,
+  ILendingCreateResponseRaw,
   ILendingFormValues,
   ILendingRequest,
   ILendingReturnResponseRaw,
@@ -18,6 +19,13 @@ const initialFormValues: ILendingFormValues = {
   customer: '',
   contactStaff: '',
   returnDate: '',
+}
+
+interface ReturnDateAdjustmentMessage {
+  branchName: string
+  originalReturnDate: string
+  adjustedReturnDate: string
+  reason: string
 }
 
 const BUSINESS_ERROR_MESSAGES: Record<string, string> = {
@@ -79,6 +87,8 @@ export function useLendingActions(
   const [returningLendingId, setReturningLendingId] = useState<number | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [messageSeverity, setMessageSeverity] = useState<'success' | 'error'>('success')
+  const [returnDateAdjustmentMessage, setReturnDateAdjustmentMessage] =
+    useState<ReturnDateAdjustmentMessage | null>(null)
 
   const displayBranchBookStocks = useMemo(
     () =>
@@ -104,6 +114,7 @@ export function useLendingActions(
     const { name, value } = event.target
     setFormValues((currentValues) => ({ ...currentValues, [name]: value }))
     setMessage(null)
+    setReturnDateAdjustmentMessage(null)
   }
 
   const showError = (errorMessage: string) => {
@@ -158,6 +169,10 @@ export function useLendingActions(
         return
       }
 
+      const responseBody = (
+        typeof response.json === 'function' ? await response.json().catch(() => null) : null
+      ) as ILendingCreateResponseRaw | null
+
       if (selectedStock && branchBookStockId) {
         setAvailableAmountOverrides((currentOverrides) => ({
           ...currentOverrides,
@@ -165,7 +180,23 @@ export function useLendingActions(
         }))
       }
       setFormValues({ ...initialFormValues, returnDate: defaultReturnDate })
-      showSuccess('貸出を登録しました。')
+      if (
+        responseBody?.return_date_adjusted &&
+        responseBody.original_return_date &&
+        responseBody.return_date
+      ) {
+        const branchName = responseBody.branch_name ?? selectedStock?.branchName ?? ''
+        const reason = responseBody.return_date_adjustment_reason || '理由未設定'
+        setReturnDateAdjustmentMessage({
+          branchName,
+          originalReturnDate: responseBody.original_return_date,
+          adjustedReturnDate: responseBody.return_date,
+          reason,
+        })
+        showSuccess(`返却予定日が休館日のため、${responseBody.return_date} に調整されました。`)
+      } else {
+        showSuccess('貸出を登録しました。')
+      }
       router.refresh()
     } catch {
       showError('貸出登録に失敗しました。入力内容とバックエンドの状態を確認してください。')
@@ -221,6 +252,7 @@ export function useLendingActions(
     returningLendingId,
     message,
     messageSeverity,
+    returnDateAdjustmentMessage,
     selectedStock,
     selectedHeldReservation,
   }
