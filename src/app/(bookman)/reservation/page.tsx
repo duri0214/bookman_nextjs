@@ -4,9 +4,18 @@ import { Copyright } from '@/components/Copyright'
 import { PageClient } from './_components/PageClient'
 import { getReservationPageData } from './_components/listData'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ReservationPage() {
-  const { customers, branchBookStocks, lendings, reservations, errorMessage, isMockData } =
-    await getReservationPageData()
+  const {
+    customers,
+    branchBookStocks,
+    staffMembers,
+    lendings,
+    reservations,
+    errorMessage,
+    isMockData,
+  } = await getReservationPageData()
 
   return (
     <>
@@ -15,6 +24,7 @@ export default async function ReservationPage() {
         <PageClient
           customers={customers}
           branchBookStocks={branchBookStocks}
+          staffMembers={staffMembers}
           lendings={lendings}
           reservations={reservations}
           errorMessage={errorMessage}

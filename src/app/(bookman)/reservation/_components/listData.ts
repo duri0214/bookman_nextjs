@@ -1,9 +1,20 @@
 import { getBookmanApiUrl } from '@/helpers/apiClient'
 import { Customer, ICustomerRaw } from '@/resource/customer'
-import { BranchBookStock, IBranchBookStockRaw, ILendingRaw, Lending } from '@/resource/lending'
+import {
+  BranchBookStock,
+  IBranchBookStockRaw,
+  ILendingRaw,
+  ILibraryStaffRaw,
+  Lending,
+  LibraryStaff,
+} from '@/resource/lending'
 import { IReservationRaw, Reservation, ReservationStatus } from '@/resource/reservation'
 import { convertCustomerData } from '@/app/customer/_components/listData'
-import { convertBranchBookStockData, convertLendingData } from '@/app/lending/_components/listData'
+import {
+  convertBranchBookStockData,
+  convertLendingData,
+  convertStaffData,
+} from '@/app/lending/_components/listData'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
@@ -64,6 +75,11 @@ const MOCK_LENDINGS: ILendingRaw[] = [
   },
 ]
 
+const MOCK_STAFF: ILibraryStaffRaw[] = [
+  { id: 1, name: '田中 職員', branch: 1, branch_name: '中央図書館', role: 'counter' },
+  { id: 2, name: '鈴木 職員', branch: 2, branch_name: '東図書館', role: 'manager' },
+]
+
 const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
   waiting: '予約待ち',
   held: '取り置き中',
@@ -75,6 +91,7 @@ const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
 interface ReservationPageData {
   customers: Customer[]
   branchBookStocks: BranchBookStock[]
+  staffMembers: LibraryStaff[]
   lendings: Lending[]
   reservations: Reservation[]
   errorMessage: string | null
@@ -117,12 +134,14 @@ export const convertReservationData = (reservations: IReservationRaw[]): Reserva
 const buildData = (
   customers: ICustomerRaw[],
   branchBookStocks: IBranchBookStockRaw[],
+  staffMembers: ILibraryStaffRaw[],
   lendings: ILendingRaw[],
   reservations: IReservationRaw[],
   isMockData: boolean,
 ): ReservationPageData => ({
   customers: convertCustomerData(customers),
   branchBookStocks: convertBranchBookStockData(branchBookStocks),
+  staffMembers: convertStaffData(staffMembers),
   lendings: convertLendingData(lendings),
   reservations: convertReservationData(reservations),
   errorMessage: null,
@@ -131,14 +150,15 @@ const buildData = (
 
 export const getReservationPageData = async (): Promise<ReservationPageData> => {
   try {
-    const [customers, branchBookStocks, lendings, reservations] = await Promise.all([
+    const [customers, branchBookStocks, staffMembers, lendings, reservations] = await Promise.all([
       loadBookmanData<ICustomerRaw[]>(getBookmanApiUrl('customers')),
       loadBookmanData<IBranchBookStockRaw[]>(getBookmanApiUrl('branchBookStocks')),
+      loadBookmanData<ILibraryStaffRaw[]>(getBookmanApiUrl('staff')),
       loadBookmanData<ILendingRaw[]>(getBookmanApiUrl('lendings')),
       loadBookmanData<IReservationRaw[]>(getBookmanApiUrl('reservations')),
     ])
 
-    return buildData(customers, branchBookStocks, lendings, reservations, false)
+    return buildData(customers, branchBookStocks, staffMembers, lendings, reservations, false)
   } catch (e) {
     console.error('予約データの取得に失敗しました: ', e)
 
@@ -146,6 +166,7 @@ export const getReservationPageData = async (): Promise<ReservationPageData> => 
       return buildData(
         MOCK_CUSTOMERS,
         MOCK_BRANCH_BOOK_STOCKS,
+        MOCK_STAFF,
         MOCK_LENDINGS,
         MOCK_RESERVATIONS,
         true,
@@ -155,6 +176,7 @@ export const getReservationPageData = async (): Promise<ReservationPageData> => 
     return {
       customers: [],
       branchBookStocks: [],
+      staffMembers: [],
       lendings: [],
       reservations: [],
       errorMessage:

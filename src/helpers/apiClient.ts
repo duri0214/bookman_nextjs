@@ -14,6 +14,8 @@ export const BOOKMAN_API_ENDPOINTS = {
   lendingReturn: 'lendings/return/',
   reservations: 'reservations/',
   reservationExpire: 'reservations/expire/',
+  searchConditions: 'search-conditions/',
+  searchConditionPermissions: 'search-conditions/permissions/',
 } as const
 
 export type BookmanApiEndpoint = keyof typeof BOOKMAN_API_ENDPOINTS

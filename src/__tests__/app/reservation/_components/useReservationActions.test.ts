@@ -46,6 +46,9 @@ const lendings: Lending[] = [
     contactStaffName: '田中 職員',
     lendingDate: '2026-01-20',
     returnedAt: null,
+    originalReturnDate: null,
+    returnDateAdjusted: false,
+    returnDateAdjustmentReason: '',
   },
 ]
 

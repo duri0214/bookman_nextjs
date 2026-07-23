@@ -1,9 +1,11 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import { Alert, Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
+import { SearchConditionPanel } from '../../_components/SearchConditionPanel'
 import { Customer } from '@/resource/customer'
 import { BranchBookStock, Lending, LibraryStaff } from '@/resource/lending'
 import { Reservation } from '@/resource/reservation'
@@ -17,6 +19,36 @@ interface Props {
   heldReservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
+}
+
+interface LendingFilters {
+  [key: string]: unknown
+  branchId: string
+  dueWithinDays: string
+}
+
+const normalizeLendingFilters = (conditions: Record<string, unknown>): LendingFilters => ({
+  branchId: typeof conditions.branchId === 'string' ? conditions.branchId : '',
+  dueWithinDays: typeof conditions.dueWithinDays === 'string' ? conditions.dueWithinDays : '',
+})
+
+const isDueWithinDays = (returnDate: string, daysText: string): boolean => {
+  if (!daysText) {
+    return true
+  }
+
+  const days = Number(daysText)
+  if (!Number.isInteger(days) || days < 0) {
+    return true
+  }
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const target = new Date(returnDate)
+  target.setHours(0, 0, 0, 0)
+  const diffDays = Math.ceil((target.getTime() - today.getTime()) / 86400000)
+
+  return diffDays >= 0 && diffDays <= days
 }
 
 export function PageClient({
@@ -42,8 +74,26 @@ export function PageClient({
     selectedStock,
     selectedHeldReservation,
   } = useLendingActions(branchBookStocks, heldReservations)
+  const [filters, setFilters] = useState<LendingFilters>({
+    branchId: '',
+    dueWithinDays: '',
+  })
 
-  const activeLendings = lendings.filter((lending) => lending.active)
+  const activeLendings = useMemo(
+    () =>
+      lendings.filter(
+        (lending) =>
+          lending.active &&
+          (filters.branchId === '' ||
+            branchBookStocks.some(
+              (stock) =>
+                stock.id === lending.branchBookStockId &&
+                String(stock.branchId) === filters.branchId,
+            )) &&
+          isDueWithinDays(lending.returnDate, filters.dueWithinDays),
+      ),
+    [branchBookStocks, filters, lendings],
+  )
   const selectedStockActiveLendingCount = selectedStock
     ? activeLendings.filter((lending) => lending.branchBookStockId === selectedStock.id).length
     : 0
@@ -237,6 +287,42 @@ export function PageClient({
           <Typography component='h2' variant='h6'>
             貸出中一覧
           </Typography>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
+            <TextField
+              select
+              size='small'
+              label='支店'
+              value={filters.branchId}
+              onChange={(event) =>
+                setFilters((current) => ({ ...current, branchId: event.target.value }))
+              }
+              sx={{ minWidth: 220 }}
+            >
+              <MenuItem value=''>すべて</MenuItem>
+              {Array.from(
+                new Map(branchBookStocks.map((stock) => [stock.branchId, stock.branchName])),
+              ).map(([branchId, branchName]) => (
+                <MenuItem key={branchId} value={String(branchId)}>
+                  {branchName}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              size='small'
+              label='返却期限'
+              value={filters.dueWithinDays}
+              onChange={(event) =>
+                setFilters((current) => ({ ...current, dueWithinDays: event.target.value }))
+              }
+              sx={{ minWidth: 180 }}
+            >
+              <MenuItem value=''>すべて</MenuItem>
+              <MenuItem value='3'>3日以内</MenuItem>
+              <MenuItem value='7'>7日以内</MenuItem>
+              <MenuItem value='14'>14日以内</MenuItem>
+            </TextField>
+          </Stack>
           {activeLendings.length === 0 ? (
             <Typography variant='body1'>貸出中のデータはまだありません。</Typography>
           ) : (
@@ -244,6 +330,17 @@ export function PageClient({
               <DataGrid columns={columns} rows={rows} />
             </Box>
           )}
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+          <SearchConditionPanel
+            targetScreen='lendings'
+            title='貸出一覧の保存条件'
+            staffMembers={staffMembers}
+            currentConditions={filters}
+            onApply={(conditions) => setFilters(normalizeLendingFilters(conditions))}
+          />
         </Paper>
       </Grid>
     </Grid>

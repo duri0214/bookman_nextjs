@@ -19,8 +19,8 @@ const MOCK_CUSTOMERS: ICustomerRaw[] = [
 ]
 
 const MOCK_STAFF: ILibraryStaffRaw[] = [
-  { id: 1, name: '田中 職員', branch: 1, branch_name: '中央図書館' },
-  { id: 2, name: '鈴木 職員', branch: 2, branch_name: '東図書館' },
+  { id: 1, name: '田中 職員', branch: 1, branch_name: '中央図書館', role: 'counter' },
+  { id: 2, name: '鈴木 職員', branch: 2, branch_name: '東図書館', role: 'manager' },
 ]
 
 const MOCK_BRANCH_BOOK_STOCKS: IBranchBookStockRaw[] = [
@@ -126,6 +126,7 @@ export const convertStaffData = (staffMembers: ILibraryStaffRaw[]): LibraryStaff
     name: staff.name,
     branchId: staff.branch ?? null,
     branchName: staff.branch_name ?? '',
+    role: staff.role ?? '',
   }))
 
 export const convertLendingData = (lendings: ILendingRaw[]): Lending[] =>

@@ -68,7 +68,7 @@ describe('lending listData', () => {
      */
     expect(
       convertStaffData([{ id: 1, name: '田中 職員', branch: 2, branch_name: '東図書館' }]),
-    ).toEqual([{ id: 1, name: '田中 職員', branchId: 2, branchName: '東図書館' }])
+    ).toEqual([{ id: 1, name: '田中 職員', branchId: 2, branchName: '東図書館', role: '' }])
   })
 
   test('convertLendingDataが貸出一覧APIレスポンスを画面表示用データへ変換するべき', () => {
