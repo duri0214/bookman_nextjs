@@ -24,6 +24,7 @@
       "@/app/dashboard/*": ["./src/app/(bookman)/dashboard/*"],
       "@/app/lending/*": ["./src/app/(bookman)/lending/*"],
       "@/app/reservation/*": ["./src/app/(bookman)/reservation/*"],
+      "@/app/staff/*": ["./src/app/(bookman)/staff/*"],
       "@/*": ["./src/*"]
     },
     "target": "ES2017"
