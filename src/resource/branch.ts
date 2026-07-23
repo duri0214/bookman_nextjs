@@ -25,3 +25,31 @@ export interface IBranchRequest {
   phone: string
   remark: string
 }
+
+export interface IBranchClosedDayRaw {
+  id: number
+  branch: number
+  branch_name?: string
+  date: string
+  reason: string
+}
+
+export interface BranchClosedDay {
+  id: number
+  branchId: number
+  branchName: string
+  date: string
+  reason: string
+}
+
+export interface IBranchClosedDayFormValues {
+  branch: string
+  date: string
+  reason: string
+}
+
+export interface IBranchClosedDayRequest {
+  branch: number | null
+  date: string
+  reason: string
+}

@@ -7,13 +7,18 @@ import { PageClient } from './_components/PageClient'
 export const dynamic = 'force-dynamic'
 
 export default async function Page() {
-  const { branches, errorMessage, isMockData } = await getBranchListData()
+  const { branches, closedDays, errorMessage, isMockData } = await getBranchListData()
 
   return (
     <>
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
-        <PageClient branches={branches} errorMessage={errorMessage} isMockData={isMockData} />
+        <PageClient
+          branches={branches}
+          closedDays={closedDays}
+          errorMessage={errorMessage}
+          isMockData={isMockData}
+        />
         <Copyright sx={{ pt: 4 }} />
       </Container>
     </>

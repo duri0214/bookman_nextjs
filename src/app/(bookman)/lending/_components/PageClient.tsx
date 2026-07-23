@@ -38,6 +38,7 @@ export function PageClient({
     returningLendingId,
     message,
     messageSeverity,
+    returnDateAdjustmentMessage,
     selectedStock,
     selectedHeldReservation,
   } = useLendingActions(branchBookStocks, heldReservations)
@@ -120,6 +121,22 @@ export function PageClient({
             </Alert>
           )}
           {message && <Alert severity={messageSeverity}>{message}</Alert>}
+          {returnDateAdjustmentMessage && (
+            <Alert severity='info'>
+              <Typography variant='body2'>
+                支店: {returnDateAdjustmentMessage.branchName || '支店未設定'}
+              </Typography>
+              <Typography variant='body2'>
+                元の返却予定日: {returnDateAdjustmentMessage.originalReturnDate}
+              </Typography>
+              <Typography variant='body2'>
+                調整後の返却予定日: {returnDateAdjustmentMessage.adjustedReturnDate}
+              </Typography>
+              <Typography variant='body2'>
+                休館理由: {returnDateAdjustmentMessage.reason}
+              </Typography>
+            </Alert>
+          )}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField

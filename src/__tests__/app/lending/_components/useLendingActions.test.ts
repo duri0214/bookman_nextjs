@@ -138,6 +138,61 @@ describe('useLendingActions', () => {
     ])
   })
 
+  test('onCreateが休館日による期限調整レスポンスを表示用に保持するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 貸出登録APIが返却予定日調整済みのレスポンスを返す状態。
+     * - 処理: onCreate を呼び出す。
+     * - 期待値: 調整後の日付メッセージと、元日付・支店・理由の詳細を保持すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        id: 5,
+        branch_book_stock: 10,
+        book_name: 'Bookman 入門',
+        branch_name: '中央図書館',
+        customer: 20,
+        customer_name: '山田 太郎',
+        contact_staff: 30,
+        contact_staff_name: '田中 職員',
+        return_date: '2026-01-17',
+        original_return_date: '2026-01-15',
+        return_date_adjusted: true,
+        return_date_adjustment_reason: '蔵書点検、臨時休館',
+        active: true,
+      }),
+    } as Response)
+    const { result } = renderHook(() => useLendingActions(branchBookStocks))
+
+    act(() => {
+      result.current.onInputChange({
+        target: { name: 'branchBookStock', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'customer', value: '20' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'contactStaff', value: '30' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'returnDate', value: '2026-01-15' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    expect(result.current.message).toBe('返却予定日が休館日のため、2026-01-17 に調整されました。')
+    expect(result.current.returnDateAdjustmentMessage).toEqual({
+      branchName: '中央図書館',
+      originalReturnDate: '2026-01-15',
+      adjustedReturnDate: '2026-01-17',
+      reason: '蔵書点検、臨時休館',
+    })
+  })
+
   test('業務エラーcodeが返った時に画面用メッセージを保持するべき', async () => {
     /**
      * シナリオ:
