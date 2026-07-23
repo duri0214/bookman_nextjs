@@ -47,6 +47,17 @@ export interface ILendingRaw {
   returned_at?: string | null
 }
 
+export interface ILendingReturnResponseRaw {
+  returned_lending: ILendingRaw
+  held_reservation: {
+    id: number
+    customer_name?: string
+    book_name?: string
+    branch_name?: string
+    hold_expires_on: string | null
+  } | null
+}
+
 export interface Lending {
   id: number
   branchBookStockId: number

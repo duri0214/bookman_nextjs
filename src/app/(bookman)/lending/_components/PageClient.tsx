@@ -6,6 +6,7 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { Customer } from '@/resource/customer'
 import { BranchBookStock, Lending, LibraryStaff } from '@/resource/lending'
+import { Reservation } from '@/resource/reservation'
 import { useLendingActions } from './useLendingActions'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
   staffMembers: LibraryStaff[]
   branchBookStocks: BranchBookStock[]
   lendings: Lending[]
+  heldReservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
 }
@@ -22,6 +24,7 @@ export function PageClient({
   staffMembers,
   branchBookStocks,
   lendings,
+  heldReservations,
   errorMessage,
   isMockData,
 }: Props) {
@@ -36,9 +39,17 @@ export function PageClient({
     message,
     messageSeverity,
     selectedStock,
-  } = useLendingActions(branchBookStocks)
+    selectedHeldReservation,
+  } = useLendingActions(branchBookStocks, heldReservations)
 
   const activeLendings = lendings.filter((lending) => lending.active)
+  const selectedStockActiveLendingCount = selectedStock
+    ? activeLendings.filter((lending) => lending.branchBookStockId === selectedStock.id).length
+    : 0
+  const selectedStockHeldReservationCount = selectedStock
+    ? heldReservations.filter((reservation) => reservation.branchBookStockId === selectedStock.id)
+        .length
+    : 0
   const rows: GridRowsProp = activeLendings.map((lending, index) => ({
     id: lending.id,
     rowNumber: index + 1,
@@ -94,6 +105,20 @@ export function PageClient({
           <Typography component='h2' variant='h6'>
             貸出登録
           </Typography>
+          {heldReservations.length > 0 && (
+            <Alert severity='info'>
+              取り置き中の利用者が{heldReservations.length}
+              名います。取り置き分は貸出可能冊数から差し引かれています。
+              <Typography variant='body2' sx={{ mt: 0.5 }}>
+                {heldReservations
+                  .map(
+                    (reservation) =>
+                      `${reservation.bookName} / ${reservation.branchName}: ${reservation.customerName}`,
+                  )
+                  .join('、')}
+              </Typography>
+            </Alert>
+          )}
           {message && <Alert severity={messageSeverity}>{message}</Alert>}
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, md: 6 }}>
@@ -163,10 +188,25 @@ export function PageClient({
             </Grid>
           </Grid>
           {selectedStock && (
-            <Typography variant='body2' color='text.secondary'>
-              {selectedStock.bookName} / {selectedStock.branchName} は貸出可能{' '}
-              {selectedStock.availableAmount}冊です。
-            </Typography>
+            <Box sx={{ display: 'grid', gap: 0.5 }}>
+              <Typography variant='body2' color='text.secondary'>
+                {selectedStock.bookName} / {selectedStock.branchName} の内訳
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+                <Typography variant='body2'>所蔵数 {selectedStock.amount}冊</Typography>
+                <Typography variant='body2'>貸出中 {selectedStockActiveLendingCount}冊</Typography>
+                <Typography variant='body2'>
+                  取り置き中 {selectedStockHeldReservationCount}冊
+                </Typography>
+                <Typography variant='body2'>貸出可能 {selectedStock.availableAmount}冊</Typography>
+              </Stack>
+              {selectedHeldReservation && (
+                <Typography variant='body2' color='success.main'>
+                  {selectedHeldReservation.customerName}
+                  は取り置き中のため、この本を貸出登録できます。
+                </Typography>
+              )}
+            </Box>
           )}
           <Stack direction='row' sx={{ justifyContent: 'flex-end' }}>
             <Button variant='contained' onClick={onCreate} disabled={isCreating}>

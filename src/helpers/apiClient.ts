@@ -11,6 +11,8 @@ export const BOOKMAN_API_ENDPOINTS = {
   staff: 'staff/',
   lendings: 'lendings/',
   lendingReturn: 'lendings/return/',
+  reservations: 'reservations/',
+  reservationExpire: 'reservations/expire/',
 } as const
 
 export type BookmanApiEndpoint = keyof typeof BOOKMAN_API_ENDPOINTS

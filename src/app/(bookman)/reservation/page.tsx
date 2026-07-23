@@ -1,21 +1,12 @@
 import Toolbar from '@mui/material/Toolbar'
-import { Copyright } from '@/components/Copyright'
 import Container from '@mui/material/Container'
+import { Copyright } from '@/components/Copyright'
 import { PageClient } from './_components/PageClient'
-import { getLendingPageData } from './_components/listData'
+import { getReservationPageData } from './_components/listData'
 
-export const dynamic = 'force-dynamic'
-
-export default async function Page() {
-  const {
-    customers,
-    staffMembers,
-    branchBookStocks,
-    lendings,
-    heldReservations,
-    errorMessage,
-    isMockData,
-  } = await getLendingPageData()
+export default async function ReservationPage() {
+  const { customers, branchBookStocks, lendings, reservations, errorMessage, isMockData } =
+    await getReservationPageData()
 
   return (
     <>
@@ -23,10 +14,9 @@ export default async function Page() {
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <PageClient
           customers={customers}
-          staffMembers={staffMembers}
           branchBookStocks={branchBookStocks}
           lendings={lendings}
-          heldReservations={heldReservations}
+          reservations={reservations}
           errorMessage={errorMessage}
           isMockData={isMockData}
         />

@@ -2,7 +2,13 @@
 
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { BranchBookStock, ILendingFormValues, ILendingRequest } from '@/resource/lending'
+import {
+  BranchBookStock,
+  ILendingFormValues,
+  ILendingRequest,
+  ILendingReturnResponseRaw,
+} from '@/resource/lending'
+import { Reservation } from '@/resource/reservation'
 
 const LENDING_API_PATH = '/api/bookman/lendings'
 const LENDING_RETURN_API_PATH = '/api/bookman/lendings/return'
@@ -56,10 +62,15 @@ const parseApiErrorMessage = async (
   return fallbackMessage
 }
 
-export function useLendingActions(branchBookStocks: BranchBookStock[]) {
+export function useLendingActions(
+  branchBookStocks: BranchBookStock[],
+  heldReservations: Reservation[] = [],
+) {
   const router = useRouter()
   const defaultReturnDate = useMemo(() => new Date().toISOString().slice(0, 10), [])
-  const [displayBranchBookStocks, setDisplayBranchBookStocks] = useState(branchBookStocks)
+  const [availableAmountOverrides, setAvailableAmountOverrides] = useState<Record<number, number>>(
+    {},
+  )
   const [formValues, setFormValues] = useState<ILendingFormValues>({
     ...initialFormValues,
     returnDate: defaultReturnDate,
@@ -69,8 +80,24 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
   const [message, setMessage] = useState<string | null>(null)
   const [messageSeverity, setMessageSeverity] = useState<'success' | 'error'>('success')
 
+  const displayBranchBookStocks = useMemo(
+    () =>
+      branchBookStocks.map((branchBookStock) => ({
+        ...branchBookStock,
+        availableAmount:
+          availableAmountOverrides[branchBookStock.id] ?? branchBookStock.availableAmount,
+      })),
+    [availableAmountOverrides, branchBookStocks],
+  )
+
   const selectedStock = displayBranchBookStocks.find(
     (branchBookStock) => branchBookStock.id === toPositiveInteger(formValues.branchBookStock),
+  )
+  const selectedCustomerId = toPositiveInteger(formValues.customer)
+  const selectedHeldReservation = heldReservations.find(
+    (reservation) =>
+      reservation.branchBookStockId === selectedStock?.id &&
+      reservation.customerId === selectedCustomerId,
   )
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -99,7 +126,7 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
       return '支店別所蔵、利用者、対応職員、返却予定日を選択してください。'
     }
 
-    if (selectedStock && selectedStock.availableAmount <= 0) {
+    if (selectedStock && selectedStock.availableAmount <= 0 && !selectedHeldReservation) {
       return '対象の支店別所蔵に貸出可能冊数が残っていません。'
     }
 
@@ -131,16 +158,12 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
         return
       }
 
-      setDisplayBranchBookStocks((currentBranchBookStocks) =>
-        currentBranchBookStocks.map((branchBookStock) =>
-          branchBookStock.id === branchBookStockId
-            ? {
-                ...branchBookStock,
-                availableAmount: Math.max(branchBookStock.availableAmount - 1, 0),
-              }
-            : branchBookStock,
-        ),
-      )
+      if (selectedStock && branchBookStockId) {
+        setAvailableAmountOverrides((currentOverrides) => ({
+          ...currentOverrides,
+          [branchBookStockId]: Math.max(selectedStock.availableAmount - 1, 0),
+        }))
+      }
       setFormValues({ ...initialFormValues, returnDate: defaultReturnDate })
       showSuccess('貸出を登録しました。')
       router.refresh()
@@ -169,7 +192,17 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
         return
       }
 
-      showSuccess('返却を受け付けました。')
+      const responseBody = (
+        typeof response.json === 'function' ? await response.json().catch(() => null) : null
+      ) as ILendingReturnResponseRaw | null
+      const heldReservation = responseBody?.held_reservation
+      if (heldReservation) {
+        const customerName = heldReservation.customer_name ?? '予約利用者'
+        const bookName = heldReservation.book_name ? `（${heldReservation.book_name}）` : ''
+        showSuccess(`${customerName}に貸し出せるようになりました${bookName}。`)
+      } else {
+        showSuccess('返却を受け付けました。')
+      }
       router.refresh()
     } catch {
       showError('返却処理に失敗しました。バックエンドの状態を確認してください。')
@@ -189,5 +222,6 @@ export function useLendingActions(branchBookStocks: BranchBookStock[]) {
     message,
     messageSeverity,
     selectedStock,
+    selectedHeldReservation,
   }
 }
