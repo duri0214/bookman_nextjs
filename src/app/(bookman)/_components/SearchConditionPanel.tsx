@@ -73,9 +73,15 @@ export function SearchConditionPanel({
   const isStaffMissing = staffMembers.length === 0 || staffId === null
   const canSave =
     !isStaffMissing && conditionName.trim() !== '' && canCreateScope(shareScope, permission)
+  const handleSave = async () => {
+    const saved = await save(conditionName.trim(), shareScope, currentConditions)
+    if (saved) {
+      setConditionName('')
+    }
+  }
 
   return (
-    <Box sx={{ display: 'grid', gap: 2 }}>
+    <Box sx={{ display: 'grid', gap: 2, minWidth: 0 }}>
       <Stack
         direction={{ xs: 'column', md: 'row' }}
         spacing={1.5}
@@ -125,19 +131,23 @@ export function SearchConditionPanel({
       {message && <Alert severity='success'>{message}</Alert>}
       {errorMessage && <Alert severity='warning'>{errorMessage}</Alert>}
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={1.5}
+        sx={{ flexWrap: 'wrap', minWidth: 0 }}
+      >
         <TextField
           select
           size='small'
           label='保存済み条件'
           value={selectedConditionId}
           onChange={(event) => setSelectedConditionId(event.target.value)}
-          sx={{ minWidth: 260, flex: 1 }}
+          sx={{ minWidth: { xs: 0, md: 260 }, flex: 1 }}
           disabled={isStaffMissing || isLoading}
           helperText={conditions.length === 0 ? '保存済み条件はまだありません。' : ''}
         >
           {conditions.map((condition) => (
-            <MenuItem key={condition.id} value={condition.id}>
+            <MenuItem key={condition.id} value={condition.id} sx={{ whiteSpace: 'normal' }}>
               {condition.name}（{getConditionDescription(condition)}）
             </MenuItem>
           ))}
@@ -146,6 +156,7 @@ export function SearchConditionPanel({
           variant='outlined'
           onClick={() => selectedCondition && onApply(selectedCondition.conditions)}
           disabled={!selectedCondition}
+          sx={{ whiteSpace: 'nowrap' }}
         >
           読み込み
         </Button>
@@ -155,6 +166,7 @@ export function SearchConditionPanel({
             selectedCondition && update(selectedCondition.id, { name: conditionName.trim() })
           }
           disabled={!selectedCondition?.canUpdate || conditionName.trim() === ''}
+          sx={{ whiteSpace: 'nowrap' }}
         >
           名称変更
         </Button>
@@ -163,6 +175,7 @@ export function SearchConditionPanel({
           color='error'
           onClick={() => selectedCondition && remove(selectedCondition.id)}
           disabled={!selectedCondition?.canDelete}
+          sx={{ whiteSpace: 'nowrap' }}
         >
           削除
         </Button>
@@ -170,13 +183,17 @@ export function SearchConditionPanel({
 
       <Divider />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5}>
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={1.5}
+        sx={{ flexWrap: 'wrap', minWidth: 0 }}
+      >
         <TextField
           size='small'
           label='保存条件名'
           value={conditionName}
           onChange={(event) => setConditionName(event.target.value)}
-          sx={{ minWidth: 240, flex: 1 }}
+          sx={{ minWidth: { xs: 0, md: 240 }, flex: 1 }}
         />
         <TextField
           select
@@ -196,8 +213,9 @@ export function SearchConditionPanel({
         </TextField>
         <Button
           variant='contained'
-          onClick={() => save(conditionName.trim(), shareScope, currentConditions)}
+          onClick={handleSave}
           disabled={!canSave || isSaving}
+          sx={{ whiteSpace: 'nowrap' }}
         >
           現在の条件を保存
         </Button>
@@ -207,6 +225,7 @@ export function SearchConditionPanel({
             selectedCondition && update(selectedCondition.id, { share_scope: shareScope })
           }
           disabled={!selectedCondition?.canUpdate || !canCreateScope(shareScope, permission)}
+          sx={{ whiteSpace: 'nowrap' }}
         >
           共有範囲変更
         </Button>

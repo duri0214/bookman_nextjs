@@ -102,10 +102,10 @@ export function useSearchConditions({ targetScreen, staffId }: UseSearchConditio
     name: string,
     shareScope: SearchConditionShareScope,
     currentConditions: Record<string, unknown>,
-  ) => {
+  ): Promise<boolean> => {
     if (!staffId) {
       setErrorMessage('職員を選択してください。')
-      return
+      return false
     }
 
     setIsSaving(true)
@@ -131,8 +131,10 @@ export function useSearchConditions({ targetScreen, staffId }: UseSearchConditio
 
       setMessage('検索条件を保存しました。')
       await load()
+      return true
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '保存条件の登録に失敗しました。')
+      return false
     } finally {
       setIsSaving(false)
     }
