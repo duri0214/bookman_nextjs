@@ -8,41 +8,20 @@ const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 const MOCK_BRANCHES: IBranchRaw[] = [
   {
     id: 1,
-    name: '図書館 本店',
-    address: '東京都千代田区図書館町1-1-1',
-    phone: '03-0000-0000',
-    remark: '中央図書館の開発用モックデータ',
-  },
-  {
-    id: 2,
-    name: '図書館 児童書分館',
-    address: '東京都千代田区図書館町2-1-1',
-    phone: '06-0000-0000',
-    remark: '児童書分館の開発用モックデータ',
+    name: '中央図書館',
+    address: '東京都渋谷区神宮前1-4-1',
+    phone: '03-3403-2591',
+    remark: '鉄筋コンクリート造 地下1階地上5階 4,450㎡（294席）',
   },
 ]
 
 const MOCK_STAFF: IStaffRaw[] = [
   {
-    id: 1,
-    name: '佐藤 花子',
+    id: 1001,
+    name: '図書館対応者',
     branch: 1,
-    branch_name: '図書館 本店',
+    branch_name: '中央図書館',
     role: 'counter',
-  },
-  {
-    id: 2,
-    name: '鈴木 太郎',
-    branch: 1,
-    branch_name: '図書館 本店',
-    role: 'manager',
-  },
-  {
-    id: 3,
-    name: '田中 管理',
-    branch: null,
-    branch_name: null,
-    role: 'admin',
   },
 ]
 
