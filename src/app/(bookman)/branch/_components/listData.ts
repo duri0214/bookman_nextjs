@@ -6,17 +6,17 @@ const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 const MOCK_BRANCHES: IBranchRaw[] = [
   {
     id: 1,
-    name: '図書館 本店',
-    address: '東京都千代田区図書館町1-1-1',
-    phone: '03-0000-0000',
-    remark: '中央図書館の開発用モックデータ',
+    name: '中央図書館',
+    address: '東京都渋谷区神宮前1-4-1',
+    phone: '03-3403-2591',
+    remark: '鉄筋コンクリート造 地下1階地上5階 4,450㎡（294席）',
   },
   {
     id: 2,
-    name: '図書館 児童書分館',
-    address: '東京都千代田区図書館町2-1-1',
-    phone: '06-0000-0000',
-    remark: '児童書分館の開発用モックデータ',
+    name: '西原図書館',
+    address: '東京都渋谷区西原2-28-9',
+    phone: '03-3460-8535',
+    remark: '鉄筋コンクリート造 地下1階地上3階の2・3階部分 631㎡（61席）',
   },
 ]
 
@@ -24,14 +24,14 @@ const MOCK_BRANCH_CLOSED_DAYS: IBranchClosedDayRaw[] = [
   {
     id: 1,
     branch: 1,
-    branch_name: '図書館 本店',
+    branch_name: '中央図書館',
     date: '2026-01-01',
     reason: '年末年始',
   },
   {
     id: 2,
     branch: 2,
-    branch_name: '図書館 児童書分館',
+    branch_name: '西原図書館',
     date: '2026-01-15',
     reason: '館内整理日',
   },

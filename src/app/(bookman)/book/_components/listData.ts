@@ -16,8 +16,8 @@ const MOCK_BOOKS: IBookRaw[] = [
     lead_text: '開発用モックデータです。',
     total_amount: 3,
     branch_stocks: [
-      { id: 1, branch: 1, branch_name: '図書館 本店', amount: 2 },
-      { id: 2, branch: 2, branch_name: '図書館 児童書分館', amount: 1 },
+      { id: 1, branch: 1, branch_name: '中央図書館', amount: 2 },
+      { id: 2, branch: 2, branch_name: '西原図書館', amount: 1 },
     ],
     amount: 1,
     isbn: '9780000000001',
@@ -31,7 +31,7 @@ const MOCK_BOOKS: IBookRaw[] = [
     authors: [2],
     lead_text: 'バックエンド未起動時の表示確認に使うデータです。',
     total_amount: 1,
-    branch_stocks: [{ id: 3, branch: 1, branch_name: '図書館 本店', amount: 1 }],
+    branch_stocks: [{ id: 3, branch: 1, branch_name: '中央図書館', amount: 1 }],
     amount: 1,
     isbn: '9780000000002',
     publication_date: '2026-01-02',
@@ -57,8 +57,7 @@ interface BookListData {
 }
 
 const MOCK_STAFF: ILibraryStaffRaw[] = [
-  { id: 1, name: '田中 職員', branch: 1, branch_name: '図書館 本店', role: 'counter' },
-  { id: 2, name: '鈴木 職員', branch: 2, branch_name: '図書館 児童書分館', role: 'manager' },
+  { id: 1001, name: '図書館対応者', branch: 1, branch_name: '中央図書館', role: 'counter' },
 ]
 
 const convertBranchData = (branches: IBranchRaw[]): Branch[] =>
@@ -131,17 +130,17 @@ export const getBookListData = async (): Promise<BookListData> => {
         branches: convertBranchData([
           {
             id: 1,
-            name: '図書館 本店',
-            address: '東京都千代田区図書館町1-1-1',
-            phone: '03-0000-0000',
-            remark: '中央図書館の開発用モックデータ',
+            name: '中央図書館',
+            address: '東京都渋谷区神宮前1-4-1',
+            phone: '03-3403-2591',
+            remark: '鉄筋コンクリート造 地下1階地上5階 4,450㎡（294席）',
           },
           {
             id: 2,
-            name: '図書館 児童書分館',
-            address: '東京都千代田区図書館町2-1-1',
-            phone: '06-0000-0000',
-            remark: '児童書分館の開発用モックデータ',
+            name: '西原図書館',
+            address: '東京都渋谷区西原2-28-9',
+            phone: '03-3460-8535',
+            remark: '鉄筋コンクリート造 地下1階地上3階の2・3階部分 631㎡（61席）',
           },
         ]),
         staffMembers: convertStaffData(MOCK_STAFF),

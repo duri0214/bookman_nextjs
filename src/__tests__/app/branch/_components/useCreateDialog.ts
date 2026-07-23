@@ -94,7 +94,7 @@ describe('useCreateDialog', () => {
     act(() => {
       result.current.openDialog()
       result.current.onInputChange({
-        target: { name: 'name', value: '図書館 本店' },
+        target: { name: 'name', value: 'テスト図書館' },
       } as ChangeEvent<HTMLInputElement>)
     })
 
@@ -109,7 +109,7 @@ describe('useCreateDialog', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: '図書館 本店' }),
+      body: JSON.stringify({ name: 'テスト図書館' }),
     })
     expect(result.current.isDialogOpen).toBe(false)
     expect(result.current.formValues).toEqual({})
