@@ -7,14 +7,16 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { SearchConditionPanel } from '../../_components/SearchConditionPanel'
 import { Customer } from '@/resource/customer'
-import { BranchBookStock, Lending } from '@/resource/lending'
+import { BranchBookStock, Lending, LibraryStaff } from '@/resource/lending'
 import { Reservation } from '@/resource/reservation'
 import { useReservationActions } from './useReservationActions'
 
 interface Props {
   customers: Customer[]
   branchBookStocks: BranchBookStock[]
+  staffMembers: LibraryStaff[]
   lendings: Lending[]
   reservations: Reservation[]
   errorMessage: string | null
@@ -22,6 +24,17 @@ interface Props {
 }
 
 type ReservationFilter = 'open' | 'all'
+
+interface ReservationFilters {
+  [key: string]: unknown
+  reservationFilter: ReservationFilter
+  branchId: string
+}
+
+const normalizeReservationFilters = (conditions: Record<string, unknown>): ReservationFilters => ({
+  reservationFilter: conditions.reservationFilter === 'all' ? 'all' : 'open',
+  branchId: typeof conditions.branchId === 'string' ? conditions.branchId : '',
+})
 
 const statusColor = (
   status: Reservation['status'],
@@ -44,6 +57,7 @@ const statusColor = (
 export function PageClient({
   customers,
   branchBookStocks,
+  staffMembers,
   lendings,
   reservations,
   errorMessage,
@@ -64,7 +78,10 @@ export function PageClient({
     selectedStock,
     customersLendingSelectedBook,
   } = useReservationActions(branchBookStocks, lendings)
-  const [reservationFilter, setReservationFilter] = useState<ReservationFilter>('open')
+  const [filters, setFilters] = useState<ReservationFilters>({
+    reservationFilter: 'open',
+    branchId: '',
+  })
   const hasReservableBranchBookStock = reservableBranchBookStocks.length > 0
   const branchBookStockHelperText =
     branchBookStocks.length === 0
@@ -74,7 +91,13 @@ export function PageClient({
         : '貸出可能冊数が0冊の支店別所蔵がないため、現在予約できる本はありません。'
 
   const filteredReservations = reservations.filter((reservation) => {
-    if (reservationFilter === 'all') {
+    if (filters.branchId !== '') {
+      const stock = branchBookStocks.find((stock) => stock.id === reservation.branchBookStockId)
+      if (String(stock?.branchId ?? '') !== filters.branchId) {
+        return false
+      }
+    }
+    if (filters.reservationFilter === 'all') {
       return true
     }
     return reservation.status === 'waiting' || reservation.status === 'held'
@@ -260,12 +283,12 @@ export function PageClient({
               予約・取り置き一覧
             </Typography>
             <ToggleButtonGroup
-              value={reservationFilter}
+              value={filters.reservationFilter}
               exclusive
               size='small'
               onChange={(_, value: ReservationFilter | null) => {
                 if (value) {
-                  setReservationFilter(value)
+                  setFilters((current) => ({ ...current, reservationFilter: value }))
                 }
               }}
               aria-label='予約一覧フィルタ'
@@ -277,6 +300,25 @@ export function PageClient({
           <Typography variant='body2' color='text.secondary'>
             取り置き期間は1週間です。
           </Typography>
+          <TextField
+            select
+            size='small'
+            label='支店'
+            value={filters.branchId}
+            onChange={(event) =>
+              setFilters((current) => ({ ...current, branchId: event.target.value }))
+            }
+            sx={{ maxWidth: 260 }}
+          >
+            <MenuItem value=''>すべて</MenuItem>
+            {Array.from(
+              new Map(branchBookStocks.map((stock) => [stock.branchId, stock.branchName])),
+            ).map(([branchId, branchName]) => (
+              <MenuItem key={branchId} value={String(branchId)}>
+                {branchName}
+              </MenuItem>
+            ))}
+          </TextField>
           {filteredReservations.length === 0 ? (
             <Typography variant='body1'>
               {reservations.length === 0
@@ -288,6 +330,17 @@ export function PageClient({
               <DataGrid columns={columns} rows={rows} />
             </Box>
           )}
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+          <SearchConditionPanel
+            targetScreen='reservations'
+            title='予約一覧の保存条件'
+            staffMembers={staffMembers}
+            currentConditions={filters}
+            onApply={(conditions) => setFilters(normalizeReservationFilters(conditions))}
+          />
         </Paper>
       </Grid>
     </Grid>

@@ -1,10 +1,13 @@
 'use client'
 
-import { Alert, Button } from '@mui/material'
+import { useMemo, useState } from 'react'
+import { Alert, Button, MenuItem, Stack, TextField } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
+import { SearchConditionPanel } from '../../_components/SearchConditionPanel'
 import { Book } from '@/resource/book'
 import { Branch } from '@/resource/branch'
+import { LibraryStaff } from '@/resource/lending'
 import { CreateDialog } from './CreateDialog'
 import { List } from './List'
 import { TransferDialog } from './TransferDialog'
@@ -14,11 +17,30 @@ import { useTransferDialog } from './useTransferDialog'
 interface Props {
   books: Book[]
   branches: Branch[]
+  staffMembers: LibraryStaff[]
   errorMessage: string | null
   isMockData: boolean
 }
 
-export function PageClient({ books, branches, errorMessage, isMockData }: Props) {
+interface BookFilters {
+  [key: string]: unknown
+  keyword: string
+  branchId: string
+  stockedOnly: boolean
+}
+
+const normalizeBookFilters = (conditions: Record<string, unknown>): BookFilters => ({
+  keyword: typeof conditions.keyword === 'string' ? conditions.keyword : '',
+  branchId: typeof conditions.branchId === 'string' ? conditions.branchId : '',
+  stockedOnly: conditions.stockedOnly === true,
+})
+
+export function PageClient({ books, branches, staffMembers, errorMessage, isMockData }: Props) {
+  const [filters, setFilters] = useState<BookFilters>({
+    keyword: '',
+    branchId: '',
+    stockedOnly: false,
+  })
   const {
     isDialogOpen,
     openDialog,
@@ -50,6 +72,30 @@ export function PageClient({ books, branches, errorMessage, isMockData }: Props)
     isCreating,
     createErrorMessage,
   }
+  const filteredBooks = useMemo(
+    () =>
+      books.filter((book) => {
+        const keyword = filters.keyword.trim().toLowerCase()
+        const matchesKeyword =
+          keyword === '' ||
+          [book.name, book.authors, book.category?.name ?? '', book.leadText].some((value) =>
+            value.toLowerCase().includes(keyword),
+          )
+        const matchesBranch =
+          filters.branchId === '' ||
+          book.branchStocks.some((branchStock) => String(branchStock.branchId) === filters.branchId)
+        const matchesStock =
+          !filters.stockedOnly ||
+          book.branchStocks.some(
+            (branchStock) =>
+              branchStock.amount > 0 &&
+              (filters.branchId === '' || String(branchStock.branchId) === filters.branchId),
+          )
+
+        return matchesKeyword && matchesBranch && matchesStock
+      }),
+    [books, filters],
+  )
 
   return (
     <Grid container spacing={3}>
@@ -70,7 +116,51 @@ export function PageClient({ books, branches, errorMessage, isMockData }: Props)
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             新規登録
           </Button>
-          <List books={books} onTransferClick={openTransferDialog} />
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+            <TextField
+              size='small'
+              label='キーワード'
+              value={filters.keyword}
+              onChange={(event) =>
+                setFilters((current) => ({ ...current, keyword: event.target.value }))
+              }
+              sx={{ flex: 1 }}
+            />
+            <TextField
+              select
+              size='small'
+              label='支店'
+              value={filters.branchId}
+              onChange={(event) =>
+                setFilters((current) => ({ ...current, branchId: event.target.value }))
+              }
+              sx={{ minWidth: 220 }}
+            >
+              <MenuItem value=''>すべて</MenuItem>
+              {branches.map((branch) => (
+                <MenuItem key={branch.id} value={String(branch.id)}>
+                  {branch.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              size='small'
+              label='所蔵'
+              value={filters.stockedOnly ? 'stocked' : 'all'}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  stockedOnly: event.target.value === 'stocked',
+                }))
+              }
+              sx={{ minWidth: 160 }}
+            >
+              <MenuItem value='all'>すべて</MenuItem>
+              <MenuItem value='stocked'>所蔵あり</MenuItem>
+            </TextField>
+          </Stack>
+          <List books={filteredBooks} onTransferClick={openTransferDialog} />
           <CreateDialog {...dialogProps} />
           <TransferDialog
             selectedBook={selectedBook}
@@ -82,6 +172,17 @@ export function PageClient({ books, branches, errorMessage, isMockData }: Props)
             onTransfer={onTransfer}
             isTransferring={isTransferring}
             transferErrorMessage={transferErrorMessage}
+          />
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12 }}>
+        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+          <SearchConditionPanel
+            targetScreen='books'
+            title='書籍一覧の保存条件'
+            staffMembers={staffMembers}
+            currentConditions={filters}
+            onApply={(conditions) => setFilters(normalizeBookFilters(conditions))}
           />
         </Paper>
       </Grid>

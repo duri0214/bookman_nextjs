@@ -23,6 +23,7 @@ export interface ILibraryStaffRaw {
   name: string
   branch?: number
   branch_name?: string
+  role?: string
 }
 
 export interface LibraryStaff {
@@ -30,6 +31,7 @@ export interface LibraryStaff {
   name: string
   branchId: number | null
   branchName: string
+  role: string
 }
 
 export interface ILendingRaw {
