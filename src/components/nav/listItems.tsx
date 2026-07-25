@@ -11,6 +11,7 @@ import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LayersIcon from '@mui/icons-material/Layers'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import PeopleIcon from '@mui/icons-material/People'
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 import BadgeIcon from '@mui/icons-material/Badge'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
@@ -46,9 +47,7 @@ function NavItem({ href, pathname, icon, label }: NavItemProps) {
       selected={isActivePath(pathname, href)}
       sx={activeItemSx}
     >
-      <ListItemIcon>
-        {icon}
-      </ListItemIcon>
+      <ListItemIcon>{icon}</ListItemIcon>
       <ListItemText primary={label} />
     </ListItemButton>
   )
@@ -71,6 +70,7 @@ export const mainListItems = (pathname: string) => (
     />
     <NavItem href='/branch' pathname={pathname} icon={<AddHomeIcon />} label='館管理' />
     <NavItem href='/staff' pathname={pathname} icon={<BadgeIcon />} label='職員管理' />
+    <NavItem href='/author' pathname={pathname} icon={<PersonAddIcon />} label='著者管理' />
     <NavItem href='/book' pathname={pathname} icon={<AutoStoriesIcon />} label='書籍管理' />
     <NavItem href='/customer' pathname={pathname} icon={<PeopleIcon />} label='利用者台帳' />
     <NavItem href='/lending' pathname={pathname} icon={<LayersIcon />} label='貸出・返却' />

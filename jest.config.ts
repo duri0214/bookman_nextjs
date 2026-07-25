@@ -11,6 +11,7 @@ const config: Config = {
   coverageProvider: 'v8',
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
   moduleNameMapper: {
+    '^@/app/author/(.*)$': '<rootDir>/src/app/(bookman)/author/$1',
     '^@/app/book/(.*)$': '<rootDir>/src/app/(bookman)/book/$1',
     '^@/app/branch/(.*)$': '<rootDir>/src/app/(bookman)/branch/$1',
     '^@/app/customer/(.*)$': '<rootDir>/src/app/(bookman)/customer/$1',
