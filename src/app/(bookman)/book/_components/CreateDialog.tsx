@@ -147,6 +147,7 @@ export const CreateDialog = ({
           id='publication_date'
           name='publication_date'
           label='出版年月日'
+          helperText='例: 2026-01-01'
           fullWidth
           value={formValues.publication_date ?? ''}
           disabled={isCreating}

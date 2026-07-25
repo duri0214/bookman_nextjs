@@ -153,13 +153,18 @@ describe('useCreateDialog', () => {
 
   /**
    * シナリオ:
-   * - 入力: 書籍登録 API が失敗する状態。
+   * - 入力: 書籍登録 API が項目別エラーを返す状態。
    * - 処理: onCreate を呼び出す。
-   * - 期待値: ダイアログを開いたまま登録失敗メッセージを保持すること。
+   * - 期待値: ダイアログを開いたまま項目名付きの登録失敗メッセージを保持すること。
    */
-  test('onCreateが失敗した時に登録失敗メッセージを保持するべき', async () => {
+  test('onCreateが失敗した時にbackendの項目別エラーメッセージを保持するべき', async () => {
     // Given
-    jest.mocked(global.fetch).mockResolvedValue({ ok: false } as Response)
+    jest.mocked(global.fetch).mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        publication_date: ['Date has wrong format. Use one of these formats instead: YYYY-MM-DD.'],
+      }),
+    } as Response)
     const { result } = renderHook(() => useCreateDialog(authors, categories))
 
     act(() => {
@@ -180,7 +185,7 @@ describe('useCreateDialog', () => {
     // Then
     expect(result.current.isDialogOpen).toBe(true)
     expect(result.current.createErrorMessage).toBe(
-      '書籍データの登録に失敗しました。入力内容とバックエンドの状態を確認してください。',
+      '出版年月日: Date has wrong format. Use one of these formats instead: YYYY-MM-DD.',
     )
     expect(mockRefresh).not.toHaveBeenCalled()
   })

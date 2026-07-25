@@ -8,6 +8,46 @@ const CREATE_BOOK_API_PATH = '/api/bookman/books'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
 
+const FIELD_LABELS: Record<string, string> = {
+  category: 'カテゴリ',
+  name: '名前',
+  authors: '著者',
+  lead_text: 'あらすじ',
+  amount: '数量',
+  isbn: 'ISBN',
+  publication_date: '出版年月日',
+  non_field_errors: '入力内容',
+  detail: 'エラー',
+  message: 'エラー',
+}
+
+const formatResponseError = async (response: Response): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+
+    if (typeof responseBody === 'string') {
+      return responseBody
+    }
+
+    if (responseBody && typeof responseBody === 'object') {
+      const messages = Object.entries(responseBody).flatMap(([fieldName, value]) => {
+        const fieldMessages = Array.isArray(value) ? value : [value]
+        return fieldMessages.map(
+          (message) => `${FIELD_LABELS[fieldName] ?? fieldName}: ${String(message)}`,
+        )
+      })
+
+      if (messages.length > 0) {
+        return messages.join(' ')
+      }
+    }
+  } catch {
+    // Fall back to the generic message below.
+  }
+
+  return '書籍データの登録に失敗しました。入力内容とバックエンドの状態を確認してください。'
+}
+
 const toCategoryId = (value: string | undefined, categories: Category[] = []): number => {
   const categoryId = toNumber(value)
   const availableCategoryIds = new Set(categories.map((category) => category.id))
@@ -107,7 +147,8 @@ export function useCreateDialog(authors: Author[] = [], categories: Category[] =
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create book')
+        setCreateErrorMessage(await formatResponseError(response))
+        return
       }
 
       onCloseDialog()
