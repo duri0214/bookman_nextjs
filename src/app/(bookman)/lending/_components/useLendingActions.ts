@@ -121,6 +121,12 @@ export function useLendingActions(
     setReturnDateAdjustmentMessage(null)
   }
 
+  const clearBranchBookStock = () => {
+    setFormValues((currentValues) => ({ ...currentValues, branchBookStock: '' }))
+    setMessage(null)
+    setReturnDateAdjustmentMessage(null)
+  }
+
   const showError = (errorMessage: string) => {
     setMessage(errorMessage)
     setMessageSeverity('error')
@@ -250,6 +256,7 @@ export function useLendingActions(
     branchBookStocks: displayBranchBookStocks,
     formValues,
     onInputChange,
+    clearBranchBookStock,
     onCreate,
     onReturn,
     isCreating,

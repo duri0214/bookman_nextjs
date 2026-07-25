@@ -12,6 +12,13 @@ import { Customer } from '@/resource/customer'
 import { BranchBookStock, Lending, LibraryStaff } from '@/resource/lending'
 import { Reservation } from '@/resource/reservation'
 import { useReservationActions } from '@/app/reservation/_components/useReservationActions'
+import {
+  filterActiveLendings,
+  filterBranchBookStocks,
+  getBranchOptions,
+  getMunicipalityOptions,
+  LendingFilters,
+} from './lendingFilters'
 import { useLendingActions } from './useLendingActions'
 
 interface Props {
@@ -25,12 +32,6 @@ interface Props {
   isMockData: boolean
 }
 
-interface LendingFilters {
-  [key: string]: unknown
-  branchId: string
-  dueWithinDays: string
-}
-
 type ReservationFilter = 'open' | 'all'
 
 interface ReservationFilters {
@@ -40,6 +41,7 @@ interface ReservationFilters {
 }
 
 const normalizeLendingFilters = (conditions: Record<string, unknown>): LendingFilters => ({
+  municipalityId: typeof conditions.municipalityId === 'string' ? conditions.municipalityId : '',
   branchId: typeof conditions.branchId === 'string' ? conditions.branchId : '',
   dueWithinDays: typeof conditions.dueWithinDays === 'string' ? conditions.dueWithinDays : '',
 })
@@ -64,25 +66,6 @@ const statusColor = (
   return 'default'
 }
 
-const isDueWithinDays = (returnDate: string, daysText: string): boolean => {
-  if (!daysText) {
-    return true
-  }
-
-  const days = Number(daysText)
-  if (!Number.isInteger(days) || days < 0) {
-    return true
-  }
-
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const target = new Date(returnDate)
-  target.setHours(0, 0, 0, 0)
-  const diffDays = Math.ceil((target.getTime() - today.getTime()) / 86400000)
-
-  return diffDays >= 0 && diffDays <= days
-}
-
 export function PageClient({
   customers,
   staffMembers,
@@ -97,6 +80,7 @@ export function PageClient({
     branchBookStocks: displayBranchBookStocks,
     formValues,
     onInputChange,
+    clearBranchBookStock,
     onCreate,
     onReturn,
     isCreating,
@@ -123,6 +107,7 @@ export function PageClient({
     customersLendingSelectedBook,
   } = useReservationActions(branchBookStocks, lendings)
   const [filters, setFilters] = useState<LendingFilters>({
+    municipalityId: '',
     branchId: '',
     dueWithinDays: '',
   })
@@ -131,19 +116,17 @@ export function PageClient({
     branchId: '',
   })
 
+  const municipalities = useMemo(() => getMunicipalityOptions(branchBookStocks), [branchBookStocks])
+  const filteredBranchBookStocks = useMemo(
+    () => filterBranchBookStocks(displayBranchBookStocks, filters),
+    [displayBranchBookStocks, filters],
+  )
+  const branchOptions = useMemo(
+    () => getBranchOptions(branchBookStocks, filters.municipalityId),
+    [branchBookStocks, filters.municipalityId],
+  )
   const activeLendings = useMemo(
-    () =>
-      lendings.filter(
-        (lending) =>
-          lending.active &&
-          (filters.branchId === '' ||
-            branchBookStocks.some(
-              (stock) =>
-                stock.id === lending.branchBookStockId &&
-                String(stock.branchId) === filters.branchId,
-            )) &&
-          isDueWithinDays(lending.returnDate, filters.dueWithinDays),
-      ),
+    () => filterActiveLendings(lendings, branchBookStocks, filters),
     [branchBookStocks, filters, lendings],
   )
   const selectedStockActiveLendingCount = selectedStock
@@ -157,9 +140,23 @@ export function PageClient({
   const branchBookStockHelperText =
     branchBookStocks.length === 0
       ? '支店別所蔵データがありません。'
-      : hasReservableBranchBookStock
-        ? `${reservableBranchBookStocks.length}件の支店別所蔵が予約条件を満たしています。`
-        : '貸出可能冊数が0冊の支店別所蔵がないため、現在予約できる本はありません。'
+      : filteredBranchBookStocks.length === 0
+        ? '選択中の自治体・支店に該当する支店別所蔵データがありません。'
+        : hasReservableBranchBookStock
+          ? `${reservableBranchBookStocks.length}件の支店別所蔵が予約条件を満たしています。`
+          : '貸出可能冊数が0冊の支店別所蔵がないため、現在予約できる本はありません。'
+  const onMunicipalityFilterChange = (municipalityId: string) => {
+    setFilters((current) => ({
+      ...current,
+      municipalityId,
+      branchId: '',
+    }))
+    clearBranchBookStock()
+  }
+  const onBranchFilterChange = (branchId: string) => {
+    setFilters((current) => ({ ...current, branchId }))
+    clearBranchBookStock()
+  }
   const filteredReservations = reservations.filter((reservation) => {
     if (reservationFilters.branchId !== '') {
       const stock = branchBookStocks.find((stock) => stock.id === reservation.branchBookStockId)
@@ -329,14 +326,51 @@ export function PageClient({
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 select
+                label='自治体'
+                value={filters.municipalityId}
+                onChange={(event) => onMunicipalityFilterChange(event.target.value)}
+                fullWidth
+              >
+                <MenuItem value=''>すべての自治体</MenuItem>
+                {municipalities.map(([municipalityId, municipalityName]) => (
+                  <MenuItem key={municipalityId} value={municipalityId}>
+                    {municipalityName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                select
+                label='支店'
+                value={filters.branchId}
+                onChange={(event) => onBranchFilterChange(event.target.value)}
+                fullWidth
+              >
+                <MenuItem value=''>選択中自治体の全支店</MenuItem>
+                {branchOptions.map(([branchId, branchName]) => (
+                  <MenuItem key={branchId} value={String(branchId)}>
+                    {branchName}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+          <Typography variant='body2' color='text.secondary'>
+            支店未選択時は、選択中自治体に属する全支店の所蔵と貸出中データを表示します。
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, md: 6 }}>
+              <TextField
+                select
                 label='支店別所蔵'
                 name='branchBookStock'
                 value={formValues.branchBookStock}
                 onChange={onInputChange}
                 fullWidth
-                disabled={displayBranchBookStocks.length === 0 || isCreating}
+                disabled={filteredBranchBookStocks.length === 0 || isCreating}
               >
-                {displayBranchBookStocks.map((branchBookStock) => (
+                {filteredBranchBookStocks.map((branchBookStock) => (
                   <MenuItem key={branchBookStock.id} value={branchBookStock.id}>
                     {branchBookStock.bookName} / {branchBookStock.branchName}（貸出可能{' '}
                     {branchBookStock.availableAmount}冊）
@@ -523,17 +557,28 @@ export function PageClient({
             <TextField
               select
               size='small'
-              label='支店'
-              value={filters.branchId}
-              onChange={(event) =>
-                setFilters((current) => ({ ...current, branchId: event.target.value }))
-              }
+              label='自治体'
+              value={filters.municipalityId}
+              onChange={(event) => onMunicipalityFilterChange(event.target.value)}
               sx={{ minWidth: 220 }}
             >
               <MenuItem value=''>すべて</MenuItem>
-              {Array.from(
-                new Map(branchBookStocks.map((stock) => [stock.branchId, stock.branchName])),
-              ).map(([branchId, branchName]) => (
+              {municipalities.map(([municipalityId, municipalityName]) => (
+                <MenuItem key={municipalityId} value={municipalityId}>
+                  {municipalityName}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              size='small'
+              label='支店'
+              value={filters.branchId}
+              onChange={(event) => onBranchFilterChange(event.target.value)}
+              sx={{ minWidth: 220 }}
+            >
+              <MenuItem value=''>選択中自治体の全支店</MenuItem>
+              {branchOptions.map(([branchId, branchName]) => (
                 <MenuItem key={branchId} value={String(branchId)}>
                   {branchName}
                 </MenuItem>
