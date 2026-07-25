@@ -8,7 +8,7 @@ import {
   Lending,
   LibraryStaff,
 } from '@/resource/lending'
-import { IReservationRaw, Reservation } from '@/resource/reservation'
+import { IReservationRaw, Reservation, ReservationStatus } from '@/resource/reservation'
 import { convertCustomerData } from '@/app/customer/_components/listData'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
@@ -81,7 +81,7 @@ const RESERVATION_STATUS_LABELS = {
   canceled: '取消済み',
   expired: '期限切れ',
   fulfilled: '貸出済み',
-} as const
+} satisfies Record<ReservationStatus, string>
 
 interface LendingPageData {
   customers: Customer[]
@@ -89,6 +89,7 @@ interface LendingPageData {
   branchBookStocks: BranchBookStock[]
   lendings: Lending[]
   heldReservations: Reservation[]
+  reservations: Reservation[]
   errorMessage: string | null
   isMockData: boolean
 }
@@ -168,6 +169,31 @@ export const convertHeldReservationData = (reservations: IReservationRaw[]): Res
       isExpiredHold: false,
     }))
 
+const isPastDate = (dateValue: string | null): boolean => {
+  if (!dateValue) {
+    return false
+  }
+
+  const today = new Date().toISOString().slice(0, 10)
+  return dateValue < today
+}
+
+export const convertReservationData = (reservations: IReservationRaw[]): Reservation[] =>
+  reservations.map((reservation) => ({
+    id: reservation.id,
+    branchBookStockId: reservation.branch_book_stock,
+    bookName: reservation.book_name ?? `支店別所蔵 #${reservation.branch_book_stock}`,
+    branchName: reservation.branch_name ?? '',
+    customerId: reservation.customer,
+    customerName: reservation.customer_name ?? `利用者 #${reservation.customer}`,
+    status: reservation.status,
+    statusLabel: RESERVATION_STATUS_LABELS[reservation.status] ?? reservation.status,
+    holdExpiresOn: reservation.hold_expires_on,
+    createdAt: reservation.created_at,
+    needsStaffFollowUp: reservation.status === 'held',
+    isExpiredHold: reservation.status === 'held' && isPastDate(reservation.hold_expires_on),
+  }))
+
 const buildData = (
   customers: ICustomerRaw[],
   staffMembers: ILibraryStaffRaw[],
@@ -181,6 +207,7 @@ const buildData = (
   branchBookStocks: convertBranchBookStockData(branchBookStocks),
   lendings: convertLendingData(lendings),
   heldReservations: convertHeldReservationData(reservations),
+  reservations: convertReservationData(reservations),
   errorMessage: null,
   isMockData,
 })
@@ -216,6 +243,7 @@ export const getLendingPageData = async (): Promise<LendingPageData> => {
       branchBookStocks: [],
       lendings: [],
       heldReservations: [],
+      reservations: [],
       errorMessage:
         '貸出データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
       isMockData: false,
