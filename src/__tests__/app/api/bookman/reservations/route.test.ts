@@ -34,7 +34,7 @@ describe('reservations route', () => {
       } as Response)
 
     const response = await POST({
-      json: async () => ({ branch_book_stock: 10, customer: 20 }),
+      json: async () => ({ municipality: 1, branch_book_stock: 10, customer: 20 }),
     } as Request)
     const responseBody = await response.json()
 
@@ -44,5 +44,15 @@ describe('reservations route', () => {
       message: '同じ本を貸出中の利用者は予約できません。',
     })
     expect(global.fetch).toHaveBeenCalledTimes(2)
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      1,
+      'http://127.0.0.1:8000/bookman/api/branch-book-stocks/?municipality=1',
+      { method: 'GET', cache: 'no-store' },
+    )
+    expect(global.fetch).toHaveBeenNthCalledWith(
+      2,
+      'http://127.0.0.1:8000/bookman/api/lendings/?municipality=1',
+      { method: 'GET', cache: 'no-store' },
+    )
   })
 })

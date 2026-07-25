@@ -28,12 +28,24 @@ const parseResponseBody = (responseText: string) => {
   }
 }
 
+const getScopedApiUrl = (endpoint: 'branchBookStocks' | 'lendings' | 'reservations', municipality: number): string => {
+  const apiUrl = new URL(getBookmanApiUrl(endpoint))
+  apiUrl.searchParams.set('municipality', municipality.toString())
+  return apiUrl.toString()
+}
+
 export async function POST(request: Request) {
   try {
-    const requestBody = (await request.json()) as ReservationRequest
+    const { municipality, ...requestBody } = (await request.json()) as ReservationRequest & {
+      municipality?: number
+    }
+    if (!municipality) {
+      return Response.json({ message: '自治体を指定してください。' }, { status: 400 })
+    }
+
     const [stocksResponse, lendingsResponse] = await Promise.all([
-      fetch(getBookmanApiUrl('branchBookStocks'), { method: 'GET', cache: 'no-store' }),
-      fetch(getBookmanApiUrl('lendings'), { method: 'GET', cache: 'no-store' }),
+      fetch(getScopedApiUrl('branchBookStocks', municipality), { method: 'GET', cache: 'no-store' }),
+      fetch(getScopedApiUrl('lendings', municipality), { method: 'GET', cache: 'no-store' }),
     ])
 
     if (stocksResponse.ok && lendingsResponse.ok) {
@@ -60,7 +72,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const response = await fetch(getBookmanApiUrl('reservations'), {
+    const response = await fetch(getScopedApiUrl('reservations', municipality), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

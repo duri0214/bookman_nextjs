@@ -12,10 +12,20 @@ const parseResponseBody = (responseText: string) => {
   }
 }
 
+const getScopedApiUrl = (municipality: number): string => {
+  const apiUrl = new URL(getBookmanApiUrl('lendings'))
+  apiUrl.searchParams.set('municipality', municipality.toString())
+  return apiUrl.toString()
+}
+
 export async function POST(request: Request) {
   try {
-    const requestBody = await request.json()
-    const response = await fetch(getBookmanApiUrl('lendings'), {
+    const { municipality, ...requestBody } = await request.json()
+    if (!municipality) {
+      return Response.json({ message: '自治体を指定してください。' }, { status: 400 })
+    }
+
+    const response = await fetch(getScopedApiUrl(municipality), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

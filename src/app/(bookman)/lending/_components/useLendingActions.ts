@@ -44,7 +44,11 @@ const toPositiveInteger = (value: string): number | null => {
   return parsedValue
 }
 
-const buildLendingRequest = (formValues: ILendingFormValues): ILendingRequest => ({
+const buildLendingRequest = (
+  formValues: ILendingFormValues,
+  selectedStock?: BranchBookStock,
+): ILendingRequest => ({
+  ...(selectedStock?.municipalityId ? { municipality: selectedStock.municipalityId } : {}),
   branch_book_stock: toPositiveInteger(formValues.branchBookStock),
   customer: toPositiveInteger(formValues.customer),
   contact_staff: toPositiveInteger(formValues.contactStaff),
@@ -161,7 +165,7 @@ export function useLendingActions(
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildLendingRequest(formValues)),
+        body: JSON.stringify(buildLendingRequest(formValues, selectedStock)),
       })
 
       if (!response.ok) {

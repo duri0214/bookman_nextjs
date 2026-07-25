@@ -15,6 +15,8 @@ const branchBookStocks: BranchBookStock[] = [
   {
     id: 10,
     branchId: 1,
+    municipalityId: 1,
+    municipalityName: '渋谷区',
     bookId: 2,
     branchName: '中央図書館',
     bookName: 'Bookman 入門',
@@ -24,6 +26,8 @@ const branchBookStocks: BranchBookStock[] = [
   {
     id: 11,
     branchId: 1,
+    municipalityId: 1,
+    municipalityName: '渋谷区',
     bookId: 3,
     branchName: '中央図書館',
     bookName: '貸出可能な本',
@@ -87,6 +91,7 @@ describe('useReservationActions', () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        municipality: 1,
         branch_book_stock: 10,
         customer: 20,
       }),

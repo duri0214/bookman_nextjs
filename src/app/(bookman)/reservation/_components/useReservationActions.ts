@@ -29,7 +29,11 @@ const toPositiveInteger = (value: string): number | null => {
   return parsedValue
 }
 
-const buildReservationRequest = (formValues: IReservationFormValues): IReservationRequest => ({
+const buildReservationRequest = (
+  formValues: IReservationFormValues,
+  selectedStock?: BranchBookStock,
+): IReservationRequest => ({
+  ...(selectedStock?.municipalityId ? { municipality: selectedStock.municipalityId } : {}),
   branch_book_stock: toPositiveInteger(formValues.branchBookStock),
   customer: toPositiveInteger(formValues.customer),
 })
@@ -129,7 +133,7 @@ export function useReservationActions(branchBookStocks: BranchBookStock[], lendi
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildReservationRequest(formValues)),
+        body: JSON.stringify(buildReservationRequest(formValues, selectedStock)),
       })
 
       if (!response.ok) {

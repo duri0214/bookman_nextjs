@@ -82,9 +82,9 @@ export function CommonLayout({ children, routeTitles }: Props) {
 
             {/* 左サイドメニューです */}
             <List component='nav'>
-              {mainListItems}
+              {mainListItems(pathname)}
               <Divider sx={{ my: 1 }} />
-              {secondaryListItems}
+              {secondaryListItems(pathname)}
             </List>
           </Drawer>
           <Box

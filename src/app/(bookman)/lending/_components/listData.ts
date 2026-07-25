@@ -112,6 +112,8 @@ export const convertBranchBookStockData = (
     return {
       id: branchBookStock.id,
       branchId: branchBookStock.branch,
+      municipalityId: branchBookStock.municipality ?? null,
+      municipalityName: branchBookStock.municipality_name ?? '未設定',
       bookId: branchBookStock.book,
       branchName: branchBookStock.branch_name ?? `支店 #${branchBookStock.branch}`,
       bookName: branchBookStock.book_name ?? `書籍 #${branchBookStock.book}`,

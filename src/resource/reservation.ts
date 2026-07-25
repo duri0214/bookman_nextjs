@@ -33,6 +33,7 @@ export interface IReservationFormValues {
 }
 
 export interface IReservationRequest {
+  municipality?: number | null
   branch_book_stock: number | null
   customer: number | null
 }

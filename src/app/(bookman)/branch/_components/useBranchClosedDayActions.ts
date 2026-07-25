@@ -2,7 +2,11 @@
 
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IBranchClosedDayFormValues, IBranchClosedDayRequest } from '@/resource/branch'
+import {
+  Branch,
+  IBranchClosedDayFormValues,
+  IBranchClosedDayRequest,
+} from '@/resource/branch'
 
 const BRANCH_CLOSED_DAY_API_PATH = '/api/bookman/branch-closed-days'
 
@@ -22,11 +26,18 @@ const toPositiveInteger = (value: string): number | null => {
 
 const buildClosedDayRequest = (
   formValues: IBranchClosedDayFormValues,
-): IBranchClosedDayRequest => ({
-  branch: toPositiveInteger(formValues.branch),
-  date: formValues.date,
-  reason: formValues.reason.trim(),
-})
+  branches: Branch[],
+): IBranchClosedDayRequest => {
+  const branchId = toPositiveInteger(formValues.branch)
+  const selectedBranch = branches.find((branch) => branch.id === branchId)
+
+  return {
+    ...(selectedBranch?.municipalityId ? { municipality: selectedBranch.municipalityId } : {}),
+    branch: branchId,
+    date: formValues.date,
+    reason: formValues.reason.trim(),
+  }
+}
 
 const parseApiErrorMessage = async (
   response: Response,
@@ -47,7 +58,7 @@ const parseApiErrorMessage = async (
   return fallbackMessage
 }
 
-export function useBranchClosedDayActions() {
+export function useBranchClosedDayActions(branches: Branch[] = []) {
   const router = useRouter()
   const [formValues, setFormValues] = useState(initialFormValues)
   const [isCreating, setIsCreating] = useState(false)
@@ -95,7 +106,7 @@ export function useBranchClosedDayActions() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildClosedDayRequest(formValues)),
+        body: JSON.stringify(buildClosedDayRequest(formValues, branches)),
       })
 
       if (!response.ok) {

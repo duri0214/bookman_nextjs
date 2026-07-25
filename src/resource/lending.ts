@@ -1,6 +1,8 @@
 export interface IBranchBookStockRaw {
   id: number
   branch: number
+  municipality?: number | null
+  municipality_name?: string | null
   book: number
   amount: number
   available_amount: number
@@ -11,6 +13,8 @@ export interface IBranchBookStockRaw {
 export interface BranchBookStock {
   id: number
   branchId: number
+  municipalityId: number | null
+  municipalityName: string
   bookId: number
   branchName: string
   bookName: string
@@ -91,6 +95,7 @@ export interface ILendingFormValues {
 }
 
 export interface ILendingRequest {
+  municipality?: number | null
   branch_book_stock: number | null
   customer: number | null
   contact_staff: number | null
