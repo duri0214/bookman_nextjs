@@ -1,4 +1,12 @@
-import { Alert, Button, Checkbox, ListItemText, MenuItem, TextField } from '@mui/material'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Link as MuiLink,
+  ListItemText,
+  MenuItem,
+  TextField,
+} from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -137,7 +145,19 @@ export const CreateDialog = ({
           id='isbn'
           name='isbn'
           label='ISBN'
-          helperText='ISBN-10またはISBN-13を入力してください。ハイフンありでも登録できます。'
+          placeholder='例: 978-4-06-293842-6'
+          helperText={
+            <>
+              ISBN-10またはISBN-13を入力してください。
+              <MuiLink
+                href='https://isbn.jpo.or.jp/index.php/fix__about/fix__about_3/'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                ISBNと書籍JANコードとは
+              </MuiLink>
+            </>
+          }
           fullWidth
           value={formValues.isbn ?? ''}
           disabled={isCreating}
