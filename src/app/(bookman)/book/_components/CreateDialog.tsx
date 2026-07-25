@@ -1,9 +1,10 @@
-import { Alert, Button, TextField } from '@mui/material'
+import { Alert, Button, Checkbox, ListItemText, MenuItem, TextField } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
+import { Author } from '@/resource/author'
 import { IBookFormValues } from '@/resource/book'
 
 interface CreateDialogProps {
@@ -14,6 +15,7 @@ interface CreateDialogProps {
   formValues: Partial<IBookFormValues>
   isCreating: boolean
   createErrorMessage: string | null
+  authors: Author[]
 }
 
 export const CreateDialog = ({
@@ -24,7 +26,10 @@ export const CreateDialog = ({
   formValues,
   isCreating,
   createErrorMessage,
+  authors,
 }: CreateDialogProps) => {
+  const selectedAuthorIds = (formValues.authors ?? '').split(',').filter(Boolean)
+
   return (
     <Dialog open={isDialogOpen} onClose={onCloseDialog}>
       <DialogTitle>新規登録</DialogTitle>
@@ -56,16 +61,45 @@ export const CreateDialog = ({
           onChange={onInputChange}
         />
         <TextField
+          select
+          slotProps={{
+            select: {
+              multiple: true,
+              renderValue: (selected) =>
+                (selected as string[])
+                  .map((authorId) => authors.find((author) => String(author.id) === authorId)?.name)
+                  .filter(Boolean)
+                  .join(', '),
+            },
+          }}
           margin='dense'
           id='authors'
           name='authors'
-          label='著者ID'
-          helperText='複数の著者はカンマ区切りで入力'
+          label='著者'
+          helperText='複数の著者を選択できます。追加した著者は登録後に候補へ反映されます。'
           fullWidth
-          value={formValues.authors ?? ''}
+          value={selectedAuthorIds}
           disabled={isCreating}
-          onChange={onInputChange}
-        />
+          onChange={(event) => {
+            const value = event.target.value
+            onInputChange({
+              target: {
+                name: 'authors',
+                value: Array.isArray(value) ? value.join(',') : value,
+              },
+            } as ChangeEvent<HTMLInputElement>)
+          }}
+        >
+          {authors.map((author) => {
+            const authorId = String(author.id)
+            return (
+              <MenuItem key={author.id} value={authorId}>
+                <Checkbox checked={selectedAuthorIds.includes(authorId)} />
+                <ListItemText primary={author.name} />
+              </MenuItem>
+            )
+          })}
+        </TextField>
         <TextField
           margin='dense'
           id='lead_text'

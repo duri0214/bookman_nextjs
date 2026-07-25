@@ -155,6 +155,9 @@ describe('useCreateDialog', () => {
 
     act(() => {
       result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'authors', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
     })
 
     // When
@@ -167,6 +170,31 @@ describe('useCreateDialog', () => {
     expect(result.current.createErrorMessage).toBe(
       '書籍データの登録に失敗しました。入力内容とバックエンドの状態を確認してください。',
     )
+    expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  /**
+   * シナリオ:
+   * - 入力: 著者が未選択の書籍登録フォーム。
+   * - 処理: onCreate を呼び出す。
+   * - 期待値: APIへPOSTせず、著者選択を促すエラーメッセージを保持すること。
+   */
+  test('onCreateが著者未選択時に書籍登録APIへPOSTしないべき', async () => {
+    // Given
+    const { result } = renderHook(useCreateDialog)
+
+    act(() => {
+      result.current.openDialog()
+    })
+
+    // When
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    // Then
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(result.current.createErrorMessage).toBe('著者を1名以上選択してください。')
     expect(mockRefresh).not.toHaveBeenCalled()
   })
 })

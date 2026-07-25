@@ -1,28 +1,40 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Author } from '@/resource/author'
 import { IBookFormValues, IBookRequest } from '@/resource/book'
 
 const CREATE_BOOK_API_PATH = '/api/bookman/books'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
 
-const toAuthorIds = (value: string | undefined): number[] =>
-  (value ?? '')
+const toAuthorIds = (value: string | undefined, authors: Author[] = []): number[] => {
+  const availableAuthorIds = new Set(authors.map((author) => author.id))
+
+  return (value ?? '')
     .split(',')
     .map((authorId) => Number(authorId.trim()))
-    .filter((authorId) => Number.isInteger(authorId) && authorId > 0)
+    .filter(
+      (authorId) =>
+        Number.isInteger(authorId) &&
+        authorId > 0 &&
+        (availableAuthorIds.size === 0 || availableAuthorIds.has(authorId)),
+    )
+}
 
-const buildBookRequest = (formValues: Partial<IBookFormValues>): IBookRequest => ({
+const buildBookRequest = (
+  formValues: Partial<IBookFormValues>,
+  authors: Author[],
+): IBookRequest => ({
   category: toNumber(formValues.category),
   name: formValues.name ?? '',
-  authors: toAuthorIds(formValues.authors),
+  authors: toAuthorIds(formValues.authors, authors),
   lead_text: formValues.lead_text ?? '',
   amount: toNumber(formValues.amount),
   isbn: formValues.isbn ?? '',
   publication_date: formValues.publication_date ?? '',
 })
 
-export function useCreateDialog() {
+export function useCreateDialog(authors: Author[] = []) {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formValues, setFormValues] = useState<Partial<IBookFormValues>>({})
@@ -55,6 +67,11 @@ export function useCreateDialog() {
   }
 
   const onCreate = async () => {
+    if (toAuthorIds(formValues.authors, authors).length === 0) {
+      setCreateErrorMessage('著者を1名以上選択してください。')
+      return
+    }
+
     setIsCreating(true)
     setCreateErrorMessage(null)
 
@@ -64,7 +81,7 @@ export function useCreateDialog() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildBookRequest(formValues)),
+        body: JSON.stringify(buildBookRequest(formValues, authors)),
       })
 
       if (!response.ok) {

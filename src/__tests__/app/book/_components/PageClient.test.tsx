@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { PageClient } from '@/app/book/_components/PageClient'
+import { Author } from '@/resource/author'
 import { Book } from '@/resource/book'
 import { Branch } from '@/resource/branch'
 import { Municipality } from '@/resource/municipality'
@@ -44,6 +45,11 @@ const branches: Branch[] = [
     phone: '',
     remark: '',
   },
+]
+
+const authors: Author[] = [
+  { id: 1, name: '夏目漱石' },
+  { id: 2, name: '国松俊英' },
 ]
 
 const books: Book[] = [
@@ -99,6 +105,7 @@ const renderPageClient = () =>
   render(
     <PageClient
       books={books}
+      authors={authors}
       branches={branches}
       municipalities={municipalities}
       staffMembers={[]}
