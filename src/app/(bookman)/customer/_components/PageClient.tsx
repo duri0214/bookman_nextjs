@@ -6,7 +6,7 @@ import Paper from '@mui/material/Paper'
 import { Customer } from '@/resource/customer'
 import { CreateDialog } from './CreateDialog'
 import { List } from './List'
-import { useCreateDialog } from './useCreateDialog'
+import { useCustomerActions } from './useCustomerActions'
 
 interface Props {
   customers: Customer[]
@@ -24,7 +24,12 @@ export function PageClient({ customers, errorMessage, isMockData }: Props) {
     onCreate,
     isCreating,
     createErrorMessage,
-  } = useCreateDialog()
+    getEditingRow,
+    onEditChange,
+    onUpdate,
+    savingCustomerId,
+    updateErrorMessage,
+  } = useCustomerActions()
 
   return (
     <Grid container spacing={3}>
@@ -45,7 +50,14 @@ export function PageClient({ customers, errorMessage, isMockData }: Props) {
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             利用者登録
           </Button>
-          <List customers={customers} />
+          <List
+            customers={customers}
+            getEditingRow={getEditingRow}
+            onEditChange={onEditChange}
+            onUpdate={onUpdate}
+            savingCustomerId={savingCustomerId}
+            updateErrorMessage={updateErrorMessage}
+          />
           <CreateDialog
             isDialogOpen={isDialogOpen}
             onCloseDialog={onCloseDialog}
