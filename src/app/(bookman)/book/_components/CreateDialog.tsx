@@ -1,10 +1,20 @@
-import { Alert, Button, Checkbox, ListItemText, MenuItem, TextField } from '@mui/material'
+import {
+  Alert,
+  Button,
+  Checkbox,
+  Link as MuiLink,
+  ListItemText,
+  MenuItem,
+  TextField,
+} from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
 import { Author } from '@/resource/author'
+import { Branch } from '@/resource/branch'
+import { Category } from '@/resource/category'
 import { IBookFormValues } from '@/resource/book'
 
 interface CreateDialogProps {
@@ -16,6 +26,8 @@ interface CreateDialogProps {
   isCreating: boolean
   createErrorMessage: string | null
   authors: Author[]
+  categories: Category[]
+  branches: Branch[]
 }
 
 export const CreateDialog = ({
@@ -27,6 +39,8 @@ export const CreateDialog = ({
   isCreating,
   createErrorMessage,
   authors,
+  categories,
+  branches,
 }: CreateDialogProps) => {
   const selectedAuthorIds = (formValues.authors ?? '').split(',').filter(Boolean)
 
@@ -40,16 +54,24 @@ export const CreateDialog = ({
           </Alert>
         )}
         <TextField
+          select
           autoFocus
           margin='dense'
           id='category'
           name='category'
-          label='カテゴリーID'
+          label='カテゴリ'
+          helperText='カテゴリ管理で追加した分類も選択できます。'
           fullWidth
           value={formValues.category ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
-        />
+        >
+          {categories.map((category) => (
+            <MenuItem key={category.id} value={String(category.id)}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </TextField>
         <TextField
           margin='dense'
           id='name'
@@ -115,17 +137,49 @@ export const CreateDialog = ({
           margin='dense'
           id='amount'
           name='amount'
-          label='数量'
+          label='初期所蔵数'
+          helperText='登録後、この冊数を所蔵支店に紐づけます。'
           fullWidth
           value={formValues.amount ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
         />
         <TextField
+          select
+          margin='dense'
+          id='branch'
+          name='branch'
+          label='所蔵支店'
+          helperText='選択中の自治体配下の支店へ初期所蔵を登録します。'
+          fullWidth
+          value={formValues.branch ?? ''}
+          disabled={isCreating}
+          onChange={onInputChange}
+        >
+          {branches.map((branch) => (
+            <MenuItem key={branch.id} value={String(branch.id)}>
+              {branch.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
           margin='dense'
           id='isbn'
           name='isbn'
           label='ISBN'
+          placeholder='例: 978-4-06-293842-6'
+          helperText={
+            <>
+              ISBN-10またはISBN-13を入力してください。
+              <MuiLink
+                href='https://isbn.jpo.or.jp/index.php/fix__about/fix__about_3/'
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                ISBNと書籍JANコードとは
+              </MuiLink>
+            </>
+          }
           fullWidth
           value={formValues.isbn ?? ''}
           disabled={isCreating}
@@ -136,10 +190,17 @@ export const CreateDialog = ({
           id='publication_date'
           name='publication_date'
           label='出版年月日'
+          type='date'
+          helperText='カレンダーから選択できます。'
           fullWidth
           value={formValues.publication_date ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
+          slotProps={{
+            inputLabel: {
+              shrink: true,
+            },
+          }}
         />
       </DialogContent>
       <DialogActions>

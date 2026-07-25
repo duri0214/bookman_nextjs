@@ -4,6 +4,7 @@ import { Author } from '@/resource/author'
 import { Book } from '@/resource/book'
 import { Branch } from '@/resource/branch'
 import { Municipality } from '@/resource/municipality'
+import { Category } from '@/resource/category'
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -51,6 +52,8 @@ const authors: Author[] = [
   { id: 1, name: '夏目漱石' },
   { id: 2, name: '国松俊英' },
 ]
+
+const categories: Category[] = [{ id: 1, name: '小説', color: '#ff0000' }]
 
 const books: Book[] = [
   {
@@ -106,6 +109,7 @@ const renderPageClient = () =>
     <PageClient
       books={books}
       authors={authors}
+      categories={categories}
       branches={branches}
       municipalities={municipalities}
       staffMembers={[]}
@@ -137,5 +141,22 @@ describe('Book PageClient', () => {
     expect(within(listbox).queryByRole('option', { name: '豊島中央図書館' })).toBeNull()
     expect(screen.getByText('吾輩は猫である')).toBeTruthy()
     expect(screen.queryByText('豊島区だけの本')).toBeNull()
+  })
+
+  test('CSV登録導線が未実装として無効表示されるべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 書籍一覧画面。
+     * - 処理: PageClient を描画する。
+     * - 期待値: CSV登録導線が未実装の disabled ボタンとして表示されること。
+     */
+    await act(async () => {
+      renderPageClient()
+      await Promise.resolve()
+    })
+
+    expect(screen.getByRole('button', { name: 'CSV登録（未実装）' }).hasAttribute('disabled')).toBe(
+      true,
+    )
   })
 })
