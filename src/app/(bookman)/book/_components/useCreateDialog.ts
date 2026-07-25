@@ -8,6 +8,41 @@ const CREATE_BOOK_API_PATH = '/api/bookman/books'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
 
+const normalizeIsbn = (value: string | undefined): string =>
+  (value ?? '').replace(/[-\s]/g, '').toUpperCase()
+
+const isValidIsbn10 = (isbn: string): boolean => {
+  if (!/^\d{9}[\dX]$/.test(isbn)) {
+    return false
+  }
+
+  const total = isbn.split('').reduce((sum, char, index) => {
+    const digit = char === 'X' ? 10 : Number(char)
+    return sum + digit * (10 - index)
+  }, 0)
+
+  return total % 11 === 0
+}
+
+const isValidIsbn13 = (isbn: string): boolean => {
+  if (!/^\d{13}$/.test(isbn)) {
+    return false
+  }
+
+  const total = isbn
+    .slice(0, 12)
+    .split('')
+    .reduce((sum, char, index) => sum + Number(char) * (index % 2 === 0 ? 1 : 3), 0)
+  const checkDigit = (10 - (total % 10)) % 10
+
+  return checkDigit === Number(isbn[12])
+}
+
+const isValidIsbn = (value: string | undefined): boolean => {
+  const isbn = normalizeIsbn(value)
+  return isValidIsbn10(isbn) || isValidIsbn13(isbn)
+}
+
 const FIELD_LABELS: Record<string, string> = {
   category: 'カテゴリ',
   name: '名前',
@@ -87,7 +122,7 @@ const buildBookRequest = (
   authors: toAuthorIds(formValues.authors, authors),
   lead_text: formValues.lead_text ?? '',
   amount: toNumber(formValues.amount),
-  isbn: formValues.isbn ?? '',
+  isbn: normalizeIsbn(formValues.isbn),
   publication_date: formValues.publication_date ?? '',
 })
 
@@ -131,6 +166,13 @@ export function useCreateDialog(authors: Author[] = [], categories: Category[] =
 
     if (toAuthorIds(formValues.authors, authors).length === 0) {
       setCreateErrorMessage('著者を1名以上選択してください。')
+      return
+    }
+
+    if (!isValidIsbn(formValues.isbn)) {
+      setCreateErrorMessage(
+        'ISBNはISBN-10またはISBN-13の正しい形式で入力してください。例: 978-4-06-293842-6',
+      )
       return
     }
 

@@ -137,6 +137,7 @@ export const CreateDialog = ({
           id='isbn'
           name='isbn'
           label='ISBN'
+          helperText='ISBN-10またはISBN-13を入力してください。ハイフンありでも登録できます。'
           fullWidth
           value={formValues.isbn ?? ''}
           disabled={isCreating}

@@ -118,7 +118,7 @@ describe('useCreateDialog', () => {
         target: { name: 'amount', value: '3' },
       } as ChangeEvent<HTMLInputElement>)
       result.current.onInputChange({
-        target: { name: 'isbn', value: '9780000000001' },
+        target: { name: 'isbn', value: '978-4-06-293842-6' },
       } as ChangeEvent<HTMLInputElement>)
       result.current.onInputChange({
         target: { name: 'publication_date', value: '2026-01-01' },
@@ -142,7 +142,7 @@ describe('useCreateDialog', () => {
         authors: [1, 2],
         lead_text: '紹介文',
         amount: 3,
-        isbn: '9780000000001',
+        isbn: '9784062938426',
         publication_date: '2026-01-01',
       }),
     })
@@ -174,6 +174,9 @@ describe('useCreateDialog', () => {
       } as ChangeEvent<HTMLInputElement>)
       result.current.onInputChange({
         target: { name: 'authors', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'isbn', value: '9784062938426' },
       } as ChangeEvent<HTMLInputElement>)
     })
 
@@ -215,6 +218,42 @@ describe('useCreateDialog', () => {
     // Then
     expect(global.fetch).not.toHaveBeenCalled()
     expect(result.current.createErrorMessage).toBe('著者を1名以上選択してください。')
+    expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  /**
+   * シナリオ:
+   * - 入力: ISBNのチェックディジットが不正な書籍登録フォーム。
+   * - 処理: onCreate を呼び出す。
+   * - 期待値: APIへPOSTせず、ISBN形式のエラーメッセージを保持すること。
+   */
+  test('onCreateが不正なISBN形式の時に書籍登録APIへPOSTしないべき', async () => {
+    // Given
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
+
+    act(() => {
+      result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'category', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'authors', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'isbn', value: '11' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    // When
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    // Then
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(result.current.createErrorMessage).toBe(
+      'ISBNはISBN-10またはISBN-13の正しい形式で入力してください。例: 978-4-06-293842-6',
+    )
     expect(mockRefresh).not.toHaveBeenCalled()
   })
 
