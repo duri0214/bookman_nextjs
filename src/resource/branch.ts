@@ -5,6 +5,8 @@
  */
 export interface IBranchRaw {
   id: number
+  municipality?: number | null
+  municipality_name?: string | null
   name: string
   address: string
   phone: string
@@ -13,6 +15,8 @@ export interface IBranchRaw {
 
 export interface Branch {
   id: number
+  municipalityId: number | null
+  municipalityName: string
   name: string
   address: string
   phone: string
@@ -20,6 +24,7 @@ export interface Branch {
 }
 
 export interface IBranchRequest {
+  municipality?: number | null
   name: string
   address: string
   phone: string

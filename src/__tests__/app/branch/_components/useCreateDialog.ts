@@ -109,7 +109,13 @@ describe('useCreateDialog', () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ name: 'テスト図書館' }),
+      body: JSON.stringify({
+        municipality: null,
+        name: 'テスト図書館',
+        address: '',
+        phone: '',
+        remark: '',
+      }),
     })
     expect(result.current.isDialogOpen).toBe(false)
     expect(result.current.formValues).toEqual({})

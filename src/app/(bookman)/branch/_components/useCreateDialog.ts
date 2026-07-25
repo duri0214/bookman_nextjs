@@ -4,10 +4,22 @@ import { IBranchRequest } from '@/resource/branch'
 
 const CREATE_BRANCH_API_PATH = '/api/bookman/branches'
 
+interface BranchFormValues extends Omit<Partial<IBranchRequest>, 'municipality'> {
+  municipality?: string
+}
+
+const buildRequestBody = (formValues: BranchFormValues): IBranchRequest => ({
+  municipality: formValues.municipality ? Number(formValues.municipality) : null,
+  name: formValues.name ?? '',
+  address: formValues.address ?? '',
+  phone: formValues.phone ?? '',
+  remark: formValues.remark ?? '',
+})
+
 export function useCreateDialog() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [formValues, setFormValues] = useState<Partial<IBranchRequest>>({})
+  const [formValues, setFormValues] = useState<BranchFormValues>({})
   const [isCreating, setIsCreating] = useState(false)
   const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null)
 
@@ -46,7 +58,7 @@ export function useCreateDialog() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formValues),
+        body: JSON.stringify(buildRequestBody(formValues)),
       })
 
       if (!response.ok) {

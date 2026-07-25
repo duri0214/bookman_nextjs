@@ -1,0 +1,98 @@
+'use client'
+
+import {
+  Alert,
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from '@mui/material'
+import SaveIcon from '@mui/icons-material/Save'
+import { ChangeEvent } from 'react'
+import { IMunicipalityFormValues, Municipality } from '@/resource/municipality'
+
+interface Props {
+  municipalities: Municipality[]
+  getEditingRow: (municipality: Municipality) => IMunicipalityFormValues
+  onEditChange: (
+    municipality: Municipality,
+    fieldName: keyof IMunicipalityFormValues,
+  ) => (event: ChangeEvent<HTMLInputElement>) => void
+  onUpdate: (municipality: Municipality) => Promise<void>
+  savingMunicipalityId: number | null
+  updateErrorMessage: string | null
+}
+
+export function List({
+  municipalities,
+  getEditingRow,
+  onEditChange,
+  onUpdate,
+  savingMunicipalityId,
+  updateErrorMessage,
+}: Props) {
+  if (!municipalities || municipalities.length === 0) {
+    return <Typography variant='body1'>自治体データはまだありません。</Typography>
+  }
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      {updateErrorMessage && (
+        <Alert severity='error' sx={{ mb: 2 }}>
+          {updateErrorMessage}
+        </Alert>
+      )}
+      <TableContainer>
+        <Table size='small'>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ width: 80 }}>#</TableCell>
+              <TableCell>自治体名</TableCell>
+              <TableCell align='right' sx={{ width: 120 }}>
+                操作
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {municipalities.map((municipality) => {
+              const rowValues = getEditingRow(municipality)
+              const isSaving = savingMunicipalityId === municipality.id
+              return (
+                <TableRow key={municipality.id}>
+                  <TableCell>{municipality.id}</TableCell>
+                  <TableCell>
+                    <TextField
+                      size='small'
+                      name='name'
+                      value={rowValues.name}
+                      disabled={isSaving}
+                      onChange={onEditChange(municipality, 'name')}
+                      fullWidth
+                    />
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Button
+                      variant='outlined'
+                      size='small'
+                      startIcon={<SaveIcon />}
+                      disabled={isSaving}
+                      onClick={() => onUpdate(municipality)}
+                    >
+                      {isSaving ? '保存中' : '保存'}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  )
+}

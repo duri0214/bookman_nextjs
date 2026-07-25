@@ -63,6 +63,8 @@ const MOCK_STAFF: ILibraryStaffRaw[] = [
 const convertBranchData = (branches: IBranchRaw[]): Branch[] =>
   branches.map((branch) => ({
     id: branch.id,
+    municipalityId: branch.municipality ?? null,
+    municipalityName: branch.municipality_name ?? '未設定',
     name: branch.name,
     address: branch.address,
     phone: branch.phone,
@@ -130,6 +132,8 @@ export const getBookListData = async (): Promise<BookListData> => {
         branches: convertBranchData([
           {
             id: 1,
+            municipality: 1,
+            municipality_name: '渋谷区',
             name: '中央図書館',
             address: '東京都渋谷区神宮前1-4-1',
             phone: '03-3403-2591',
@@ -137,6 +141,8 @@ export const getBookListData = async (): Promise<BookListData> => {
           },
           {
             id: 2,
+            municipality: 1,
+            municipality_name: '渋谷区',
             name: '西原図書館',
             address: '東京都渋谷区西原2-28-9',
             phone: '03-3460-8535',

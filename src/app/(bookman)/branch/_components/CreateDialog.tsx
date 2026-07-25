@@ -1,9 +1,10 @@
-import { Alert, Button, TextField } from '@mui/material'
+import { Alert, Button, MenuItem, TextField } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
+import { Municipality } from '@/resource/municipality'
 
 interface CreateDialogProps {
   isDialogOpen: boolean
@@ -11,6 +12,7 @@ interface CreateDialogProps {
   onInputChange: (event: ChangeEvent<HTMLInputElement>) => void
   onCreate: () => Promise<void>
   formValues: {
+    municipality?: string
     name?: string
     address?: string
     phone?: string
@@ -18,6 +20,7 @@ interface CreateDialogProps {
   }
   isCreating: boolean
   createErrorMessage: string | null
+  municipalities: Municipality[]
 }
 
 export const CreateDialog = ({
@@ -28,6 +31,7 @@ export const CreateDialog = ({
   formValues,
   isCreating,
   createErrorMessage,
+  municipalities,
 }: CreateDialogProps) => {
   return (
     <Dialog open={isDialogOpen} onClose={onCloseDialog}>
@@ -40,6 +44,24 @@ export const CreateDialog = ({
         )}
         <TextField
           autoFocus
+          select
+          margin='dense'
+          id='municipality'
+          name='municipality'
+          label='自治体'
+          fullWidth
+          value={formValues.municipality ?? ''}
+          disabled={isCreating}
+          onChange={onInputChange}
+        >
+          <MenuItem value=''>既定自治体</MenuItem>
+          {municipalities.map((municipality) => (
+            <MenuItem key={municipality.id} value={String(municipality.id)}>
+              {municipality.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
           margin='dense'
           id='name'
           name='name'
