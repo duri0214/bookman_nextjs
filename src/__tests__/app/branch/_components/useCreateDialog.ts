@@ -82,13 +82,66 @@ describe('useCreateDialog', () => {
 
   /**
    * シナリオ:
-   * - 入力: 支店登録 API が成功し、フォームに支店名が入力済みの状態。
+   * - 入力: 支店登録 API が成功し、フォームに自治体と支店名が入力済みの状態。
    * - 処理: onCreate を呼び出す。
    * - 期待値: 登録 API に POST し、ダイアログを閉じて一覧を再取得すること。
    */
   test('onCreateが成功した時に支店登録APIへPOSTして一覧を再取得するべき', async () => {
     // Given
     jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(useCreateDialog)
+
+    act(() => {
+      result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'municipality', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'name', value: 'テスト図書館' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'address', value: 'テスト住所' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'phone', value: '000-9000-0000' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'remark', value: 'テスト備考' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    // When
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    // Then
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/branches', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        municipality: 10,
+        name: 'テスト図書館',
+        address: 'テスト住所',
+        phone: '000-9000-0000',
+        remark: 'テスト備考',
+      }),
+    })
+    expect(result.current.isDialogOpen).toBe(false)
+    expect(result.current.formValues).toEqual({})
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  /**
+   * シナリオ:
+   * - 入力: 自治体が未選択の支店登録フォーム。
+   * - 処理: onCreate を呼び出す。
+   * - 期待値: APIへPOSTせず、必須項目の入力を促すエラーメッセージを保持すること。
+   */
+  test('onCreateが必須項目未入力時に支店登録APIへPOSTしないべき', async () => {
+    // Given
     const { result } = renderHook(useCreateDialog)
 
     act(() => {
@@ -104,16 +157,10 @@ describe('useCreateDialog', () => {
     })
 
     // Then
-    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/branches', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: 'テスト図書館' }),
-    })
-    expect(result.current.isDialogOpen).toBe(false)
-    expect(result.current.formValues).toEqual({})
-    expect(mockRefresh).toHaveBeenCalledTimes(1)
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(result.current.isDialogOpen).toBe(true)
+    expect(result.current.createErrorMessage).toBe('必須項目をすべて入力してください。')
+    expect(mockRefresh).not.toHaveBeenCalled()
   })
 
   /**
@@ -124,11 +171,29 @@ describe('useCreateDialog', () => {
    */
   test('onCreateが失敗した時に登録失敗メッセージを保持するべき', async () => {
     // Given
-    jest.mocked(global.fetch).mockResolvedValue({ ok: false } as Response)
+    jest.mocked(global.fetch).mockResolvedValue({
+      ok: false,
+      json: jest.fn().mockResolvedValue({ remark: ['This field may not be blank.'] }),
+    } as unknown as Response)
     const { result } = renderHook(useCreateDialog)
 
     act(() => {
       result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'municipality', value: '10' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'name', value: 'テスト図書館' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'address', value: 'テスト住所' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'phone', value: '000-9000-0000' },
+      } as ChangeEvent<HTMLInputElement>)
+      result.current.onInputChange({
+        target: { name: 'remark', value: 'テスト備考' },
+      } as ChangeEvent<HTMLInputElement>)
     })
 
     // When
@@ -138,9 +203,7 @@ describe('useCreateDialog', () => {
 
     // Then
     expect(result.current.isDialogOpen).toBe(true)
-    expect(result.current.createErrorMessage).toBe(
-      '支店データの登録に失敗しました。入力内容とバックエンドの状態を確認してください。',
-    )
+    expect(result.current.createErrorMessage).toBe('備考: This field may not be blank.')
     expect(mockRefresh).not.toHaveBeenCalled()
   })
 })

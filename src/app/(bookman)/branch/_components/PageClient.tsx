@@ -4,6 +4,7 @@ import { Alert, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { Branch, BranchClosedDay } from '@/resource/branch'
+import { Municipality } from '@/resource/municipality'
 import { ClosedDaySettings } from './ClosedDaySettings'
 import { CreateDialog } from './CreateDialog'
 import { List } from './List'
@@ -11,12 +12,19 @@ import { useCreateDialog } from './useCreateDialog'
 
 interface Props {
   branches: Branch[]
+  municipalities: Municipality[]
   closedDays: BranchClosedDay[]
   errorMessage: string | null
   isMockData: boolean
 }
 
-export function PageClient({ branches, closedDays, errorMessage, isMockData }: Props) {
+export function PageClient({
+  branches,
+  municipalities,
+  closedDays,
+  errorMessage,
+  isMockData,
+}: Props) {
   const {
     isDialogOpen,
     openDialog,
@@ -58,7 +66,7 @@ export function PageClient({ branches, closedDays, errorMessage, isMockData }: P
             新規登録
           </Button>
           <List branches={branches} />
-          <CreateDialog {...dialogProps} />
+          <CreateDialog {...dialogProps} municipalities={municipalities} />
         </Paper>
       </Grid>
       <Grid size={{ xs: 12 }}>

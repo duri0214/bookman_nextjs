@@ -1,11 +1,15 @@
 import { Branch, BranchClosedDay, IBranchClosedDayRaw, IBranchRaw } from '@/resource/branch'
 import { getBookmanApiUrl } from '@/helpers/apiClient'
+import { convertMunicipalityData } from '@/app/municipality/_components/listData'
+import { IMunicipalityRaw, Municipality } from '@/resource/municipality'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
 const MOCK_BRANCHES: IBranchRaw[] = [
   {
     id: 1,
+    municipality: 1,
+    municipality_name: '渋谷区',
     name: '中央図書館',
     address: '東京都渋谷区神宮前1-4-1',
     phone: '03-3403-2591',
@@ -13,6 +17,8 @@ const MOCK_BRANCHES: IBranchRaw[] = [
   },
   {
     id: 2,
+    municipality: 1,
+    municipality_name: '渋谷区',
     name: '西原図書館',
     address: '東京都渋谷区西原2-28-9',
     phone: '03-3460-8535',
@@ -37,8 +43,16 @@ const MOCK_BRANCH_CLOSED_DAYS: IBranchClosedDayRaw[] = [
   },
 ]
 
+const MOCK_MUNICIPALITIES: IMunicipalityRaw[] = [
+  {
+    id: 1,
+    name: '渋谷区',
+  },
+]
+
 interface BranchListData {
   branches: Branch[]
+  municipalities: Municipality[]
   closedDays: BranchClosedDay[]
   errorMessage: string | null
   isMockData: boolean
@@ -47,6 +61,8 @@ interface BranchListData {
 export const convertBranchData = (data: IBranchRaw[]): Branch[] =>
   data.map((result: IBranchRaw) => ({
     id: result.id,
+    municipalityId: result.municipality ?? null,
+    municipalityName: result.municipality_name ?? '未設定',
     name: result.name,
     address: result.address,
     phone: result.phone,
@@ -72,12 +88,14 @@ const loadBookmanData = async <T>(apiUrl: string): Promise<T> => {
 
 export const getBranchListData = async (): Promise<BranchListData> => {
   try {
-    const [branches, closedDays] = await Promise.all([
+    const [branches, municipalities, closedDays] = await Promise.all([
       loadBookmanData<IBranchRaw[]>(getBookmanApiUrl('branches')),
+      loadBookmanData<IMunicipalityRaw[]>(getBookmanApiUrl('municipalities')),
       loadBookmanData<IBranchClosedDayRaw[]>(getBookmanApiUrl('branchClosedDays')),
     ])
     return {
       branches: convertBranchData(branches),
+      municipalities: convertMunicipalityData(municipalities),
       closedDays: convertBranchClosedDayData(closedDays),
       errorMessage: null,
       isMockData: false,
@@ -88,6 +106,7 @@ export const getBranchListData = async (): Promise<BranchListData> => {
     if (USE_MOCK_DATA) {
       return {
         branches: convertBranchData(MOCK_BRANCHES),
+        municipalities: convertMunicipalityData(MOCK_MUNICIPALITIES),
         closedDays: convertBranchClosedDayData(MOCK_BRANCH_CLOSED_DAYS),
         errorMessage: null,
         isMockData: true,
@@ -96,6 +115,7 @@ export const getBranchListData = async (): Promise<BranchListData> => {
 
     return {
       branches: [],
+      municipalities: [],
       closedDays: [],
       errorMessage:
         '支店データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',

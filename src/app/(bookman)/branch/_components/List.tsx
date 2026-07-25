@@ -13,6 +13,7 @@ export function List({ branches }: Props) {
   }
   const rows: GridRowsProp = branches.map((branch) => ({
     id: branch.id,
+    municipalityName: branch.municipalityName,
     name: branch.name,
     address: branch.address,
     phone: branch.phone,
@@ -20,6 +21,7 @@ export function List({ branches }: Props) {
   }))
   const columns: GridColDef[] = [
     { field: 'id', headerName: '#', width: 50 },
+    { field: 'municipalityName', headerName: '自治体', width: 160 },
     { field: 'name', headerName: '名前', width: 200 },
     { field: 'address', headerName: '住所', width: 200 },
     { field: 'phone', headerName: '問い合わせ先', width: 150 },

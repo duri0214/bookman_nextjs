@@ -12,6 +12,7 @@ import AssignmentIcon from '@mui/icons-material/Assignment'
 import PeopleIcon from '@mui/icons-material/People'
 import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 import BadgeIcon from '@mui/icons-material/Badge'
+import LocationCityIcon from '@mui/icons-material/LocationCity'
 
 export const mainListItems = (
   <>
@@ -27,11 +28,23 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='ダッシュボード' />
     </ListItemButton>
+    <ListItemButton component={Link} href='/municipality'>
+      <ListItemIcon>
+        <LocationCityIcon />
+      </ListItemIcon>
+      <ListItemText primary='自治体管理' />
+    </ListItemButton>
     <ListItemButton component={Link} href='/branch'>
       <ListItemIcon>
         <AddHomeIcon />
       </ListItemIcon>
       <ListItemText primary='館管理' />
+    </ListItemButton>
+    <ListItemButton component={Link} href='/staff'>
+      <ListItemIcon>
+        <BadgeIcon />
+      </ListItemIcon>
+      <ListItemText primary='職員管理' />
     </ListItemButton>
     <ListItemButton component={Link} href='/book'>
       <ListItemIcon>
@@ -44,12 +57,6 @@ export const mainListItems = (
         <PeopleIcon />
       </ListItemIcon>
       <ListItemText primary='利用者台帳' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/staff'>
-      <ListItemIcon>
-        <BadgeIcon />
-      </ListItemIcon>
-      <ListItemText primary='職員管理' />
     </ListItemButton>
     <ListItemButton component={Link} href='/lending'>
       <ListItemIcon>
