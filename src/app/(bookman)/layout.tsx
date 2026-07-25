@@ -7,8 +7,8 @@ const routeTitles = {
   '/municipality': '自治体管理',
   '/book': '書籍管理',
   '/customer': '利用者台帳',
-  '/lending': '貸出・返却',
-  '/reservation': '予約・取り置き',
+  '/lending': '貸出・予約カウンター',
+  '/reservation': '貸出・予約カウンター',
 } as const
 
 export default function BookmanLayout({ children }: Readonly<{ children: ReactNode }>) {

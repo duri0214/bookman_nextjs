@@ -13,7 +13,6 @@ import LayersIcon from '@mui/icons-material/Layers'
 import AssignmentIcon from '@mui/icons-material/Assignment'
 import PeopleIcon from '@mui/icons-material/People'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
-import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 import BadgeIcon from '@mui/icons-material/Badge'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
 import CategoryIcon from '@mui/icons-material/Category'
@@ -77,13 +76,7 @@ export const mainListItems = (pathname: string) => (
     <NavItem href='/book' pathname={pathname} icon={<AutoStoriesIcon />} label='書籍管理' />
     <Divider component='li' sx={{ my: 0.5 }} />
     <NavItem href='/customer' pathname={pathname} icon={<PeopleIcon />} label='利用者台帳' />
-    <NavItem href='/lending' pathname={pathname} icon={<LayersIcon />} label='貸出・返却' />
-    <NavItem
-      href='/reservation'
-      pathname={pathname}
-      icon={<EventAvailableIcon />}
-      label='予約・取り置き'
-    />
+    <NavItem href='/lending' pathname={pathname} icon={<LayersIcon />} label='貸出・予約' />
   </>
 )
 
@@ -98,7 +91,7 @@ export const secondaryListItems = (pathname: string) => (
       </ListItemIcon>
       <ListItemText primary='今月の貸出（未接続）' />
     </ListItemButton>
-    <NavItem href='/reservation' pathname={pathname} icon={<AssignmentIcon />} label='予約状況' />
+    <NavItem href='/lending' pathname={pathname} icon={<AssignmentIcon />} label='予約状況' />
     <ListItemButton disabled>
       <ListItemIcon>
         <AssignmentIcon />

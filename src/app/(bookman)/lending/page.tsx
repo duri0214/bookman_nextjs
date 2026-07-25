@@ -13,6 +13,7 @@ export default async function Page() {
     branchBookStocks,
     lendings,
     heldReservations,
+    reservations,
     errorMessage,
     isMockData,
   } = await getLendingPageData()
@@ -27,6 +28,7 @@ export default async function Page() {
           branchBookStocks={branchBookStocks}
           lendings={lendings}
           heldReservations={heldReservations}
+          reservations={reservations}
           errorMessage={errorMessage}
           isMockData={isMockData}
         />
