@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -14,66 +15,75 @@ import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 import BadgeIcon from '@mui/icons-material/Badge'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
 
-export const mainListItems = (
+const isActivePath = (pathname: string, href: string): boolean =>
+  href === '/' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
+
+const activeItemSx = {
+  '&.Mui-selected': {
+    bgcolor: 'primary.main',
+    color: 'primary.contrastText',
+    '&:hover': {
+      bgcolor: 'primary.dark',
+    },
+    '& .MuiListItemIcon-root': {
+      color: 'inherit',
+    },
+  },
+}
+
+interface NavItemProps {
+  href: string
+  pathname: string
+  icon: ReactNode
+  label: string
+}
+
+function NavItem({ href, pathname, icon, label }: NavItemProps) {
+  return (
+    <ListItemButton
+      component={Link}
+      href={href}
+      selected={isActivePath(pathname, href)}
+      sx={activeItemSx}
+    >
+      <ListItemIcon>
+        {icon}
+      </ListItemIcon>
+      <ListItemText primary={label} />
+    </ListItemButton>
+  )
+}
+
+export const mainListItems = (pathname: string) => (
   <>
-    <ListItemButton component={Link} href='/'>
-      <ListItemIcon>
-        <HomeIcon />
-      </ListItemIcon>
-      <ListItemText primary='Home' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/dashboard'>
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary='ダッシュボード' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/municipality'>
-      <ListItemIcon>
-        <LocationCityIcon />
-      </ListItemIcon>
-      <ListItemText primary='自治体管理' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/branch'>
-      <ListItemIcon>
-        <AddHomeIcon />
-      </ListItemIcon>
-      <ListItemText primary='館管理' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/staff'>
-      <ListItemIcon>
-        <BadgeIcon />
-      </ListItemIcon>
-      <ListItemText primary='職員管理' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/book'>
-      <ListItemIcon>
-        <AutoStoriesIcon />
-      </ListItemIcon>
-      <ListItemText primary='書籍管理' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/customer'>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary='利用者台帳' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/lending'>
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary='貸出・返却' />
-    </ListItemButton>
-    <ListItemButton component={Link} href='/reservation'>
-      <ListItemIcon>
-        <EventAvailableIcon />
-      </ListItemIcon>
-      <ListItemText primary='予約・取り置き' />
-    </ListItemButton>
+    <NavItem href='/' pathname={pathname} icon={<HomeIcon />} label='Home' />
+    <NavItem
+      href='/dashboard'
+      pathname={pathname}
+      icon={<DashboardIcon />}
+      label='ダッシュボード'
+    />
+    <NavItem
+      href='/municipality'
+      pathname={pathname}
+      icon={<LocationCityIcon />}
+      label='自治体管理'
+    />
+    <NavItem href='/branch' pathname={pathname} icon={<AddHomeIcon />} label='館管理' />
+    <NavItem href='/staff' pathname={pathname} icon={<BadgeIcon />} label='職員管理' />
+    <NavItem href='/book' pathname={pathname} icon={<AutoStoriesIcon />} label='書籍管理' />
+    <NavItem href='/customer' pathname={pathname} icon={<PeopleIcon />} label='利用者台帳' />
+    <NavItem href='/lending' pathname={pathname} icon={<LayersIcon />} label='貸出・返却' />
+    <NavItem
+      href='/reservation'
+      pathname={pathname}
+      icon={<EventAvailableIcon />}
+      label='予約・取り置き'
+    />
   </>
 )
 
-export const secondaryListItems = (
+export const secondaryListItems = (pathname: string) => (
   <>
     <ListSubheader component='div' inset>
       業務指標
@@ -84,12 +94,7 @@ export const secondaryListItems = (
       </ListItemIcon>
       <ListItemText primary='今月の貸出（未接続）' />
     </ListItemButton>
-    <ListItemButton component={Link} href='/reservation'>
-      <ListItemIcon>
-        <AssignmentIcon />
-      </ListItemIcon>
-      <ListItemText primary='予約状況' />
-    </ListItemButton>
+    <NavItem href='/reservation' pathname={pathname} icon={<AssignmentIcon />} label='予約状況' />
     <ListItemButton disabled>
       <ListItemIcon>
         <AssignmentIcon />
