@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import Divider from '@mui/material/Divider'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
@@ -74,6 +75,7 @@ export const mainListItems = (pathname: string) => (
     <NavItem href='/author' pathname={pathname} icon={<PersonAddIcon />} label='著者管理' />
     <NavItem href='/category' pathname={pathname} icon={<CategoryIcon />} label='カテゴリ管理' />
     <NavItem href='/book' pathname={pathname} icon={<AutoStoriesIcon />} label='書籍管理' />
+    <Divider component='li' sx={{ my: 0.5 }} />
     <NavItem href='/customer' pathname={pathname} icon={<PeopleIcon />} label='利用者台帳' />
     <NavItem href='/lending' pathname={pathname} icon={<LayersIcon />} label='貸出・返却' />
     <NavItem
