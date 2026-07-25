@@ -1,12 +1,8 @@
+import type { Category } from './category'
+
 export interface IAuthor {
   id: number
   name: string
-}
-
-export interface ICategory {
-  id: number
-  name: string
-  color: string
 }
 
 /**
@@ -46,7 +42,7 @@ export interface BookBranchStock {
 
 export interface Book {
   id: number
-  category: ICategory | null
+  category: Category | null
   name: string
   authors: string
   leadText: string

@@ -7,6 +7,7 @@ import Paper from '@mui/material/Paper'
 import { SearchConditionPanel } from '../../_components/SearchConditionPanel'
 import { Book } from '@/resource/book'
 import { Author } from '@/resource/author'
+import { Category } from '@/resource/category'
 import { Branch } from '@/resource/branch'
 import { LibraryStaff } from '@/resource/lending'
 import { Municipality } from '@/resource/municipality'
@@ -19,6 +20,7 @@ import { useTransferDialog } from './useTransferDialog'
 interface Props {
   books: Book[]
   authors: Author[]
+  categories: Category[]
   branches: Branch[]
   municipalities: Municipality[]
   staffMembers: LibraryStaff[]
@@ -42,6 +44,7 @@ const normalizeBookFilters = (conditions: Record<string, unknown>): BookFilters 
 export function PageClient({
   books,
   authors,
+  categories,
   branches,
   municipalities,
   staffMembers,
@@ -65,7 +68,7 @@ export function PageClient({
     onCreate,
     isCreating,
     createErrorMessage,
-  } = useCreateDialog(authors)
+  } = useCreateDialog(authors, categories)
   const {
     selectedBook,
     isTransferDialogOpen,
@@ -87,6 +90,7 @@ export function PageClient({
     isCreating,
     createErrorMessage,
     authors,
+    categories,
   }
   const filteredBranches = useMemo(
     () =>

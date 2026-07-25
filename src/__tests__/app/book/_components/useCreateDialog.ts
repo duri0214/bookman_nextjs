@@ -11,6 +11,15 @@ jest.mock('next/navigation', () => ({
 }))
 
 describe('useCreateDialog', () => {
+  const authors = [
+    { id: 1, name: '夏目漱石' },
+    { id: 2, name: '国松俊英' },
+  ]
+  const categories = [
+    { id: 1, name: '小説', color: '#ff0000' },
+    { id: 2, name: '実用', color: '#00ff00' },
+  ]
+
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
@@ -23,7 +32,7 @@ describe('useCreateDialog', () => {
    * - 期待値: 登録ダイアログが開くこと。
    */
   test('openDialogが呼び出された時にダイアログが開くべき', () => {
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
     act(() => {
       result.current.openDialog()
     })
@@ -37,7 +46,7 @@ describe('useCreateDialog', () => {
    * - 期待値: 登録ダイアログが閉じること。
    */
   test('closeDialogが呼び出された時にダイアログが閉じるべき', () => {
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
     act(() => {
       result.current.onCloseDialog()
     })
@@ -51,7 +60,7 @@ describe('useCreateDialog', () => {
    * - 期待値: formValues に入力値が反映されること。
    */
   test('handleInputChangeが呼び出された時にformValuesが更新されるべき', () => {
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
     const inputEvent = {
       target: { name: 'testName', value: 'testValue' },
     } as ChangeEvent<HTMLInputElement>
@@ -68,7 +77,7 @@ describe('useCreateDialog', () => {
    * - 期待値: formValues に複数の入力値が保持されること。
    */
   test('handleInputChangeが複数回呼び出されたときにformValuesが複数回更新されるべき', () => {
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
     act(() => {
       result.current.onInputChange({
         target: { name: 'firstName', value: 'John' },
@@ -89,7 +98,7 @@ describe('useCreateDialog', () => {
   test('onCreateが成功した時に書籍登録APIへPOSTして一覧を再取得するべき', async () => {
     // Given
     jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
 
     act(() => {
       result.current.openDialog()
@@ -151,10 +160,13 @@ describe('useCreateDialog', () => {
   test('onCreateが失敗した時に登録失敗メッセージを保持するべき', async () => {
     // Given
     jest.mocked(global.fetch).mockResolvedValue({ ok: false } as Response)
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
 
     act(() => {
       result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'category', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
       result.current.onInputChange({
         target: { name: 'authors', value: '1' },
       } as ChangeEvent<HTMLInputElement>)
@@ -181,10 +193,13 @@ describe('useCreateDialog', () => {
    */
   test('onCreateが著者未選択時に書籍登録APIへPOSTしないべき', async () => {
     // Given
-    const { result } = renderHook(useCreateDialog)
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
 
     act(() => {
       result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'category', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
     })
 
     // When
@@ -195,6 +210,34 @@ describe('useCreateDialog', () => {
     // Then
     expect(global.fetch).not.toHaveBeenCalled()
     expect(result.current.createErrorMessage).toBe('著者を1名以上選択してください。')
+    expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  /**
+   * シナリオ:
+   * - 入力: カテゴリが未選択の書籍登録フォーム。
+   * - 処理: onCreate を呼び出す。
+   * - 期待値: APIへPOSTせず、カテゴリ選択を促すエラーメッセージを保持すること。
+   */
+  test('onCreateがカテゴリ未選択時に書籍登録APIへPOSTしないべき', async () => {
+    // Given
+    const { result } = renderHook(() => useCreateDialog(authors, categories))
+
+    act(() => {
+      result.current.openDialog()
+      result.current.onInputChange({
+        target: { name: 'authors', value: '1' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    // When
+    await act(async () => {
+      await result.current.onCreate()
+    })
+
+    // Then
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(result.current.createErrorMessage).toBe('カテゴリを選択してください。')
     expect(mockRefresh).not.toHaveBeenCalled()
   })
 })

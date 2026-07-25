@@ -1,11 +1,27 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Author } from '@/resource/author'
+import { Category } from '@/resource/category'
 import { IBookFormValues, IBookRequest } from '@/resource/book'
 
 const CREATE_BOOK_API_PATH = '/api/bookman/books'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
+
+const toCategoryId = (value: string | undefined, categories: Category[] = []): number => {
+  const categoryId = toNumber(value)
+  const availableCategoryIds = new Set(categories.map((category) => category.id))
+
+  if (
+    Number.isInteger(categoryId) &&
+    categoryId > 0 &&
+    (availableCategoryIds.size === 0 || availableCategoryIds.has(categoryId))
+  ) {
+    return categoryId
+  }
+
+  return 0
+}
 
 const toAuthorIds = (value: string | undefined, authors: Author[] = []): number[] => {
   const availableAuthorIds = new Set(authors.map((author) => author.id))
@@ -24,8 +40,9 @@ const toAuthorIds = (value: string | undefined, authors: Author[] = []): number[
 const buildBookRequest = (
   formValues: Partial<IBookFormValues>,
   authors: Author[],
+  categories: Category[],
 ): IBookRequest => ({
-  category: toNumber(formValues.category),
+  category: toCategoryId(formValues.category, categories),
   name: formValues.name ?? '',
   authors: toAuthorIds(formValues.authors, authors),
   lead_text: formValues.lead_text ?? '',
@@ -34,7 +51,7 @@ const buildBookRequest = (
   publication_date: formValues.publication_date ?? '',
 })
 
-export function useCreateDialog(authors: Author[] = []) {
+export function useCreateDialog(authors: Author[] = [], categories: Category[] = []) {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formValues, setFormValues] = useState<Partial<IBookFormValues>>({})
@@ -67,6 +84,11 @@ export function useCreateDialog(authors: Author[] = []) {
   }
 
   const onCreate = async () => {
+    if (toCategoryId(formValues.category, categories) === 0) {
+      setCreateErrorMessage('カテゴリを選択してください。')
+      return
+    }
+
     if (toAuthorIds(formValues.authors, authors).length === 0) {
       setCreateErrorMessage('著者を1名以上選択してください。')
       return
@@ -81,7 +103,7 @@ export function useCreateDialog(authors: Author[] = []) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildBookRequest(formValues, authors)),
+        body: JSON.stringify(buildBookRequest(formValues, authors, categories)),
       })
 
       if (!response.ok) {

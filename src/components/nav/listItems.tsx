@@ -15,6 +15,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import EventAvailableIcon from '@mui/icons-material/EventAvailable'
 import BadgeIcon from '@mui/icons-material/Badge'
 import LocationCityIcon from '@mui/icons-material/LocationCity'
+import CategoryIcon from '@mui/icons-material/Category'
 
 const isActivePath = (pathname: string, href: string): boolean =>
   href === '/' ? pathname === href : pathname === href || pathname.startsWith(`${href}/`)
@@ -71,6 +72,7 @@ export const mainListItems = (pathname: string) => (
     <NavItem href='/branch' pathname={pathname} icon={<AddHomeIcon />} label='館管理' />
     <NavItem href='/staff' pathname={pathname} icon={<BadgeIcon />} label='職員管理' />
     <NavItem href='/author' pathname={pathname} icon={<PersonAddIcon />} label='著者管理' />
+    <NavItem href='/category' pathname={pathname} icon={<CategoryIcon />} label='カテゴリ管理' />
     <NavItem href='/book' pathname={pathname} icon={<AutoStoriesIcon />} label='書籍管理' />
     <NavItem href='/customer' pathname={pathname} icon={<PeopleIcon />} label='利用者台帳' />
     <NavItem href='/lending' pathname={pathname} icon={<LayersIcon />} label='貸出・返却' />

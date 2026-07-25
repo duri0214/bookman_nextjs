@@ -5,6 +5,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
 import { Author } from '@/resource/author'
+import { Category } from '@/resource/category'
 import { IBookFormValues } from '@/resource/book'
 
 interface CreateDialogProps {
@@ -16,6 +17,7 @@ interface CreateDialogProps {
   isCreating: boolean
   createErrorMessage: string | null
   authors: Author[]
+  categories: Category[]
 }
 
 export const CreateDialog = ({
@@ -27,6 +29,7 @@ export const CreateDialog = ({
   isCreating,
   createErrorMessage,
   authors,
+  categories,
 }: CreateDialogProps) => {
   const selectedAuthorIds = (formValues.authors ?? '').split(',').filter(Boolean)
 
@@ -40,16 +43,24 @@ export const CreateDialog = ({
           </Alert>
         )}
         <TextField
+          select
           autoFocus
           margin='dense'
           id='category'
           name='category'
-          label='カテゴリーID'
+          label='カテゴリ'
+          helperText='カテゴリ管理で追加した分類も選択できます。'
           fullWidth
           value={formValues.category ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
-        />
+        >
+          {categories.map((category) => (
+            <MenuItem key={category.id} value={String(category.id)}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </TextField>
         <TextField
           margin='dense'
           id='name'

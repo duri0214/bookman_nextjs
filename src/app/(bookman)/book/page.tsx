@@ -7,8 +7,16 @@ import { PageClient } from './_components/PageClient'
 export const dynamic = 'force-dynamic'
 
 export default async function Page() {
-  const { books, authors, branches, municipalities, staffMembers, errorMessage, isMockData } =
-    await getBookListData()
+  const {
+    books,
+    authors,
+    categories,
+    branches,
+    municipalities,
+    staffMembers,
+    errorMessage,
+    isMockData,
+  } = await getBookListData()
 
   return (
     <>
@@ -17,6 +25,7 @@ export default async function Page() {
         <PageClient
           books={books}
           authors={authors}
+          categories={categories}
           branches={branches}
           municipalities={municipalities}
           staffMembers={staffMembers}

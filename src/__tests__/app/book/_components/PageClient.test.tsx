@@ -4,6 +4,7 @@ import { Author } from '@/resource/author'
 import { Book } from '@/resource/book'
 import { Branch } from '@/resource/branch'
 import { Municipality } from '@/resource/municipality'
+import { Category } from '@/resource/category'
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -51,6 +52,8 @@ const authors: Author[] = [
   { id: 1, name: '夏目漱石' },
   { id: 2, name: '国松俊英' },
 ]
+
+const categories: Category[] = [{ id: 1, name: '小説', color: '#ff0000' }]
 
 const books: Book[] = [
   {
@@ -106,6 +109,7 @@ const renderPageClient = () =>
     <PageClient
       books={books}
       authors={authors}
+      categories={categories}
       branches={branches}
       municipalities={municipalities}
       staffMembers={[]}

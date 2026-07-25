@@ -1,4 +1,5 @@
-import { Book, IBookRaw, ICategory } from '@/resource/book'
+import { Book, IBookRaw } from '@/resource/book'
+import { Category, ICategoryRaw } from '@/resource/category'
 import { Author, IAuthorRaw } from '@/resource/author'
 import { Branch, IBranchRaw } from '@/resource/branch'
 import { IMunicipalityRaw, Municipality } from '@/resource/municipality'
@@ -41,7 +42,7 @@ const MOCK_BOOKS: IBookRaw[] = [
   },
 ]
 
-const MOCK_CATEGORIES: ICategory[] = [
+const MOCK_CATEGORIES: ICategoryRaw[] = [
   { id: 1, name: '技術書', color: '#1976d2' },
   { id: 2, name: 'ビジネス', color: '#2e7d32' },
 ]
@@ -54,6 +55,7 @@ const MOCK_AUTHORS: IAuthorRaw[] = [
 interface BookListData {
   books: Book[]
   authors: Author[]
+  categories: Category[]
   branches: Branch[]
   municipalities: Municipality[]
   staffMembers: LibraryStaff[]
@@ -76,9 +78,16 @@ const convertBranchData = (branches: IBranchRaw[]): Branch[] =>
     remark: branch.remark,
   }))
 
+export const convertCategoryData = (data: ICategoryRaw[]): Category[] =>
+  data.map((category) => ({
+    id: category.id,
+    name: category.name,
+    color: category.color,
+  }))
+
 const convertBookData = (
   books: IBookRaw[],
-  categories: ICategory[],
+  categories: Category[],
   authors: Author[],
   branches: Branch[],
 ): Book[] => {
@@ -119,17 +128,19 @@ export const getBookListData = async (): Promise<BookListData> => {
   try {
     const [books, categories, authors, branches, municipalities, staffMembers] = await Promise.all([
       loadBookmanData<IBookRaw[]>(getBookmanApiUrl('books')),
-      loadBookmanData<ICategory[]>(getBookmanApiUrl('categories')),
+      loadBookmanData<ICategoryRaw[]>(getBookmanApiUrl('categories')),
       loadBookmanData<IAuthorRaw[]>(getBookmanApiUrl('authors')),
       loadBookmanData<IBranchRaw[]>(getBookmanApiUrl('branches')),
       loadBookmanData<IMunicipalityRaw[]>(getBookmanApiUrl('municipalities')),
       loadBookmanData<ILibraryStaffRaw[]>(getBookmanApiUrl('staff')),
     ])
     const convertedBranches = convertBranchData(branches)
+    const convertedCategories = convertCategoryData(categories)
 
     return {
-      books: convertBookData(books, categories, authors, convertedBranches),
+      books: convertBookData(books, convertedCategories, authors, convertedBranches),
       authors,
+      categories: convertedCategories,
       branches: convertedBranches,
       municipalities: convertMunicipalityData(municipalities),
       staffMembers: convertStaffData(staffMembers),
@@ -162,8 +173,14 @@ export const getBookListData = async (): Promise<BookListData> => {
       ])
 
       return {
-        books: convertBookData(MOCK_BOOKS, MOCK_CATEGORIES, MOCK_AUTHORS, mockBranches),
+        books: convertBookData(
+          MOCK_BOOKS,
+          convertCategoryData(MOCK_CATEGORIES),
+          MOCK_AUTHORS,
+          mockBranches,
+        ),
         authors: MOCK_AUTHORS,
+        categories: convertCategoryData(MOCK_CATEGORIES),
         branches: mockBranches,
         municipalities: [{ id: 1, name: '渋谷区' }],
         staffMembers: convertStaffData(MOCK_STAFF),
@@ -175,6 +192,7 @@ export const getBookListData = async (): Promise<BookListData> => {
     return {
       books: [],
       authors: [],
+      categories: [],
       branches: [],
       municipalities: [],
       staffMembers: [],
