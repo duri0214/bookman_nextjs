@@ -1,10 +1,12 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Author } from '@/resource/author'
+import { Branch } from '@/resource/branch'
 import { Category } from '@/resource/category'
 import { IBookFormValues, IBookRequest } from '@/resource/book'
 
 const CREATE_BOOK_API_PATH = '/api/bookman/books'
+const BRANCH_BOOK_STOCK_API_PATH = '/api/bookman/branch-book-stocks'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
 
@@ -41,6 +43,14 @@ const isValidIsbn13 = (isbn: string): boolean => {
 const isValidIsbn = (value: string | undefined): boolean => {
   const isbn = normalizeIsbn(value)
   return isValidIsbn10(isbn) || isValidIsbn13(isbn)
+}
+
+const toPositiveInteger = (value: string | undefined): number | null => {
+  const parsedValue = Number(value)
+  if (!Number.isInteger(parsedValue) || parsedValue <= 0) {
+    return null
+  }
+  return parsedValue
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -112,6 +122,17 @@ const toAuthorIds = (value: string | undefined, authors: Author[] = []): number[
     )
 }
 
+const toBranchId = (value: string | undefined, branches: Branch[] = []): number => {
+  const branchId = toPositiveInteger(value)
+  const availableBranchIds = new Set(branches.map((branch) => branch.id))
+
+  if (branchId && (availableBranchIds.size === 0 || availableBranchIds.has(branchId))) {
+    return branchId
+  }
+
+  return 0
+}
+
 const buildBookRequest = (
   formValues: Partial<IBookFormValues>,
   authors: Author[],
@@ -126,7 +147,12 @@ const buildBookRequest = (
   publication_date: formValues.publication_date ?? '',
 })
 
-export function useCreateDialog(authors: Author[] = [], categories: Category[] = []) {
+export function useCreateDialog(
+  authors: Author[] = [],
+  categories: Category[] = [],
+  branches: Branch[] = [],
+  selectedMunicipalityId = '',
+) {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [formValues, setFormValues] = useState<Partial<IBookFormValues>>({})
@@ -176,6 +202,25 @@ export function useCreateDialog(authors: Author[] = [], categories: Category[] =
       return
     }
 
+    const branch = toBranchId(formValues.branch, branches)
+    const amount = toPositiveInteger(formValues.amount)
+    const municipality = toPositiveInteger(selectedMunicipalityId)
+
+    if (!municipality) {
+      setCreateErrorMessage('自治体を選択してから書籍を登録してください。')
+      return
+    }
+
+    if (!branch) {
+      setCreateErrorMessage('所蔵支店を選択してください。')
+      return
+    }
+
+    if (!amount) {
+      setCreateErrorMessage('初期所蔵数は1以上の整数で入力してください。')
+      return
+    }
+
     setIsCreating(true)
     setCreateErrorMessage(null)
 
@@ -190,6 +235,30 @@ export function useCreateDialog(authors: Author[] = [], categories: Category[] =
 
       if (!response.ok) {
         setCreateErrorMessage(await formatResponseError(response))
+        return
+      }
+
+      const createdBook = (await response.json()) as { id?: number }
+      if (!createdBook.id) {
+        setCreateErrorMessage('書籍データの登録後、書籍IDを取得できませんでした。')
+        return
+      }
+
+      const stockResponse = await fetch(BRANCH_BOOK_STOCK_API_PATH, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          book: createdBook.id,
+          municipality,
+          branch,
+          amount,
+        }),
+      })
+
+      if (!stockResponse.ok) {
+        setCreateErrorMessage(await formatResponseError(stockResponse))
         return
       }
 

@@ -10,6 +10,7 @@ interface BranchBookStockResponse {
 interface TransferRequest {
   book?: number
   municipality?: number
+  branch?: number
   fromBranch?: number
   toBranch?: number
   amount?: number
@@ -72,7 +73,21 @@ const createStock = async (
 export async function POST(request: Request) {
   try {
     const requestBody = (await request.json()) as TransferRequest
-    const { book, municipality, fromBranch, toBranch, amount } = requestBody
+    const { book, municipality, branch, fromBranch, toBranch, amount } = requestBody
+
+    if (
+      isPositiveInteger(book) &&
+      isPositiveInteger(municipality) &&
+      isPositiveInteger(branch) &&
+      isPositiveInteger(amount) &&
+      fromBranch === undefined &&
+      toBranch === undefined
+    ) {
+      const createResponse = await createStock(book, branch, amount, municipality)
+      return Response.json(await parseResponseBody(createResponse), {
+        status: createResponse.status,
+      })
+    }
 
     if (
       !isPositiveInteger(book) ||

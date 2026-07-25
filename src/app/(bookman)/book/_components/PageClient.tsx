@@ -59,6 +59,14 @@ export function PageClient({
     branchId: '',
     stockedOnly: false,
   })
+  const filteredBranches = useMemo(
+    () =>
+      branches.filter(
+        (branch) =>
+          selectedMunicipalityId !== '' && String(branch.municipalityId) === selectedMunicipalityId,
+      ),
+    [branches, selectedMunicipalityId],
+  )
   const {
     isDialogOpen,
     openDialog,
@@ -68,7 +76,7 @@ export function PageClient({
     onCreate,
     isCreating,
     createErrorMessage,
-  } = useCreateDialog(authors, categories)
+  } = useCreateDialog(authors, categories, filteredBranches, selectedMunicipalityId)
   const {
     selectedBook,
     isTransferDialogOpen,
@@ -91,15 +99,8 @@ export function PageClient({
     createErrorMessage,
     authors,
     categories,
+    branches: filteredBranches,
   }
-  const filteredBranches = useMemo(
-    () =>
-      branches.filter(
-        (branch) =>
-          selectedMunicipalityId !== '' && String(branch.municipalityId) === selectedMunicipalityId,
-      ),
-    [branches, selectedMunicipalityId],
-  )
   const scopedBooks = useMemo(
     () =>
       books.map((book) => {

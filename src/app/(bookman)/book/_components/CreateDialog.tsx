@@ -13,6 +13,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
 import { Author } from '@/resource/author'
+import { Branch } from '@/resource/branch'
 import { Category } from '@/resource/category'
 import { IBookFormValues } from '@/resource/book'
 
@@ -26,6 +27,7 @@ interface CreateDialogProps {
   createErrorMessage: string | null
   authors: Author[]
   categories: Category[]
+  branches: Branch[]
 }
 
 export const CreateDialog = ({
@@ -38,6 +40,7 @@ export const CreateDialog = ({
   createErrorMessage,
   authors,
   categories,
+  branches,
 }: CreateDialogProps) => {
   const selectedAuthorIds = (formValues.authors ?? '').split(',').filter(Boolean)
 
@@ -134,12 +137,31 @@ export const CreateDialog = ({
           margin='dense'
           id='amount'
           name='amount'
-          label='数量'
+          label='初期所蔵数'
+          helperText='登録後、この冊数を所蔵支店に紐づけます。'
           fullWidth
           value={formValues.amount ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
         />
+        <TextField
+          select
+          margin='dense'
+          id='branch'
+          name='branch'
+          label='所蔵支店'
+          helperText='選択中の自治体配下の支店へ初期所蔵を登録します。'
+          fullWidth
+          value={formValues.branch ?? ''}
+          disabled={isCreating}
+          onChange={onInputChange}
+        >
+          {branches.map((branch) => (
+            <MenuItem key={branch.id} value={String(branch.id)}>
+              {branch.name}
+            </MenuItem>
+          ))}
+        </TextField>
         <TextField
           margin='dense'
           id='isbn'

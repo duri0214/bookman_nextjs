@@ -62,6 +62,7 @@ export interface IBookRequest {
 }
 
 export interface IBookFormValues {
+  branch: string
   category: string
   name: string
   authors: string

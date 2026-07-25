@@ -36,6 +36,36 @@ describe('branch-book-stocks transfer route', () => {
     global.Response = originalResponse
   })
 
+  test('初期所蔵作成リクエストをbackend APIへ転送するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 書籍ID、自治体ID、所蔵支店ID、冊数を含む初期所蔵作成リクエスト。
+     * - 処理: 支店別所蔵API routeへPOSTする。
+     * - 期待値: backend の branch-book-stocks API へ同じ内容をPOSTすること。
+     */
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      status: 201,
+      text: async () => JSON.stringify({ id: 100, book: 10, branch: 1, amount: 3 }),
+    } as Response)
+
+    const response = await POST(
+      createTransferRequest({ book: 10, municipality: 1, branch: 1, amount: 3 }),
+    )
+
+    expect(response.status).toBe(201)
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:8000/bookman/api/branch-book-stocks/?municipality=1',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ book: 10, branch: 1, amount: 3 }),
+        cache: 'no-store',
+      },
+    )
+  })
+
   test('移動元所蔵数が不足する時に400を返すべき', async () => {
     /**
      * シナリオ:
