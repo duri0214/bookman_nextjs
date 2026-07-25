@@ -7,7 +7,7 @@ import { PageClient } from './_components/PageClient'
 export const dynamic = 'force-dynamic'
 
 export default async function Page() {
-  const { branches, municipalities, closedDays, errorMessage, isMockData } =
+  const { branches, branchSummaries, municipalities, closedDays, errorMessage, isMockData } =
     await getBranchListData()
 
   return (
@@ -16,6 +16,7 @@ export default async function Page() {
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <PageClient
           branches={branches}
+          branchSummaries={branchSummaries}
           municipalities={municipalities}
           closedDays={closedDays}
           errorMessage={errorMessage}

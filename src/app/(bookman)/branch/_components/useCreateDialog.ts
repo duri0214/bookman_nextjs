@@ -1,11 +1,15 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IBranchRequest } from '@/resource/branch'
+import { Branch, IBranchFormValues, IBranchRequest } from '@/resource/branch'
 
 const CREATE_BRANCH_API_PATH = '/api/bookman/branches'
 
-interface BranchFormValues extends Omit<Partial<IBranchRequest>, 'municipality'> {
-  municipality?: string
+const INITIAL_FORM_VALUES: IBranchFormValues = {
+  municipality: '',
+  name: '',
+  address: '',
+  phone: '',
+  remark: '',
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -16,7 +20,7 @@ const FIELD_LABELS: Record<string, string> = {
   remark: '備考',
 }
 
-const isFormComplete = (formValues: BranchFormValues): boolean =>
+const isFormComplete = (formValues: IBranchFormValues): boolean =>
   Boolean(
     formValues.municipality &&
     formValues.name?.trim() &&
@@ -25,7 +29,7 @@ const isFormComplete = (formValues: BranchFormValues): boolean =>
     formValues.remark?.trim(),
   )
 
-const buildRequestBody = (formValues: BranchFormValues): IBranchRequest => ({
+const buildRequestBody = (formValues: IBranchFormValues): IBranchRequest => ({
   municipality: Number(formValues.municipality),
   name: formValues.name?.trim() ?? '',
   address: formValues.address?.trim() ?? '',
@@ -56,9 +60,13 @@ const formatResponseError = async (response: Response): Promise<string> => {
 export function useCreateDialog() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [formValues, setFormValues] = useState<BranchFormValues>({})
+  const [formValues, setFormValues] = useState<IBranchFormValues>(INITIAL_FORM_VALUES)
   const [isCreating, setIsCreating] = useState(false)
   const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null)
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null)
+  const [editFormValues, setEditFormValues] = useState<IBranchFormValues>(INITIAL_FORM_VALUES)
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
 
   const openDialog = () => {
     setIsDialogOpen(true)
@@ -67,7 +75,7 @@ export function useCreateDialog() {
 
   const onCloseDialog = () => {
     setIsDialogOpen(false)
-    setFormValues({})
+    setFormValues(INITIAL_FORM_VALUES)
     setCreateErrorMessage(null)
   }
 
@@ -119,6 +127,70 @@ export function useCreateDialog() {
     }
   }
 
+  const openEditDialog = (branch: Branch) => {
+    setEditingBranch(branch)
+    setEditFormValues({
+      municipality: branch.municipalityId ? String(branch.municipalityId) : '',
+      name: branch.name,
+      address: branch.address,
+      phone: branch.phone,
+      remark: branch.remark,
+    })
+    setUpdateErrorMessage(null)
+  }
+
+  const onCloseEditDialog = () => {
+    setEditingBranch(null)
+    setEditFormValues(INITIAL_FORM_VALUES)
+    setUpdateErrorMessage(null)
+  }
+
+  const onEditInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    setEditFormValues((currentValues) => ({
+      ...currentValues,
+      [event.target.name]: event.target.value,
+    }))
+    setUpdateErrorMessage(null)
+  }
+
+  const onUpdate = async () => {
+    if (!editingBranch) {
+      return
+    }
+
+    if (!isFormComplete(editFormValues)) {
+      setUpdateErrorMessage('必須項目をすべて入力してください。')
+      return
+    }
+
+    setIsUpdating(true)
+    setUpdateErrorMessage(null)
+
+    try {
+      const response = await fetch(`${CREATE_BRANCH_API_PATH}/${editingBranch.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(buildRequestBody(editFormValues)),
+      })
+
+      if (!response.ok) {
+        setUpdateErrorMessage(await formatResponseError(response))
+        return
+      }
+
+      onCloseEditDialog()
+      router.refresh()
+    } catch {
+      setUpdateErrorMessage(
+        '支店データの更新に失敗しました。入力内容とバックエンドの状態を確認してください。',
+      )
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   return {
     isDialogOpen,
     openDialog,
@@ -128,5 +200,13 @@ export function useCreateDialog() {
     onCreate,
     isCreating,
     createErrorMessage,
+    editingBranch,
+    openEditDialog,
+    onCloseEditDialog,
+    editFormValues,
+    onEditInputChange,
+    onUpdate,
+    isUpdating,
+    updateErrorMessage,
   }
 }

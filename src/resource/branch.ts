@@ -23,12 +23,33 @@ export interface Branch {
   remark: string
 }
 
+export interface BranchSummary {
+  branchId: number
+  bookCount: number
+  totalStockAmount: number
+}
+
 export interface IBranchRequest {
   municipality?: number | null
   name: string
   address: string
   phone: string
   remark: string
+}
+
+export interface IBranchFormValues {
+  municipality: string
+  name: string
+  address: string
+  phone: string
+  remark: string
+}
+
+export interface IBranchBookStockRaw {
+  id: number
+  branch: number
+  book: number
+  amount: number
 }
 
 export interface IBranchClosedDayRaw {

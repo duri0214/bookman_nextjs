@@ -53,12 +53,18 @@ describe('useCreateDialog', () => {
   test('handleInputChangeが呼び出された時にformValuesが更新されるべき', () => {
     const { result } = renderHook(useCreateDialog)
     const inputEvent = {
-      target: { name: 'testName', value: 'testValue' },
+      target: { name: 'name', value: 'テスト図書館' },
     } as ChangeEvent<HTMLInputElement>
     act(() => {
       result.current.onInputChange(inputEvent)
     })
-    expect(result.current.formValues).toEqual({ testName: 'testValue' })
+    expect(result.current.formValues).toEqual({
+      municipality: '',
+      name: 'テスト図書館',
+      address: '',
+      phone: '',
+      remark: '',
+    })
   })
 
   /**
@@ -71,13 +77,19 @@ describe('useCreateDialog', () => {
     const { result } = renderHook(useCreateDialog)
     act(() => {
       result.current.onInputChange({
-        target: { name: 'firstName', value: 'John' },
+        target: { name: 'name', value: '中央図書館' },
       } as ChangeEvent<HTMLInputElement>)
       result.current.onInputChange({
-        target: { name: 'lastName', value: 'Doe' },
+        target: { name: 'phone', value: '000-9000-0000' },
       } as ChangeEvent<HTMLInputElement>)
     })
-    expect(result.current.formValues).toEqual({ firstName: 'John', lastName: 'Doe' })
+    expect(result.current.formValues).toEqual({
+      municipality: '',
+      name: '中央図書館',
+      address: '',
+      phone: '000-9000-0000',
+      remark: '',
+    })
   })
 
   /**
@@ -130,7 +142,62 @@ describe('useCreateDialog', () => {
       }),
     })
     expect(result.current.isDialogOpen).toBe(false)
-    expect(result.current.formValues).toEqual({})
+    expect(result.current.formValues).toEqual({
+      municipality: '',
+      name: '',
+      address: '',
+      phone: '',
+      remark: '',
+    })
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  /**
+   * シナリオ:
+   * - 入力: 既存支店を編集ダイアログで開き、住所を変更した状態。
+   * - 処理: onUpdate を呼び出す。
+   * - 期待値: 支店更新 API に PATCH し、編集ダイアログを閉じて一覧を再取得すること。
+   */
+  test('onUpdateが成功した時に支店更新APIへPATCHして一覧を再取得するべき', async () => {
+    // Given
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(useCreateDialog)
+
+    act(() => {
+      result.current.openEditDialog({
+        id: 3,
+        municipalityId: 10,
+        municipalityName: '六戸町',
+        name: '六戸町図書館',
+        address: '旧住所',
+        phone: '000-9000-0000',
+        remark: '本館',
+      })
+      result.current.onEditInputChange({
+        target: { name: 'address', value: '新住所' },
+      } as ChangeEvent<HTMLInputElement>)
+    })
+
+    // When
+    await act(async () => {
+      await result.current.onUpdate()
+    })
+
+    // Then
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/branches/3', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        municipality: 10,
+        name: '六戸町図書館',
+        address: '新住所',
+        phone: '000-9000-0000',
+        remark: '本館',
+      }),
+    })
+    expect(result.current.editingBranch).toBeNull()
     expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 

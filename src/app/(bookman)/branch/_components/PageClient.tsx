@@ -3,15 +3,17 @@
 import { Alert, Button } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
-import { Branch, BranchClosedDay } from '@/resource/branch'
+import { Branch, BranchClosedDay, BranchSummary } from '@/resource/branch'
 import { Municipality } from '@/resource/municipality'
 import { ClosedDaySettings } from './ClosedDaySettings'
 import { CreateDialog } from './CreateDialog'
+import { EditDialog } from './EditDialog'
 import { List } from './List'
 import { useCreateDialog } from './useCreateDialog'
 
 interface Props {
   branches: Branch[]
+  branchSummaries: BranchSummary[]
   municipalities: Municipality[]
   closedDays: BranchClosedDay[]
   errorMessage: string | null
@@ -20,6 +22,7 @@ interface Props {
 
 export function PageClient({
   branches,
+  branchSummaries,
   municipalities,
   closedDays,
   errorMessage,
@@ -34,6 +37,14 @@ export function PageClient({
     onCreate,
     isCreating,
     createErrorMessage,
+    editingBranch,
+    openEditDialog,
+    onCloseEditDialog,
+    editFormValues,
+    onEditInputChange,
+    onUpdate,
+    isUpdating,
+    updateErrorMessage,
   } = useCreateDialog()
 
   const dialogProps = {
@@ -65,8 +76,18 @@ export function PageClient({
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             新規登録
           </Button>
-          <List branches={branches} />
+          <List branches={branches} branchSummaries={branchSummaries} onEdit={openEditDialog} />
           <CreateDialog {...dialogProps} municipalities={municipalities} />
+          <EditDialog
+            branch={editingBranch}
+            onCloseDialog={onCloseEditDialog}
+            formValues={editFormValues}
+            onInputChange={onEditInputChange}
+            onUpdate={onUpdate}
+            isUpdating={isUpdating}
+            updateErrorMessage={updateErrorMessage}
+            municipalities={municipalities}
+          />
         </Paper>
       </Grid>
       <Grid size={{ xs: 12 }}>
