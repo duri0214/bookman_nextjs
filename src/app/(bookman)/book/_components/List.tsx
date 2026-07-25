@@ -43,7 +43,8 @@ export function List({ books, onTransferClick }: Props) {
       sortable: false,
       renderCell: (params) => {
         const book = books.find((book) => book.id === params.id)
-        const canTransfer = !!book && book.branchStocks.some((branchStock) => branchStock.amount > 0)
+        const canTransfer =
+          !!book && book.branchStocks.some((branchStock) => branchStock.amount > 0)
         return (
           <Button
             size='small'
@@ -57,7 +58,12 @@ export function List({ books, onTransferClick }: Props) {
       },
     },
     { field: 'authors', headerName: '著者', width: 150 },
-    { field: 'totalAmount', headerName: '合計所蔵数', width: 100 },
+    {
+      field: 'totalAmount',
+      headerName: '自治体所蔵数',
+      width: 120,
+      align: 'right',
+    },
     { field: 'branchStocks', headerName: '支店別所蔵数', width: 320 },
     { field: 'leadText', headerName: 'あらすじ', width: 400 },
     { field: 'publicationDate', headerName: '出版年月日', width: 120 },

@@ -113,6 +113,7 @@ export function PageClient({
     () =>
       scopedBooks.filter((book) => {
         const keyword = filters.keyword.trim().toLowerCase()
+        const matchesMunicipality = book.branchStocks.length > 0
         const matchesKeyword =
           keyword === '' ||
           [book.name, book.authors, book.category?.name ?? '', book.leadText].some((value) =>
@@ -129,7 +130,7 @@ export function PageClient({
               (filters.branchId === '' || String(branchStock.branchId) === filters.branchId),
           )
 
-        return matchesKeyword && matchesBranch && matchesStock
+        return matchesMunicipality && matchesKeyword && matchesBranch && matchesStock
       }),
     [filters, scopedBooks],
   )
