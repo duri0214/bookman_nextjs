@@ -40,17 +40,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='館管理' />
     </ListItemButton>
-    <ListItemButton component={Link} href='/book'>
-      <ListItemIcon>
-        <AutoStoriesIcon />
-      </ListItemIcon>
-      <ListItemText primary='書籍管理' />
-    </ListItemButton>
     <ListItemButton component={Link} href='/staff'>
       <ListItemIcon>
         <BadgeIcon />
       </ListItemIcon>
       <ListItemText primary='職員管理' />
+    </ListItemButton>
+    <ListItemButton component={Link} href='/book'>
+      <ListItemIcon>
+        <AutoStoriesIcon />
+      </ListItemIcon>
+      <ListItemText primary='書籍管理' />
     </ListItemButton>
     <ListItemButton component={Link} href='/customer'>
       <ListItemIcon>
