@@ -145,4 +145,33 @@ describe('useCustomerActions', () => {
     expect(result.current.updateErrorMessage).toBe('利用者名と貸出上限数を正しく入力してください。')
     expect(mockRefresh).not.toHaveBeenCalled()
   })
+
+  test('onUpdateがbackend未対応のHTMLエラーを表示しないべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 利用者更新 API が backend の HTML 404 を message として返す状態。
+     * - 処理: onUpdate を呼び出す。
+     * - 期待値: HTML本文を表示せず、汎用の更新失敗メッセージを保持すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({
+      ok: false,
+      json: async () => ({ message: '<!DOCTYPE html><html><body>Page not found</body></html>' }),
+    } as Response)
+    const { result } = renderHook(useCustomerActions)
+    const customer = {
+      id: 20,
+      name: '旧利用者',
+      phone: '03-0000-0000',
+      maxLendingCount: 3,
+    }
+
+    await act(async () => {
+      await result.current.onUpdate(customer)
+    })
+
+    expect(result.current.updateErrorMessage).toBe(
+      '利用者データの保存に失敗しました。入力内容とバックエンドの状態を確認してください。',
+    )
+    expect(mockRefresh).not.toHaveBeenCalled()
+  })
 })

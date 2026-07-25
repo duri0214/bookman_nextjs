@@ -38,17 +38,26 @@ const formatResponseError = async (response: Response): Promise<string> => {
   try {
     const responseBody = await response.json()
     if (responseBody && typeof responseBody === 'object') {
+      const responseMessage = 'message' in responseBody ? responseBody.message : null
+      const responseDetail = 'detail' in responseBody ? responseBody.detail : null
+      const plainMessage = typeof responseMessage === 'string' ? responseMessage : responseDetail
+      if (typeof plainMessage === 'string' && !plainMessage.trim().startsWith('<')) {
+        return plainMessage
+      }
+
       const labels: Record<string, string> = {
         name: '利用者名',
         phone: '電話番号',
         max_lending_count: '貸出上限数',
       }
-      const messages = Object.entries(responseBody).flatMap(([fieldName, value]) => {
-        const fieldMessages = Array.isArray(value) ? value : [value]
-        return fieldMessages.map(
-          (message) => `${labels[fieldName] ?? fieldName}: ${String(message)}`,
-        )
-      })
+      const messages = Object.entries(responseBody)
+        .filter(([fieldName]) => fieldName !== 'message' && fieldName !== 'detail')
+        .flatMap(([fieldName, value]) => {
+          const fieldMessages = Array.isArray(value) ? value : [value]
+          return fieldMessages.map(
+            (message) => `${labels[fieldName] ?? fieldName}: ${String(message)}`,
+          )
+        })
       if (messages.length > 0) {
         return messages.join(' ')
       }
