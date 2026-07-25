@@ -49,7 +49,7 @@ describe('branch-book-stocks transfer route', () => {
     } as Response)
 
     const response = await POST(
-      createTransferRequest({ book: 10, fromBranch: 1, toBranch: 2, amount: 2 }),
+      createTransferRequest({ book: 10, municipality: 1, fromBranch: 1, toBranch: 2, amount: 2 }),
     )
 
     expect(response.status).toBe(400)
@@ -85,13 +85,13 @@ describe('branch-book-stocks transfer route', () => {
       } as Response)
 
     const response = await POST(
-      createTransferRequest({ book: 10, fromBranch: 1, toBranch: 2, amount: 2 }),
+      createTransferRequest({ book: 10, municipality: 1, fromBranch: 1, toBranch: 2, amount: 2 }),
     )
 
     expect(response.status).toBe(200)
     expect(global.fetch).toHaveBeenNthCalledWith(
       2,
-      'http://127.0.0.1:8000/bookman/api/branch-book-stocks/1/',
+      'http://127.0.0.1:8000/bookman/api/branch-book-stocks/1/?municipality=1',
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ amount: 1 }),
@@ -99,7 +99,7 @@ describe('branch-book-stocks transfer route', () => {
     )
     expect(global.fetch).toHaveBeenNthCalledWith(
       3,
-      'http://127.0.0.1:8000/bookman/api/branch-book-stocks/2/',
+      'http://127.0.0.1:8000/bookman/api/branch-book-stocks/2/?municipality=1',
       expect.objectContaining({
         method: 'PATCH',
         body: JSON.stringify({ amount: 3 }),

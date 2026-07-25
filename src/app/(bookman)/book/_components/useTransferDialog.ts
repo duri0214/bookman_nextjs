@@ -24,8 +24,13 @@ const toPositiveInteger = (value: string): number | null => {
   return parsedValue
 }
 
-const buildTransferRequest = (bookId: number, formValues: TransferFormValues) => ({
+const buildTransferRequest = (
+  bookId: number,
+  municipalityId: number,
+  formValues: TransferFormValues,
+) => ({
   book: bookId,
+  municipality: municipalityId,
   fromBranch: toPositiveInteger(formValues.fromBranch),
   toBranch: toPositiveInteger(formValues.toBranch),
   amount: toPositiveInteger(formValues.amount),
@@ -34,10 +39,15 @@ const buildTransferRequest = (bookId: number, formValues: TransferFormValues) =>
 const getValidationErrorMessage = (
   formValues: TransferFormValues,
   sourceStock: BookBranchStock | undefined,
+  municipalityId: number | null,
 ): string | null => {
   const fromBranch = toPositiveInteger(formValues.fromBranch)
   const toBranch = toPositiveInteger(formValues.toBranch)
   const amount = toPositiveInteger(formValues.amount)
+
+  if (!municipalityId) {
+    return '自治体を選択してから支店間移動を行ってください。'
+  }
 
   if (!fromBranch || !toBranch || !amount) {
     return '移動元、移動先、冊数を正しく入力してください。'
@@ -54,8 +64,9 @@ const getValidationErrorMessage = (
   return null
 }
 
-export function useTransferDialog() {
+export function useTransferDialog(selectedMunicipalityId = '') {
   const router = useRouter()
+  const municipalityId = toPositiveInteger(selectedMunicipalityId)
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
   const [formValues, setFormValues] = useState<TransferFormValues>(initialFormValues)
   const [isTransferring, setIsTransferring] = useState(false)
@@ -115,7 +126,11 @@ export function useTransferDialog() {
       return
     }
 
-    const validationErrorMessage = getValidationErrorMessage(formValues, sourceStock)
+    const validationErrorMessage = getValidationErrorMessage(
+      formValues,
+      sourceStock,
+      municipalityId,
+    )
     if (validationErrorMessage) {
       setTransferErrorMessage(validationErrorMessage)
       return
@@ -130,7 +145,7 @@ export function useTransferDialog() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildTransferRequest(selectedBook.id, formValues)),
+        body: JSON.stringify(buildTransferRequest(selectedBook.id, municipalityId, formValues)),
       })
 
       if (!response.ok) {

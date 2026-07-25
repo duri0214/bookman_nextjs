@@ -19,8 +19,22 @@ const book: Book = {
   leadText: '近代文学の代表作です。',
   totalAmount: 5,
   branchStocks: [
-    { id: 1, branchId: 1, branchName: '中央図書館', amount: 3 },
-    { id: 2, branchId: 2, branchName: '東図書館', amount: 2 },
+    {
+      id: 1,
+      branchId: 1,
+      branchName: '中央図書館',
+      municipalityId: 1,
+      municipalityName: '渋谷区',
+      amount: 3,
+    },
+    {
+      id: 2,
+      branchId: 2,
+      branchName: '東図書館',
+      municipalityId: 1,
+      municipalityName: '渋谷区',
+      amount: 2,
+    },
   ],
   publicationDate: '2026-01-01',
 }
@@ -38,7 +52,7 @@ describe('useTransferDialog', () => {
      * - 処理: openTransferDialog を呼び出す。
      * - 期待値: ダイアログが開き、先頭の所蔵支店と冊数1が初期値になること。
      */
-    const { result } = renderHook(useTransferDialog)
+    const { result } = renderHook(() => useTransferDialog('1'))
 
     act(() => {
       result.current.openTransferDialog(book)
@@ -57,14 +71,28 @@ describe('useTransferDialog', () => {
      * - 処理: openTransferDialog を呼び出す。
      * - 期待値: 0冊支店を飛ばし、在庫あり支店が移動元初期値になること。
      */
-    const { result } = renderHook(useTransferDialog)
+    const { result } = renderHook(() => useTransferDialog('1'))
 
     act(() => {
       result.current.openTransferDialog({
         ...book,
         branchStocks: [
-          { id: 3, branchId: 3, branchName: '空支店', amount: 0 },
-          { id: 4, branchId: 4, branchName: '在庫あり支店', amount: 1 },
+          {
+            id: 3,
+            branchId: 3,
+            branchName: '空支店',
+            municipalityId: 1,
+            municipalityName: '渋谷区',
+            amount: 0,
+          },
+          {
+            id: 4,
+            branchId: 4,
+            branchName: '在庫あり支店',
+            municipalityId: 1,
+            municipalityName: '渋谷区',
+            amount: 1,
+          },
         ],
       })
     })
@@ -80,7 +108,7 @@ describe('useTransferDialog', () => {
      * - 期待値: 数値化したpayloadでPOSTし、ダイアログを閉じて一覧を再取得すること。
      */
     jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
-    const { result } = renderHook(useTransferDialog)
+    const { result } = renderHook(() => useTransferDialog('1'))
 
     act(() => {
       result.current.openTransferDialog(book)
@@ -103,6 +131,7 @@ describe('useTransferDialog', () => {
       },
       body: JSON.stringify({
         book: 10,
+        municipality: 1,
         fromBranch: 1,
         toBranch: 2,
         amount: 2,
@@ -119,7 +148,7 @@ describe('useTransferDialog', () => {
      * - 処理: 移動元を支店2に変更する。
      * - 期待値: 移動元と移動先が同じにならないよう、移動先が空に戻ること。
      */
-    const { result } = renderHook(useTransferDialog)
+    const { result } = renderHook(() => useTransferDialog('1'))
 
     act(() => {
       result.current.openTransferDialog(book)
@@ -142,7 +171,7 @@ describe('useTransferDialog', () => {
      * - 処理: onTransfer を呼び出す。
      * - 期待値: APIを呼ばず、所蔵数不足エラーを表示すること。
      */
-    const { result } = renderHook(useTransferDialog)
+    const { result } = renderHook(() => useTransferDialog('1'))
 
     act(() => {
       result.current.openTransferDialog(book)
