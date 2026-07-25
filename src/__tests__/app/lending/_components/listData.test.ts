@@ -18,6 +18,8 @@ describe('lending listData', () => {
         {
           id: 10,
           branch: 1,
+          municipality: 1,
+          municipality_name: '渋谷区',
           book: 2,
           amount: 3,
           available_amount: 1,
@@ -29,6 +31,8 @@ describe('lending listData', () => {
       {
         id: 10,
         branchId: 1,
+        municipalityId: 1,
+        municipalityName: '渋谷区',
         bookId: 2,
         branchName: '中央図書館',
         bookName: 'Bookman 入門',

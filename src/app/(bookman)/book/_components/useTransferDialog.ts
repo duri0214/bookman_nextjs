@@ -135,6 +135,10 @@ export function useTransferDialog(selectedMunicipalityId = '') {
       setTransferErrorMessage(validationErrorMessage)
       return
     }
+    if (!municipalityId) {
+      setTransferErrorMessage('自治体を選択してから支店間移動を行ってください。')
+      return
+    }
 
     setIsTransferring(true)
     setTransferErrorMessage(null)

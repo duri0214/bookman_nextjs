@@ -13,6 +13,12 @@ const parseResponseBody = (responseText: string) => {
   }
 }
 
+const getScopedApiUrl = (municipality: number): string => {
+  const apiUrl = new URL(getBookmanApiUrl('branchClosedDays'))
+  apiUrl.searchParams.set('municipality', municipality.toString())
+  return apiUrl.toString()
+}
+
 export async function GET(request: Request) {
   try {
     const requestUrl = new URL(request.url)
@@ -34,8 +40,13 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const requestBody = (await request.json()) as Partial<IBranchClosedDayRequest>
-    const response = await fetch(getBookmanApiUrl('branchClosedDays'), {
+    const { municipality, ...requestBody } =
+      (await request.json()) as Partial<IBranchClosedDayRequest>
+    if (!municipality) {
+      return Response.json({ message: '自治体を指定してください。' }, { status: 400 })
+    }
+
+    const response = await fetch(getScopedApiUrl(municipality), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

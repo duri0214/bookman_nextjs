@@ -21,7 +21,7 @@ export function ClosedDaySettings({ branches, closedDays }: Props) {
     deletingClosedDayId,
     message,
     messageSeverity,
-  } = useBranchClosedDayActions()
+  } = useBranchClosedDayActions(branches)
 
   const rows: GridRowsProp = closedDays.map((closedDay, index) => ({
     id: closedDay.id,

@@ -54,6 +54,7 @@ export interface IBranchClosedDayFormValues {
 }
 
 export interface IBranchClosedDayRequest {
+  municipality?: number | null
   branch: number | null
   date: string
   reason: string
