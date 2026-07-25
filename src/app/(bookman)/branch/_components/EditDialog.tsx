@@ -4,31 +4,31 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ChangeEvent } from 'react'
-import { IBranchFormValues } from '@/resource/branch'
+import { Branch, IBranchFormValues } from '@/resource/branch'
 import { Municipality } from '@/resource/municipality'
 
-interface CreateDialogProps {
-  isDialogOpen: boolean
+interface EditDialogProps {
+  branch: Branch | null
   onCloseDialog: () => void
   onInputChange: (event: ChangeEvent<HTMLInputElement>) => void
-  onCreate: () => Promise<void>
+  onUpdate: () => Promise<void>
   formValues: IBranchFormValues
-  isCreating: boolean
-  createErrorMessage: string | null
+  isUpdating: boolean
+  updateErrorMessage: string | null
   municipalities: Municipality[]
 }
 
-export const CreateDialog = ({
-  isDialogOpen,
+export const EditDialog = ({
+  branch,
   onCloseDialog,
   onInputChange,
-  onCreate,
+  onUpdate,
   formValues,
-  isCreating,
-  createErrorMessage,
+  isUpdating,
+  updateErrorMessage,
   municipalities,
-}: CreateDialogProps) => {
-  const canCreate = Boolean(
+}: EditDialogProps) => {
+  const canUpdate = Boolean(
     formValues.municipality &&
     formValues.name.trim() &&
     formValues.address.trim() &&
@@ -37,25 +37,25 @@ export const CreateDialog = ({
   )
 
   return (
-    <Dialog open={isDialogOpen} onClose={onCloseDialog}>
-      <DialogTitle>新規登録</DialogTitle>
+    <Dialog open={Boolean(branch)} onClose={onCloseDialog} fullWidth maxWidth='sm'>
+      <DialogTitle>支店情報を編集</DialogTitle>
       <DialogContent>
-        {createErrorMessage && (
+        {updateErrorMessage && (
           <Alert severity='error' sx={{ mb: 2 }}>
-            {createErrorMessage}
+            {updateErrorMessage}
           </Alert>
         )}
         <TextField
           autoFocus
           select
           margin='dense'
-          id='municipality'
+          id='edit-municipality'
           name='municipality'
           label='自治体'
           fullWidth
           required
           value={formValues.municipality}
-          disabled={isCreating}
+          disabled={isUpdating}
           onChange={onInputChange}
         >
           <MenuItem value='' disabled>
@@ -69,56 +69,56 @@ export const CreateDialog = ({
         </TextField>
         <TextField
           margin='dense'
-          id='name'
+          id='edit-name'
           name='name'
           label='図書館の名前'
           fullWidth
           required
           value={formValues.name}
-          disabled={isCreating}
+          disabled={isUpdating}
           onChange={onInputChange}
         />
         <TextField
           margin='dense'
-          id='address'
+          id='edit-address'
           name='address'
           label='図書館の住所'
           fullWidth
           required
           value={formValues.address}
-          disabled={isCreating}
+          disabled={isUpdating}
           onChange={onInputChange}
         />
         <TextField
           margin='dense'
-          id='phone'
+          id='edit-phone'
           name='phone'
           label='図書館の電話番号'
           fullWidth
           required
           value={formValues.phone}
-          disabled={isCreating}
+          disabled={isUpdating}
           onChange={onInputChange}
         />
         <TextField
           margin='dense'
-          id='remark'
+          id='edit-remark'
           name='remark'
           label='備考'
           multiline
           fullWidth
           required
           value={formValues.remark}
-          disabled={isCreating}
+          disabled={isUpdating}
           onChange={onInputChange}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCloseDialog} color='primary' disabled={isCreating}>
+        <Button onClick={onCloseDialog} color='primary' disabled={isUpdating}>
           キャンセル
         </Button>
-        <Button onClick={onCreate} color='primary' disabled={isCreating || !canCreate}>
-          {isCreating ? '登録中' : '登録'}
+        <Button onClick={onUpdate} color='primary' disabled={isUpdating || !canUpdate}>
+          {isUpdating ? '保存中' : '保存'}
         </Button>
       </DialogActions>
     </Dialog>

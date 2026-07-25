@@ -1,4 +1,11 @@
-import { Branch, BranchClosedDay, IBranchClosedDayRaw, IBranchRaw } from '@/resource/branch'
+import {
+  Branch,
+  BranchClosedDay,
+  BranchSummary,
+  IBranchBookStockRaw,
+  IBranchClosedDayRaw,
+  IBranchRaw,
+} from '@/resource/branch'
 import { getBookmanApiUrl } from '@/helpers/apiClient'
 import { convertMunicipalityData } from '@/app/municipality/_components/listData'
 import { IMunicipalityRaw, Municipality } from '@/resource/municipality'
@@ -43,6 +50,12 @@ const MOCK_BRANCH_CLOSED_DAYS: IBranchClosedDayRaw[] = [
   },
 ]
 
+const MOCK_BRANCH_BOOK_STOCKS: IBranchBookStockRaw[] = [
+  { id: 1, branch: 1, book: 1, amount: 2 },
+  { id: 2, branch: 1, book: 2, amount: 1 },
+  { id: 3, branch: 2, book: 1, amount: 1 },
+]
+
 const MOCK_MUNICIPALITIES: IMunicipalityRaw[] = [
   {
     id: 1,
@@ -52,6 +65,7 @@ const MOCK_MUNICIPALITIES: IMunicipalityRaw[] = [
 
 interface BranchListData {
   branches: Branch[]
+  branchSummaries: BranchSummary[]
   municipalities: Municipality[]
   closedDays: BranchClosedDay[]
   errorMessage: string | null
@@ -78,6 +92,26 @@ export const convertBranchClosedDayData = (closedDays: IBranchClosedDayRaw[]): B
     reason: closedDay.reason,
   }))
 
+export const convertBranchSummaries = (stocks: IBranchBookStockRaw[]): BranchSummary[] => {
+  const summaries = new Map<number, { bookIds: Set<number>; totalStockAmount: number }>()
+
+  stocks.forEach((stock) => {
+    const current = summaries.get(stock.branch) ?? {
+      bookIds: new Set<number>(),
+      totalStockAmount: 0,
+    }
+    current.bookIds.add(stock.book)
+    current.totalStockAmount += stock.amount
+    summaries.set(stock.branch, current)
+  })
+
+  return Array.from(summaries.entries()).map(([branchId, summary]) => ({
+    branchId,
+    bookCount: summary.bookIds.size,
+    totalStockAmount: summary.totalStockAmount,
+  }))
+}
+
 const loadBookmanData = async <T>(apiUrl: string): Promise<T> => {
   const response = await fetch(apiUrl, { method: 'GET', cache: 'no-store' })
   if (!response.ok) {
@@ -88,13 +122,15 @@ const loadBookmanData = async <T>(apiUrl: string): Promise<T> => {
 
 export const getBranchListData = async (): Promise<BranchListData> => {
   try {
-    const [branches, municipalities, closedDays] = await Promise.all([
+    const [branches, municipalities, closedDays, branchBookStocks] = await Promise.all([
       loadBookmanData<IBranchRaw[]>(getBookmanApiUrl('branches')),
       loadBookmanData<IMunicipalityRaw[]>(getBookmanApiUrl('municipalities')),
       loadBookmanData<IBranchClosedDayRaw[]>(getBookmanApiUrl('branchClosedDays')),
+      loadBookmanData<IBranchBookStockRaw[]>(getBookmanApiUrl('branchBookStocks')),
     ])
     return {
       branches: convertBranchData(branches),
+      branchSummaries: convertBranchSummaries(branchBookStocks),
       municipalities: convertMunicipalityData(municipalities),
       closedDays: convertBranchClosedDayData(closedDays),
       errorMessage: null,
@@ -106,6 +142,7 @@ export const getBranchListData = async (): Promise<BranchListData> => {
     if (USE_MOCK_DATA) {
       return {
         branches: convertBranchData(MOCK_BRANCHES),
+        branchSummaries: convertBranchSummaries(MOCK_BRANCH_BOOK_STOCKS),
         municipalities: convertMunicipalityData(MOCK_MUNICIPALITIES),
         closedDays: convertBranchClosedDayData(MOCK_BRANCH_CLOSED_DAYS),
         errorMessage: null,
@@ -115,6 +152,7 @@ export const getBranchListData = async (): Promise<BranchListData> => {
 
     return {
       branches: [],
+      branchSummaries: [],
       municipalities: [],
       closedDays: [],
       errorMessage:
