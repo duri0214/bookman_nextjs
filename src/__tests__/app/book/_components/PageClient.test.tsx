@@ -142,4 +142,21 @@ describe('Book PageClient', () => {
     expect(screen.getByText('吾輩は猫である')).toBeTruthy()
     expect(screen.queryByText('豊島区だけの本')).toBeNull()
   })
+
+  test('CSV登録導線が未実装として無効表示されるべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 書籍一覧画面。
+     * - 処理: PageClient を描画する。
+     * - 期待値: CSV登録導線が未実装の disabled ボタンとして表示されること。
+     */
+    await act(async () => {
+      renderPageClient()
+      await Promise.resolve()
+    })
+
+    expect(screen.getByRole('button', { name: 'CSV登録（未実装）' }).hasAttribute('disabled')).toBe(
+      true,
+    )
+  })
 })

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { Alert, Button, MenuItem, Stack, TextField } from '@mui/material'
+import UploadFileIcon from '@mui/icons-material/UploadFile'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import { SearchConditionPanel } from '../../_components/SearchConditionPanel'
@@ -167,9 +168,14 @@ export function PageClient({
       )}
       <Grid size={{ xs: 12 }}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-          <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
-            新規登録
-          </Button>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ mb: 5 }}>
+            <Button variant='contained' color='primary' onClick={openDialog}>
+              新規登録
+            </Button>
+            <Button variant='outlined' startIcon={<UploadFileIcon />} disabled>
+              CSV登録（未実装）
+            </Button>
+          </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
             <TextField
               select
