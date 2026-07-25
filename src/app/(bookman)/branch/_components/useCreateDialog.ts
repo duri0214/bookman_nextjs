@@ -8,13 +8,50 @@ interface BranchFormValues extends Omit<Partial<IBranchRequest>, 'municipality'>
   municipality?: string
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  municipality: '自治体',
+  name: '図書館の名前',
+  address: '図書館の住所',
+  phone: '図書館の電話番号',
+  remark: '備考',
+}
+
+const isFormComplete = (formValues: BranchFormValues): boolean =>
+  Boolean(
+    formValues.municipality &&
+    formValues.name?.trim() &&
+    formValues.address?.trim() &&
+    formValues.phone?.trim() &&
+    formValues.remark?.trim(),
+  )
+
 const buildRequestBody = (formValues: BranchFormValues): IBranchRequest => ({
-  municipality: formValues.municipality ? Number(formValues.municipality) : null,
-  name: formValues.name ?? '',
-  address: formValues.address ?? '',
-  phone: formValues.phone ?? '',
-  remark: formValues.remark ?? '',
+  municipality: Number(formValues.municipality),
+  name: formValues.name?.trim() ?? '',
+  address: formValues.address?.trim() ?? '',
+  phone: formValues.phone?.trim() ?? '',
+  remark: formValues.remark?.trim() ?? '',
 })
+
+const formatResponseError = async (response: Response): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (responseBody && typeof responseBody === 'object') {
+      const messages = Object.entries(responseBody).flatMap(([fieldName, value]) => {
+        const label = FIELD_LABELS[fieldName] ?? fieldName
+        const fieldMessages = Array.isArray(value) ? value : [value]
+        return fieldMessages.map((message) => `${label}: ${String(message)}`)
+      })
+      if (messages.length > 0) {
+        return messages.join(' ')
+      }
+    }
+  } catch {
+    // Fall back to the generic message below.
+  }
+
+  return '支店データの登録に失敗しました。入力内容とバックエンドの状態を確認してください。'
+}
 
 export function useCreateDialog() {
   const router = useRouter()
@@ -49,6 +86,11 @@ export function useCreateDialog() {
   }
 
   const onCreate = async () => {
+    if (!isFormComplete(formValues)) {
+      setCreateErrorMessage('必須項目をすべて入力してください。')
+      return
+    }
+
     setIsCreating(true)
     setCreateErrorMessage(null)
 
@@ -62,7 +104,8 @@ export function useCreateDialog() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create branch')
+        setCreateErrorMessage(await formatResponseError(response))
+        return
       }
 
       onCloseDialog()

@@ -33,6 +33,14 @@ export const CreateDialog = ({
   createErrorMessage,
   municipalities,
 }: CreateDialogProps) => {
+  const canCreate = Boolean(
+    formValues.municipality &&
+    formValues.name?.trim() &&
+    formValues.address?.trim() &&
+    formValues.phone?.trim() &&
+    formValues.remark?.trim(),
+  )
+
   return (
     <Dialog open={isDialogOpen} onClose={onCloseDialog}>
       <DialogTitle>新規登録</DialogTitle>
@@ -50,11 +58,14 @@ export const CreateDialog = ({
           name='municipality'
           label='自治体'
           fullWidth
+          required
           value={formValues.municipality ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
         >
-          <MenuItem value=''>既定自治体</MenuItem>
+          <MenuItem value='' disabled>
+            自治体を選択してください
+          </MenuItem>
           {municipalities.map((municipality) => (
             <MenuItem key={municipality.id} value={String(municipality.id)}>
               {municipality.name}
@@ -67,6 +78,7 @@ export const CreateDialog = ({
           name='name'
           label='図書館の名前'
           fullWidth
+          required
           value={formValues.name ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
@@ -77,6 +89,7 @@ export const CreateDialog = ({
           name='address'
           label='図書館の住所'
           fullWidth
+          required
           value={formValues.address ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
@@ -87,6 +100,7 @@ export const CreateDialog = ({
           name='phone'
           label='図書館の電話番号'
           fullWidth
+          required
           value={formValues.phone ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
@@ -98,6 +112,7 @@ export const CreateDialog = ({
           label='備考'
           multiline
           fullWidth
+          required
           value={formValues.remark ?? ''}
           disabled={isCreating}
           onChange={onInputChange}
@@ -107,7 +122,7 @@ export const CreateDialog = ({
         <Button onClick={onCloseDialog} color='primary' disabled={isCreating}>
           キャンセル
         </Button>
-        <Button onClick={onCreate} color='primary' disabled={isCreating}>
+        <Button onClick={onCreate} color='primary' disabled={isCreating || !canCreate}>
           {isCreating ? '登録中' : '登録'}
         </Button>
       </DialogActions>
