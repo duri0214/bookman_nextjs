@@ -28,17 +28,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='ダッシュボード' />
     </ListItemButton>
-    <ListItemButton component={Link} href='/branch'>
-      <ListItemIcon>
-        <AddHomeIcon />
-      </ListItemIcon>
-      <ListItemText primary='館管理' />
-    </ListItemButton>
     <ListItemButton component={Link} href='/municipality'>
       <ListItemIcon>
         <LocationCityIcon />
       </ListItemIcon>
       <ListItemText primary='自治体管理' />
+    </ListItemButton>
+    <ListItemButton component={Link} href='/branch'>
+      <ListItemIcon>
+        <AddHomeIcon />
+      </ListItemIcon>
+      <ListItemText primary='館管理' />
     </ListItemButton>
     <ListItemButton component={Link} href='/book'>
       <ListItemIcon>
