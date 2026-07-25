@@ -98,11 +98,13 @@ const convertBookData = (
   return books.map((result: IBookRaw) => ({
     id: result.id,
     category: categoriesById.get(result.category) ?? null,
+    authorIds: result.authors,
     name: result.name,
     authors: result.authors
       .map((authorId) => authorsById.get(authorId)?.name ?? `#${authorId}`)
       .join(', '),
     leadText: result.lead_text,
+    isbn: result.isbn,
     totalAmount: result.total_amount,
     branchStocks: result.branch_stocks.map((branchStock) => ({
       id: branchStock.id,

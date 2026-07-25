@@ -5,10 +5,11 @@ import { Book } from '@/resource/book'
 
 interface Props {
   books: Book[]
+  onEditClick: (book: Book) => void
   onTransferClick: (book: Book) => void
 }
 
-export function List({ books, onTransferClick }: Props) {
+export function List({ books, onEditClick, onTransferClick }: Props) {
   if (!books || books.length === 0) {
     return <Typography variant='body1'>書籍データはまだありません。</Typography>
   }
@@ -36,6 +37,20 @@ export function List({ books, onTransferClick }: Props) {
     { field: 'rowNumber', headerName: '#', width: 50 },
     { field: 'category', headerName: 'カテゴリ', width: 100 },
     { field: 'name', headerName: '名前', width: 200 },
+    {
+      field: 'edit',
+      headerName: '編集',
+      width: 100,
+      sortable: false,
+      renderCell: (params) => {
+        const book = books.find((book) => book.id === params.id)
+        return (
+          <Button size='small' variant='outlined' onClick={() => book && onEditClick(book)}>
+            編集
+          </Button>
+        )
+      },
+    },
     {
       field: 'transfer',
       headerName: '支店間移動',

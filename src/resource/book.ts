@@ -43,9 +43,11 @@ export interface BookBranchStock {
 export interface Book {
   id: number
   category: Category | null
+  authorIds: number[]
   name: string
   authors: string
   leadText: string
+  isbn: string
   totalAmount: number
   branchStocks: BookBranchStock[]
   publicationDate: string

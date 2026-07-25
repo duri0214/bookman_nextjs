@@ -13,9 +13,11 @@ import { Branch } from '@/resource/branch'
 import { LibraryStaff } from '@/resource/lending'
 import { Municipality } from '@/resource/municipality'
 import { CreateDialog } from './CreateDialog'
+import { EditDialog } from './EditDialog'
 import { List } from './List'
 import { TransferDialog } from './TransferDialog'
 import { useCreateDialog } from './useCreateDialog'
+import { useEditDialog } from './useEditDialog'
 import { useTransferDialog } from './useTransferDialog'
 
 interface Props {
@@ -78,6 +80,17 @@ export function PageClient({
     isCreating,
     createErrorMessage,
   } = useCreateDialog(authors, categories, filteredBranches, selectedMunicipalityId)
+  const {
+    selectedBook: editingBook,
+    isEditDialogOpen,
+    openEditDialog,
+    onCloseEditDialog,
+    formValues: editFormValues,
+    onInputChange: onEditInputChange,
+    onUpdate,
+    isUpdating,
+    updateErrorMessage,
+  } = useEditDialog(authors, categories)
   const {
     selectedBook,
     isTransferDialogOpen,
@@ -237,8 +250,24 @@ export function PageClient({
               <MenuItem value='stocked'>所蔵あり</MenuItem>
             </TextField>
           </Stack>
-          <List books={filteredBooks} onTransferClick={openTransferDialog} />
+          <List
+            books={filteredBooks}
+            onEditClick={openEditDialog}
+            onTransferClick={openTransferDialog}
+          />
           <CreateDialog {...dialogProps} />
+          <EditDialog
+            selectedBook={editingBook}
+            isEditDialogOpen={isEditDialogOpen}
+            onCloseEditDialog={onCloseEditDialog}
+            formValues={editFormValues}
+            onInputChange={onEditInputChange}
+            onUpdate={onUpdate}
+            isUpdating={isUpdating}
+            updateErrorMessage={updateErrorMessage}
+            authors={authors}
+            categories={categories}
+          />
           <TransferDialog
             selectedBook={selectedBook}
             branches={filteredBranches}
