@@ -46,17 +46,17 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary='書籍管理' />
     </ListItemButton>
-    <ListItemButton component={Link} href='/customer'>
-      <ListItemIcon>
-        <PeopleIcon />
-      </ListItemIcon>
-      <ListItemText primary='利用者台帳' />
-    </ListItemButton>
     <ListItemButton component={Link} href='/staff'>
       <ListItemIcon>
         <BadgeIcon />
       </ListItemIcon>
       <ListItemText primary='職員管理' />
+    </ListItemButton>
+    <ListItemButton component={Link} href='/customer'>
+      <ListItemIcon>
+        <PeopleIcon />
+      </ListItemIcon>
+      <ListItemText primary='利用者台帳' />
     </ListItemButton>
     <ListItemButton component={Link} href='/lending'>
       <ListItemIcon>
