@@ -9,6 +9,7 @@ interface BranchBookStockResponse {
 
 interface TransferRequest {
   book?: number
+  municipality?: number
   fromBranch?: number
   toBranch?: number
   amount?: number
@@ -27,14 +28,24 @@ const parseResponseBody = async (response: Response) => {
   }
 }
 
-const getStockDetailUrl = (stockId: number): string =>
-  `${getBookmanApiUrl('branchBookStocks')}${stockId}/`
+const getScopedUrl = (apiUrl: string, municipality: number): string => {
+  const scopedUrl = new URL(apiUrl)
+  scopedUrl.searchParams.set('municipality', municipality.toString())
+  return scopedUrl.toString()
+}
+
+const getStockDetailUrl = (stockId: number, municipality: number): string =>
+  getScopedUrl(`${getBookmanApiUrl('branchBookStocks')}${stockId}/`, municipality)
 
 const isPositiveInteger = (value: unknown): value is number =>
   Number.isInteger(value) && Number(value) > 0
 
-const patchStockAmount = async (stockId: number, amount: number): Promise<Response> =>
-  fetch(getStockDetailUrl(stockId), {
+const patchStockAmount = async (
+  stockId: number,
+  amount: number,
+  municipality: number,
+): Promise<Response> =>
+  fetch(getStockDetailUrl(stockId, municipality), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -43,8 +54,13 @@ const patchStockAmount = async (stockId: number, amount: number): Promise<Respon
     cache: 'no-store',
   })
 
-const createStock = async (book: number, branch: number, amount: number): Promise<Response> =>
-  fetch(getBookmanApiUrl('branchBookStocks'), {
+const createStock = async (
+  book: number,
+  branch: number,
+  amount: number,
+  municipality: number,
+): Promise<Response> =>
+  fetch(getScopedUrl(getBookmanApiUrl('branchBookStocks'), municipality), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -56,16 +72,17 @@ const createStock = async (book: number, branch: number, amount: number): Promis
 export async function POST(request: Request) {
   try {
     const requestBody = (await request.json()) as TransferRequest
-    const { book, fromBranch, toBranch, amount } = requestBody
+    const { book, municipality, fromBranch, toBranch, amount } = requestBody
 
     if (
       !isPositiveInteger(book) ||
+      !isPositiveInteger(municipality) ||
       !isPositiveInteger(fromBranch) ||
       !isPositiveInteger(toBranch) ||
       !isPositiveInteger(amount)
     ) {
       return Response.json(
-        { message: '移動元、移動先、冊数を正しく入力してください。' },
+        { message: '自治体、移動元、移動先、冊数を正しく入力してください。' },
         { status: 400 },
       )
     }
@@ -77,10 +94,13 @@ export async function POST(request: Request) {
       )
     }
 
-    const stocksResponse = await fetch(getBookmanApiUrl('branchBookStocks'), {
-      method: 'GET',
-      cache: 'no-store',
-    })
+    const stocksResponse = await fetch(
+      getScopedUrl(getBookmanApiUrl('branchBookStocks'), municipality),
+      {
+        method: 'GET',
+        cache: 'no-store',
+      },
+    )
 
     if (!stocksResponse.ok) {
       return Response.json(
@@ -97,7 +117,11 @@ export async function POST(request: Request) {
       return Response.json({ message: '移動元支店の所蔵数が不足しています。' }, { status: 400 })
     }
 
-    const sourceResponse = await patchStockAmount(sourceStock.id, sourceStock.amount - amount)
+    const sourceResponse = await patchStockAmount(
+      sourceStock.id,
+      sourceStock.amount - amount,
+      municipality,
+    )
     if (!sourceResponse.ok) {
       return Response.json(await parseResponseBody(sourceResponse), {
         status: sourceResponse.status,
@@ -105,8 +129,8 @@ export async function POST(request: Request) {
     }
 
     const targetResponse = targetStock
-      ? await patchStockAmount(targetStock.id, targetStock.amount + amount)
-      : await createStock(book, toBranch, amount)
+      ? await patchStockAmount(targetStock.id, targetStock.amount + amount, municipality)
+      : await createStock(book, toBranch, amount, municipality)
 
     return Response.json(await parseResponseBody(targetResponse), {
       status: targetResponse.status,

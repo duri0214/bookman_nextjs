@@ -8,6 +8,7 @@ import { SearchConditionPanel } from '../../_components/SearchConditionPanel'
 import { Book } from '@/resource/book'
 import { Branch } from '@/resource/branch'
 import { LibraryStaff } from '@/resource/lending'
+import { Municipality } from '@/resource/municipality'
 import { CreateDialog } from './CreateDialog'
 import { List } from './List'
 import { TransferDialog } from './TransferDialog'
@@ -17,6 +18,7 @@ import { useTransferDialog } from './useTransferDialog'
 interface Props {
   books: Book[]
   branches: Branch[]
+  municipalities: Municipality[]
   staffMembers: LibraryStaff[]
   errorMessage: string | null
   isMockData: boolean
@@ -35,7 +37,17 @@ const normalizeBookFilters = (conditions: Record<string, unknown>): BookFilters 
   stockedOnly: conditions.stockedOnly === true,
 })
 
-export function PageClient({ books, branches, staffMembers, errorMessage, isMockData }: Props) {
+export function PageClient({
+  books,
+  branches,
+  municipalities,
+  staffMembers,
+  errorMessage,
+  isMockData,
+}: Props) {
+  const [selectedMunicipalityId, setSelectedMunicipalityId] = useState(
+    municipalities[0]?.id.toString() ?? '',
+  )
   const [filters, setFilters] = useState<BookFilters>({
     keyword: '',
     branchId: '',
@@ -61,7 +73,7 @@ export function PageClient({ books, branches, staffMembers, errorMessage, isMock
     onTransfer,
     isTransferring,
     transferErrorMessage,
-  } = useTransferDialog()
+  } = useTransferDialog(selectedMunicipalityId)
 
   const dialogProps = {
     isDialogOpen,
@@ -72,9 +84,34 @@ export function PageClient({ books, branches, staffMembers, errorMessage, isMock
     isCreating,
     createErrorMessage,
   }
+  const filteredBranches = useMemo(
+    () =>
+      branches.filter(
+        (branch) =>
+          selectedMunicipalityId !== '' && String(branch.municipalityId) === selectedMunicipalityId,
+      ),
+    [branches, selectedMunicipalityId],
+  )
+  const scopedBooks = useMemo(
+    () =>
+      books.map((book) => {
+        const branchStocks = book.branchStocks.filter(
+          (branchStock) =>
+            selectedMunicipalityId !== '' &&
+            String(branchStock.municipalityId) === selectedMunicipalityId,
+        )
+
+        return {
+          ...book,
+          branchStocks,
+          totalAmount: branchStocks.reduce((total, branchStock) => total + branchStock.amount, 0),
+        }
+      }),
+    [books, selectedMunicipalityId],
+  )
   const filteredBooks = useMemo(
     () =>
-      books.filter((book) => {
+      scopedBooks.filter((book) => {
         const keyword = filters.keyword.trim().toLowerCase()
         const matchesKeyword =
           keyword === '' ||
@@ -94,7 +131,7 @@ export function PageClient({ books, branches, staffMembers, errorMessage, isMock
 
         return matchesKeyword && matchesBranch && matchesStock
       }),
-    [books, filters],
+    [filters, scopedBooks],
   )
 
   return (
@@ -111,12 +148,36 @@ export function PageClient({ books, branches, staffMembers, errorMessage, isMock
           </Alert>
         </Grid>
       )}
+      {municipalities.length === 0 && (
+        <Grid size={{ xs: 12 }}>
+          <Alert severity='warning'>
+            自治体データがないため、支店別所蔵を自治体スコープで表示できません。
+          </Alert>
+        </Grid>
+      )}
       <Grid size={{ xs: 12 }}>
         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             新規登録
           </Button>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+            <TextField
+              select
+              size='small'
+              label='自治体'
+              value={selectedMunicipalityId}
+              onChange={(event) => {
+                setSelectedMunicipalityId(event.target.value)
+                setFilters((current) => ({ ...current, branchId: '' }))
+              }}
+              sx={{ minWidth: 220 }}
+            >
+              {municipalities.map((municipality) => (
+                <MenuItem key={municipality.id} value={String(municipality.id)}>
+                  {municipality.name}
+                </MenuItem>
+              ))}
+            </TextField>
             <TextField
               size='small'
               label='キーワード'
@@ -137,7 +198,7 @@ export function PageClient({ books, branches, staffMembers, errorMessage, isMock
               sx={{ minWidth: 220 }}
             >
               <MenuItem value=''>すべて</MenuItem>
-              {branches.map((branch) => (
+              {filteredBranches.map((branch) => (
                 <MenuItem key={branch.id} value={String(branch.id)}>
                   {branch.name}
                 </MenuItem>
@@ -164,7 +225,7 @@ export function PageClient({ books, branches, staffMembers, errorMessage, isMock
           <CreateDialog {...dialogProps} />
           <TransferDialog
             selectedBook={selectedBook}
-            branches={branches}
+            branches={filteredBranches}
             isTransferDialogOpen={isTransferDialogOpen}
             onCloseTransferDialog={onCloseTransferDialog}
             formValues={transferFormValues}

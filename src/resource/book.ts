@@ -39,6 +39,8 @@ export interface BookBranchStock {
   id: number
   branchId: number
   branchName: string
+  municipalityId: number | null
+  municipalityName: string
   amount: number
 }
 

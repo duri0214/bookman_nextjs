@@ -1,8 +1,10 @@
 import { Book, IAuthor, IBookRaw, ICategory } from '@/resource/book'
 import { Branch, IBranchRaw } from '@/resource/branch'
+import { IMunicipalityRaw, Municipality } from '@/resource/municipality'
 import { getBookmanApiUrl } from '@/helpers/apiClient'
 import { ILibraryStaffRaw, LibraryStaff } from '@/resource/lending'
 import { convertStaffData } from '@/app/lending/_components/listData'
+import { convertMunicipalityData } from '@/app/municipality/_components/listData'
 
 const USE_MOCK_DATA = process.env.USE_MOCK_DATA === 'true'
 
@@ -51,6 +53,7 @@ const MOCK_AUTHORS: IAuthor[] = [
 interface BookListData {
   books: Book[]
   branches: Branch[]
+  municipalities: Municipality[]
   staffMembers: LibraryStaff[]
   errorMessage: string | null
   isMockData: boolean
@@ -75,9 +78,11 @@ const convertBookData = (
   books: IBookRaw[],
   categories: ICategory[],
   authors: IAuthor[],
+  branches: Branch[],
 ): Book[] => {
   const categoriesById = new Map(categories.map((category) => [category.id, category]))
   const authorsById = new Map(authors.map((author) => [author.id, author]))
+  const branchesById = new Map(branches.map((branch) => [branch.id, branch]))
 
   return books.map((result: IBookRaw) => ({
     id: result.id,
@@ -92,6 +97,8 @@ const convertBookData = (
       id: branchStock.id,
       branchId: branchStock.branch,
       branchName: branchStock.branch_name,
+      municipalityId: branchesById.get(branchStock.branch)?.municipalityId ?? null,
+      municipalityName: branchesById.get(branchStock.branch)?.municipalityName ?? '未設定',
       amount: branchStock.amount,
     })),
     publicationDate: result.publication_date,
@@ -108,17 +115,20 @@ const loadBookmanData = async <T>(apiUrl: string): Promise<T> => {
 
 export const getBookListData = async (): Promise<BookListData> => {
   try {
-    const [books, categories, authors, branches, staffMembers] = await Promise.all([
+    const [books, categories, authors, branches, municipalities, staffMembers] = await Promise.all([
       loadBookmanData<IBookRaw[]>(getBookmanApiUrl('books')),
       loadBookmanData<ICategory[]>(getBookmanApiUrl('categories')),
       loadBookmanData<IAuthor[]>(getBookmanApiUrl('authors')),
       loadBookmanData<IBranchRaw[]>(getBookmanApiUrl('branches')),
+      loadBookmanData<IMunicipalityRaw[]>(getBookmanApiUrl('municipalities')),
       loadBookmanData<ILibraryStaffRaw[]>(getBookmanApiUrl('staff')),
     ])
+    const convertedBranches = convertBranchData(branches)
 
     return {
-      books: convertBookData(books, categories, authors),
-      branches: convertBranchData(branches),
+      books: convertBookData(books, categories, authors, convertedBranches),
+      branches: convertedBranches,
+      municipalities: convertMunicipalityData(municipalities),
       staffMembers: convertStaffData(staffMembers),
       errorMessage: null,
       isMockData: false,
@@ -127,28 +137,31 @@ export const getBookListData = async (): Promise<BookListData> => {
     console.error('データの取得に失敗しました: ', e)
 
     if (USE_MOCK_DATA) {
+      const mockBranches = convertBranchData([
+        {
+          id: 1,
+          municipality: 1,
+          municipality_name: '渋谷区',
+          name: '中央図書館',
+          address: '東京都渋谷区神宮前1-4-1',
+          phone: '03-3403-2591',
+          remark: '鉄筋コンクリート造 地下1階地上5階 4,450㎡（294席）',
+        },
+        {
+          id: 2,
+          municipality: 1,
+          municipality_name: '渋谷区',
+          name: '西原図書館',
+          address: '東京都渋谷区西原2-28-9',
+          phone: '03-3460-8535',
+          remark: '鉄筋コンクリート造 地下1階地上3階の2・3階部分 631㎡（61席）',
+        },
+      ])
+
       return {
-        books: convertBookData(MOCK_BOOKS, MOCK_CATEGORIES, MOCK_AUTHORS),
-        branches: convertBranchData([
-          {
-            id: 1,
-            municipality: 1,
-            municipality_name: '渋谷区',
-            name: '中央図書館',
-            address: '東京都渋谷区神宮前1-4-1',
-            phone: '03-3403-2591',
-            remark: '鉄筋コンクリート造 地下1階地上5階 4,450㎡（294席）',
-          },
-          {
-            id: 2,
-            municipality: 1,
-            municipality_name: '渋谷区',
-            name: '西原図書館',
-            address: '東京都渋谷区西原2-28-9',
-            phone: '03-3460-8535',
-            remark: '鉄筋コンクリート造 地下1階地上3階の2・3階部分 631㎡（61席）',
-          },
-        ]),
+        books: convertBookData(MOCK_BOOKS, MOCK_CATEGORIES, MOCK_AUTHORS, mockBranches),
+        branches: mockBranches,
+        municipalities: [{ id: 1, name: '渋谷区' }],
         staffMembers: convertStaffData(MOCK_STAFF),
         errorMessage: null,
         isMockData: true,
@@ -158,6 +171,7 @@ export const getBookListData = async (): Promise<BookListData> => {
     return {
       books: [],
       branches: [],
+      municipalities: [],
       staffMembers: [],
       errorMessage:
         '書籍データの取得に失敗しました。バックエンドを起動してから再読み込みしてください。',
