@@ -14,9 +14,11 @@ jest.mock('next/navigation', () => ({
 const book: Book = {
   id: 10,
   category: { id: 1, name: '小説', color: '#ff0000' },
+  authorIds: [1],
   name: '吾輩は猫である',
   authors: '夏目漱石',
   leadText: '近代文学の代表作です。',
+  isbn: '9784062938426',
   totalAmount: 5,
   branchStocks: [
     {

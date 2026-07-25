@@ -5,9 +5,11 @@ const books: Book[] = [
   {
     id: 1,
     category: { id: 1, name: '文学', color: '#3f6a8e' },
+    authorIds: [1],
     name: '銀河鉄道の夜',
     authors: '宮沢賢治',
     leadText: '支店別所蔵集計のテスト用データです。',
+    isbn: '9784062938426',
     totalAmount: 5,
     branchStocks: [
       {
@@ -32,9 +34,11 @@ const books: Book[] = [
   {
     id: 2,
     category: { id: 2, name: '実用', color: '#264841' },
+    authorIds: [2],
     name: '図書館運営メモ',
     authors: 'Bookman Team',
     leadText: '0冊支店を除外するためのテスト用データです。',
+    isbn: '9784000000000',
     totalAmount: 1,
     branchStocks: [
       {

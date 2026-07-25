@@ -59,9 +59,11 @@ const books: Book[] = [
   {
     id: 10,
     category: { id: 1, name: '小説', color: '#ff0000' },
+    authorIds: [1],
     name: '吾輩は猫である',
     authors: '夏目漱石',
     leadText: '近代文学の代表作です。',
+    isbn: '9784062938426',
     totalAmount: 5,
     publicationDate: '2026-01-01',
     branchStocks: [
@@ -86,9 +88,11 @@ const books: Book[] = [
   {
     id: 11,
     category: { id: 1, name: '小説', color: '#ff0000' },
+    authorIds: [2],
     name: '豊島区だけの本',
     authors: '国松俊英',
     leadText: '豊島区の支店だけが所蔵しています。',
+    isbn: '9784000000000',
     totalAmount: 2,
     publicationDate: '2026-01-02',
     branchStocks: [
