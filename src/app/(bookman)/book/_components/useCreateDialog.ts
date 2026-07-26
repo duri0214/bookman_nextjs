@@ -4,46 +4,11 @@ import { Author } from '@/resource/author'
 import { Branch } from '@/resource/branch'
 import { Category } from '@/resource/category'
 import { IBookFormValues, IBookRequest } from '@/resource/book'
+import { isValidIsbn, normalizeIsbn } from './bookValidation'
 
 const CREATE_BOOK_API_PATH = '/api/bookman/books'
-const BRANCH_BOOK_STOCK_API_PATH = '/api/bookman/branch-book-stocks'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
-
-const normalizeIsbn = (value: string | undefined): string =>
-  (value ?? '').replace(/[-\s]/g, '').toUpperCase()
-
-const isValidIsbn10 = (isbn: string): boolean => {
-  if (!/^\d{9}[\dX]$/.test(isbn)) {
-    return false
-  }
-
-  const total = isbn.split('').reduce((sum, char, index) => {
-    const digit = char === 'X' ? 10 : Number(char)
-    return sum + digit * (10 - index)
-  }, 0)
-
-  return total % 11 === 0
-}
-
-const isValidIsbn13 = (isbn: string): boolean => {
-  if (!/^\d{13}$/.test(isbn)) {
-    return false
-  }
-
-  const total = isbn
-    .slice(0, 12)
-    .split('')
-    .reduce((sum, char, index) => sum + Number(char) * (index % 2 === 0 ? 1 : 3), 0)
-  const checkDigit = (10 - (total % 10)) % 10
-
-  return checkDigit === Number(isbn[12])
-}
-
-const isValidIsbn = (value: string | undefined): boolean => {
-  const isbn = normalizeIsbn(value)
-  return isValidIsbn10(isbn) || isValidIsbn13(isbn)
-}
 
 const toPositiveInteger = (value: string | undefined): number | null => {
   const parsedValue = Number(value)
@@ -137,12 +102,17 @@ const buildBookRequest = (
   formValues: Partial<IBookFormValues>,
   authors: Author[],
   categories: Category[],
+  municipality: number,
+  branch: number,
+  amount: number,
 ): IBookRequest => ({
   category: toCategoryId(formValues.category, categories),
   name: formValues.name ?? '',
   authors: toAuthorIds(formValues.authors, authors),
   lead_text: formValues.lead_text ?? '',
-  amount: toNumber(formValues.amount),
+  municipality,
+  branch,
+  amount,
   isbn: normalizeIsbn(formValues.isbn),
   publication_date: formValues.publication_date ?? '',
 })
@@ -230,7 +200,9 @@ export function useCreateDialog(
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildBookRequest(formValues, authors, categories)),
+        body: JSON.stringify(
+          buildBookRequest(formValues, authors, categories, municipality, branch, amount),
+        ),
       })
 
       if (!response.ok) {
@@ -241,24 +213,6 @@ export function useCreateDialog(
       const createdBook = (await response.json()) as { id?: number }
       if (!createdBook.id) {
         setCreateErrorMessage('書籍データの登録後、書籍IDを取得できませんでした。')
-        return
-      }
-
-      const stockResponse = await fetch(BRANCH_BOOK_STOCK_API_PATH, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          book: createdBook.id,
-          municipality,
-          branch,
-          amount,
-        }),
-      })
-
-      if (!stockResponse.ok) {
-        setCreateErrorMessage(await formatResponseError(stockResponse))
         return
       }
 

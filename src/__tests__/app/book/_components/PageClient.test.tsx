@@ -147,20 +147,24 @@ describe('Book PageClient', () => {
     expect(screen.queryByText('豊島区だけの本')).toBeNull()
   })
 
-  test('CSV登録導線が未実装として無効表示されるべき', async () => {
+  test('CSV登録導線からサンプルCSVとファイル選択を表示するべき', async () => {
     /**
      * シナリオ:
      * - 入力: 書籍一覧画面。
-     * - 処理: PageClient を描画する。
-     * - 期待値: CSV登録導線が未実装の disabled ボタンとして表示されること。
+     * - 処理: CSV登録ボタンをクリックする。
+     * - 期待値: CSV登録ダイアログが開き、サンプルCSVダウンロードとファイル選択導線が表示されること。
      */
     await act(async () => {
       renderPageClient()
       await Promise.resolve()
     })
 
-    expect(screen.getByRole('button', { name: 'CSV登録（未実装）' }).hasAttribute('disabled')).toBe(
-      true,
+    fireEvent.click(screen.getByRole('button', { name: 'CSV登録' }))
+
+    expect(screen.getByRole('dialog', { name: 'CSV登録' })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'サンプルCSVダウンロード' }).getAttribute('href')).toBe(
+      '/book-import-sample.csv',
     )
+    expect(screen.getByRole('button', { name: 'CSVファイル選択' })).toBeTruthy()
   })
 })

@@ -5,6 +5,7 @@ export const BOOKMAN_API_ENDPOINTS = {
   branchClosedDays: 'branch-closed-days/',
   books: 'books/',
   booksCreate: 'books/create/',
+  booksCsvImport: 'books/import-csv/',
   branchBookStocks: 'branch-book-stocks/',
   municipalities: 'municipalities/',
   authors: 'authors/',

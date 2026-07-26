@@ -3,45 +3,11 @@ import { useRouter } from 'next/navigation'
 import { Author } from '@/resource/author'
 import { Category } from '@/resource/category'
 import { Book, IBookFormValues, IBookRequest } from '@/resource/book'
+import { isValidIsbn, normalizeIsbn } from './bookValidation'
 
 const BOOK_API_PATH = '/api/bookman/books'
 
 const toNumber = (value: string | undefined): number => Number(value ?? 0)
-
-const normalizeIsbn = (value: string | undefined): string =>
-  (value ?? '').replace(/[-\s]/g, '').toUpperCase()
-
-const isValidIsbn10 = (isbn: string): boolean => {
-  if (!/^\d{9}[\dX]$/.test(isbn)) {
-    return false
-  }
-
-  const total = isbn.split('').reduce((sum, char, index) => {
-    const digit = char === 'X' ? 10 : Number(char)
-    return sum + digit * (10 - index)
-  }, 0)
-
-  return total % 11 === 0
-}
-
-const isValidIsbn13 = (isbn: string): boolean => {
-  if (!/^\d{13}$/.test(isbn)) {
-    return false
-  }
-
-  const total = isbn
-    .slice(0, 12)
-    .split('')
-    .reduce((sum, char, index) => sum + Number(char) * (index % 2 === 0 ? 1 : 3), 0)
-  const checkDigit = (10 - (total % 10)) % 10
-
-  return checkDigit === Number(isbn[12])
-}
-
-const isValidIsbn = (value: string | undefined): boolean => {
-  const isbn = normalizeIsbn(value)
-  return isValidIsbn10(isbn) || isValidIsbn13(isbn)
-}
 
 const FIELD_LABELS: Record<string, string> = {
   category: 'カテゴリ',
@@ -115,7 +81,7 @@ const buildBookRequest = (
   formValues: Partial<IBookFormValues>,
   authors: Author[],
   categories: Category[],
-): Omit<IBookRequest, 'amount'> => ({
+): Omit<IBookRequest, 'municipality' | 'branch' | 'amount'> => ({
   category: toCategoryId(formValues.category, categories),
   name: formValues.name ?? '',
   authors: toAuthorIds(formValues.authors, authors),
