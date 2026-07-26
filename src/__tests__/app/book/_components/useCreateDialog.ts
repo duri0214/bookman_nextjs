@@ -108,16 +108,10 @@ describe('useCreateDialog', () => {
    */
   test('onCreateが成功した時に書籍登録APIへPOSTして一覧を再取得するべき', async () => {
     // Given
-    jest
-      .mocked(global.fetch)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 10 }),
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ id: 100 }),
-      } as Response)
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ id: 10, branch_stocks: [{ id: 100, branch: 1, amount: 3 }] }),
+    } as Response)
     const { result } = renderHook(() => useCreateDialog(authors, categories, branches, '1'))
 
     act(() => {
@@ -164,23 +158,14 @@ describe('useCreateDialog', () => {
         name: 'Bookman 入門',
         authors: [1, 2],
         lead_text: '紹介文',
+        municipality: 1,
+        branch: 1,
         amount: 3,
         isbn: '9784062938426',
         publication_date: '2026-01-01',
       }),
     })
-    expect(global.fetch).toHaveBeenNthCalledWith(2, '/api/bookman/branch-book-stocks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        book: 10,
-        municipality: 1,
-        branch: 1,
-        amount: 3,
-      }),
-    })
+    expect(global.fetch).toHaveBeenCalledTimes(1)
     expect(result.current.isDialogOpen).toBe(false)
     expect(result.current.formValues).toEqual({})
     expect(mockRefresh).toHaveBeenCalledTimes(1)

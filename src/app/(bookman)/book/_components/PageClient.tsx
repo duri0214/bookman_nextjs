@@ -13,6 +13,7 @@ import { Branch } from '@/resource/branch'
 import { LibraryStaff } from '@/resource/lending'
 import { Municipality } from '@/resource/municipality'
 import { CreateDialog } from './CreateDialog'
+import { CsvImportDialog } from './CsvImportDialog'
 import { EditDialog } from './EditDialog'
 import { List } from './List'
 import { TransferDialog } from './TransferDialog'
@@ -62,6 +63,7 @@ export function PageClient({
     branchId: '',
     stockedOnly: false,
   })
+  const [isCsvDialogOpen, setIsCsvDialogOpen] = useState(false)
   const filteredBranches = useMemo(
     () =>
       branches.filter(
@@ -185,8 +187,12 @@ export function PageClient({
             <Button variant='contained' color='primary' onClick={openDialog}>
               新規登録
             </Button>
-            <Button variant='outlined' startIcon={<UploadFileIcon />} disabled>
-              CSV登録（未実装）
+            <Button
+              variant='outlined'
+              startIcon={<UploadFileIcon />}
+              onClick={() => setIsCsvDialogOpen(true)}
+            >
+              CSV登録
             </Button>
           </Stack>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
@@ -256,6 +262,11 @@ export function PageClient({
             onTransferClick={openTransferDialog}
           />
           <CreateDialog {...dialogProps} />
+          <CsvImportDialog
+            isDialogOpen={isCsvDialogOpen}
+            onCloseDialog={() => setIsCsvDialogOpen(false)}
+            selectedMunicipalityId={selectedMunicipalityId}
+          />
           <EditDialog
             selectedBook={editingBook}
             isEditDialogOpen={isEditDialogOpen}

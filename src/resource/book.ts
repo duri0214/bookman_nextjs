@@ -58,6 +58,8 @@ export interface IBookRequest {
   name: string
   authors: number[]
   lead_text: string
+  municipality: number
+  branch: number
   amount: number
   isbn: string
   publication_date: string
