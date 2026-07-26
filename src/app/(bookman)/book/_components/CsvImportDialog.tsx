@@ -11,10 +11,12 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
+import DownloadIcon from '@mui/icons-material/Download'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 
 const CSV_IMPORT_API_PATH = '/api/bookman/books/import-csv'
+const CSV_SAMPLE_PATH = '/book-import-sample.csv'
 
 interface CsvImportDialogProps {
   isDialogOpen: boolean
@@ -168,6 +170,15 @@ export const CsvImportDialog = ({
           {importMessage && <Alert severity='success'>{importMessage}</Alert>}
           {importErrorMessage && <Alert severity='error'>{importErrorMessage}</Alert>}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Button
+              variant='outlined'
+              startIcon={<DownloadIcon />}
+              href={CSV_SAMPLE_PATH}
+              download='book-import-sample.csv'
+              disabled={isImporting}
+            >
+              サンプルCSVダウンロード
+            </Button>
             <Button
               variant='outlined'
               startIcon={<UploadFileIcon />}
