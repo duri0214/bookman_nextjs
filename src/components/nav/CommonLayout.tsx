@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode, useState } from 'react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Box, createTheme, ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -22,9 +23,16 @@ const defaultTheme = createTheme()
 interface Props {
   children: ReactNode
   routeTitles: Record<string, string>
+  notificationCount?: number
+  notificationHref?: string
 }
 
-export function CommonLayout({ children, routeTitles }: Props) {
+export function CommonLayout({
+  children,
+  routeTitles,
+  notificationCount = 0,
+  notificationHref = '/lending',
+}: Props) {
   const pathname = usePathname()
   const title = routeTitles[pathname] ?? 'Bookman'
   const [open, setOpen] = useState(true)
@@ -58,8 +66,17 @@ export function CommonLayout({ children, routeTitles }: Props) {
               <Typography component='h1' variant='h6' color='inherit' noWrap sx={{ flexGrow: 1 }}>
                 {title}
               </Typography>
-              <IconButton color='inherit'>
-                <Badge badgeContent={4} color='secondary'>
+              <IconButton
+                color='inherit'
+                component={Link}
+                href={notificationHref}
+                aria-label={`貸出可能通知 ${notificationCount} 件`}
+              >
+                <Badge
+                  badgeContent={notificationCount}
+                  color='secondary'
+                  invisible={notificationCount === 0}
+                >
                   <NotificationsIcon />
                 </Badge>
               </IconButton>

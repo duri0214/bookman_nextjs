@@ -6,10 +6,13 @@ import { Branch } from '@/resource/branch'
 import { Municipality } from '@/resource/municipality'
 import { Category } from '@/resource/category'
 
+let currentSearchParams = new URLSearchParams()
+
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     refresh: jest.fn(),
   }),
+  useSearchParams: () => currentSearchParams,
 }))
 
 jest.mock('@mui/x-data-grid', () => ({
@@ -123,6 +126,10 @@ const renderPageClient = () =>
   )
 
 describe('Book PageClient', () => {
+  beforeEach(() => {
+    currentSearchParams = new URLSearchParams()
+  })
+
   test('自治体を選択した時に支店候補と書籍一覧を選択自治体配下の所蔵だけに絞るべき', async () => {
     /**
      * シナリオ:
@@ -166,5 +173,22 @@ describe('Book PageClient', () => {
       '/book-import-sample.csv',
     )
     expect(screen.getByRole('button', { name: 'CSVファイル選択' })).toBeTruthy()
+  })
+
+  test('CSV登録クエリがある時はCSV登録ダイアログを初期表示するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: csvImport=1 が指定された書籍一覧画面。
+     * - 処理: 書籍一覧画面を表示する。
+     * - 期待値: ダッシュボードのCSV登録導線から遷移した時に、CSV登録ダイアログが初期表示されること。
+     */
+    currentSearchParams = new URLSearchParams('csvImport=1')
+
+    await act(async () => {
+      renderPageClient()
+      await Promise.resolve()
+    })
+
+    expect(screen.getByRole('dialog', { name: 'CSV登録' })).toBeTruthy()
   })
 })
