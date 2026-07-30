@@ -5,15 +5,14 @@ import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import Grid from '@mui/material/Grid'
 import LinearProgress from '@mui/material/LinearProgress'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import TextField from '@mui/material/TextField'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import SpeedIcon from '@mui/icons-material/Speed'
 import { Copyright } from '@/components/Copyright'
 import { getBookListData } from '@/app/book/_components/listData'
 import { getLendingPageData } from '@/app/lending/_components/listData'
+import { DashboardMunicipalitySelect } from './_components/DashboardMunicipalitySelect'
 import { buildDashboardSummary } from './_components/dashboardSummary'
 
 export const dynamic = 'force-dynamic'
@@ -89,28 +88,10 @@ export default async function Page({ searchParams }: PageProps) {
                   書籍、支店別所蔵、貸出、予約、期限注意を実データで確認する業務ビューです。
                 </Typography>
               </Box>
-              <Box component='form' action='/dashboard' sx={{ minWidth: { xs: '100%', md: 240 } }}>
-                <TextField
-                  select
-                  fullWidth
-                  size='small'
-                  label='自治体'
-                  name='municipalityId'
-                  defaultValue={summary.selectedMunicipalityId?.toString() ?? ''}
-                >
-                  {summary.municipalityOptions.length === 0 && (
-                    <MenuItem value=''>自治体なし</MenuItem>
-                  )}
-                  {summary.municipalityOptions.map((municipality) => (
-                    <MenuItem key={municipality.id} value={municipality.id.toString()}>
-                      {municipality.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                <Button type='submit' variant='outlined' sx={{ mt: 1, width: '100%' }}>
-                  表示を更新
-                </Button>
-              </Box>
+              <DashboardMunicipalitySelect
+                municipalityOptions={summary.municipalityOptions}
+                selectedMunicipalityId={summary.selectedMunicipalityId}
+              />
             </Box>
           </Grid>
 
