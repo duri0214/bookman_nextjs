@@ -6,7 +6,7 @@ import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import ListSubheader from '@mui/material/ListSubheader'
 import HomeIcon from '@mui/icons-material/Home'
-import DashboardIcon from '@mui/icons-material/Dashboard'
+import SpeedIcon from '@mui/icons-material/Speed'
 import AddHomeIcon from '@mui/icons-material/AddHome'
 import AutoStoriesIcon from '@mui/icons-material/AutoStories'
 import LayersIcon from '@mui/icons-material/Layers'
@@ -57,12 +57,7 @@ function NavItem({ href, pathname, icon, label }: NavItemProps) {
 export const mainListItems = (pathname: string) => (
   <>
     <NavItem href='/' pathname={pathname} icon={<HomeIcon />} label='Home' />
-    <NavItem
-      href='/dashboard'
-      pathname={pathname}
-      icon={<DashboardIcon />}
-      label='ダッシュボード'
-    />
+    <NavItem href='/dashboard' pathname={pathname} icon={<SpeedIcon />} label='ダッシュボード' />
     <NavItem
       href='/municipality'
       pathname={pathname}
