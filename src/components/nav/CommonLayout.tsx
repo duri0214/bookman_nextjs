@@ -66,6 +66,17 @@ export function CommonLayout({
               <Typography component='h1' variant='h6' color='inherit' noWrap sx={{ flexGrow: 1 }}>
                 {title}
               </Typography>
+              <Typography
+                component='span'
+                sx={{
+                  display: { xs: 'none', sm: 'inline' },
+                  mr: 1,
+                  fontSize: '0.82rem',
+                  fontWeight: 700,
+                }}
+              >
+                取り置き中予約
+              </Typography>
               <IconButton
                 color='inherit'
                 component={Link}
