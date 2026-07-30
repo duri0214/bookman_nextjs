@@ -9,11 +9,30 @@ export const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 
       position: 'relative',
       whiteSpace: 'nowrap',
       width: drawerWidth,
+      color: '#2f332f',
+      backgroundColor: '#f6f1e8',
+      borderRight: '1px solid rgba(141, 113, 75, 0.24)',
       transition: theme.transitions.create('width', {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
       boxSizing: 'border-box',
+      '& .MuiToolbar-root': {
+        backgroundColor: '#efe6d7',
+      },
+      '& .MuiDivider-root': {
+        borderColor: 'rgba(141, 113, 75, 0.22)',
+      },
+      '& .MuiListSubheader-root': {
+        color: '#6f6251',
+        backgroundColor: '#f6f1e8',
+      },
+      '& .MuiListItemIcon-root': {
+        color: '#5b6f73',
+      },
+      '& .MuiListItemButton-root:hover': {
+        backgroundColor: 'rgba(63, 106, 142, 0.1)',
+      },
       ...(!open && {
         overflowX: 'hidden',
         transition: theme.transitions.create('width', {
