@@ -8,47 +8,90 @@ import LinearProgress from '@mui/material/LinearProgress'
 import Paper from '@mui/material/Paper'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import SpeedIcon from '@mui/icons-material/Speed'
 import { Copyright } from '@/components/Copyright'
 import { getBookListData } from '@/app/book/_components/listData'
+import { getLendingPageData } from '@/app/lending/_components/listData'
+import { DashboardMunicipalitySelect } from './_components/DashboardMunicipalitySelect'
 import { buildDashboardSummary } from './_components/dashboardSummary'
 
 export const dynamic = 'force-dynamic'
 
-export default async function Page() {
-  const { books, errorMessage, isMockData } = await getBookListData()
-  const summary = buildDashboardSummary(books)
+interface PageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}
+
+export default async function Page({ searchParams }: PageProps) {
+  const paramsPromise: Promise<Record<string, string | string[] | undefined>> =
+    searchParams ?? Promise.resolve({})
+  const [bookData, lendingData, params] = await Promise.all([
+    getBookListData(),
+    getLendingPageData(),
+    paramsPromise,
+  ])
+  const selectedMunicipalityParam = Array.isArray(params.municipalityId)
+    ? params.municipalityId[0]
+    : params.municipalityId
+  const selectedMunicipalityId = selectedMunicipalityParam
+    ? Number(selectedMunicipalityParam)
+    : undefined
+  const summary = buildDashboardSummary(
+    bookData.books,
+    lendingData.lendings,
+    lendingData.reservations,
+    bookData.municipalities,
+    Number.isFinite(selectedMunicipalityId) ? selectedMunicipalityId : undefined,
+  )
 
   return (
     <>
       <Toolbar />
       <Container maxWidth='lg' sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
-          {errorMessage && (
+          {bookData.errorMessage && (
             <Grid size={{ xs: 12 }}>
-              <Alert severity='warning'>{errorMessage}</Alert>
+              <Alert severity='warning'>{bookData.errorMessage}</Alert>
             </Grid>
           )}
-          {isMockData && (
+          {lendingData.errorMessage && (
+            <Grid size={{ xs: 12 }}>
+              <Alert severity='warning'>{lendingData.errorMessage}</Alert>
+            </Grid>
+          )}
+          {(bookData.isMockData || lendingData.isMockData) && (
             <Grid size={{ xs: 12 }}>
               <Alert severity='info'>
                 バックエンド API
-                に接続できないため、開発用モックデータで自治体全体ビューを表示しています。
+                に接続できないデータは、開発用モックデータで自治体全体ビューを表示しています。
               </Alert>
             </Grid>
           )}
 
           <Grid size={{ xs: 12 }}>
-            <Box sx={{ pb: 1 }}>
-              <Typography component='p' sx={{ color: '#3f6a8e', fontWeight: 800, mb: 1 }}>
-                Bookman
-              </Typography>
-              <Typography component='h1' variant='h4' sx={{ fontWeight: 800, color: '#243039' }}>
-                自治体全体の図書館業務
-              </Typography>
-              <Typography sx={{ color: '#53606a', mt: 1, maxWidth: 760, lineHeight: 1.8 }}>
-                書籍と支店別所蔵を入口に、貸出、予約、期限注意へ広げていく全体ビューです。
-                未接続の業務指標は、操作できる導線にせず実装状況を表示します。
-              </Typography>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: '1fr auto' },
+                gap: 2,
+                alignItems: 'end',
+                pb: 1,
+              }}
+            >
+              <Box>
+                <Typography component='p' sx={{ color: '#356f96', fontWeight: 800, mb: 1 }}>
+                  Bookman
+                </Typography>
+                <Typography component='h1' variant='h4' sx={{ fontWeight: 800, color: '#2f332f' }}>
+                  自治体全体の図書館業務
+                </Typography>
+                <Typography sx={{ color: '#5f5a51', mt: 1, maxWidth: 760, lineHeight: 1.8 }}>
+                  書籍、支店別所蔵、貸出、予約、期限注意を実データで確認する業務ビューです。
+                </Typography>
+              </Box>
+              <DashboardMunicipalitySelect
+                municipalityOptions={summary.municipalityOptions}
+                selectedMunicipalityId={summary.selectedMunicipalityId}
+              />
             </Box>
           </Grid>
 
@@ -58,12 +101,13 @@ export default async function Page() {
                 sx={{
                   p: 2.5,
                   height: '100%',
-                  border: '1px solid rgba(63, 106, 142, 0.16)',
-                  boxShadow: '0 8px 22px rgba(36, 48, 57, 0.08)',
+                  bgcolor: '#fffaf0',
+                  border: '1px solid rgba(141, 113, 75, 0.2)',
+                  boxShadow: '0 8px 22px rgba(47, 51, 47, 0.08)',
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1 }}>
-                  <Typography sx={{ color: '#53606a', fontWeight: 700 }}>{metric.label}</Typography>
+                  <Typography sx={{ color: '#5f5a51', fontWeight: 700 }}>{metric.label}</Typography>
                   <Chip
                     size='small'
                     label={metric.status === 'connected' ? '接続済み' : '準備中'}
@@ -80,10 +124,20 @@ export default async function Page() {
           ))}
 
           <Grid size={{ xs: 12, lg: 7 }}>
-            <Paper sx={{ p: 2.5, height: '100%', border: '1px solid rgba(63, 106, 142, 0.16)' }}>
-              <Typography component='h2' variant='h6' sx={{ fontWeight: 800, mb: 2 }}>
-                支店別所蔵数
-              </Typography>
+            <Paper
+              sx={{
+                p: 2.5,
+                height: '100%',
+                bgcolor: '#fffaf0',
+                border: '1px solid rgba(141, 113, 75, 0.2)',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <SpeedIcon color='primary' />
+                <Typography component='h2' variant='h6' sx={{ fontWeight: 800 }}>
+                  支店別所蔵数
+                </Typography>
+              </Box>
               {summary.branchStocks.length === 0 ? (
                 <Typography sx={{ color: '#53606a' }}>
                   支店別所蔵データはまだありません。書籍管理画面で所蔵を登録すると表示されます。
@@ -116,7 +170,14 @@ export default async function Page() {
           </Grid>
 
           <Grid size={{ xs: 12, lg: 5 }}>
-            <Paper sx={{ p: 2.5, height: '100%', border: '1px solid rgba(63, 106, 142, 0.16)' }}>
+            <Paper
+              sx={{
+                p: 2.5,
+                height: '100%',
+                bgcolor: '#fffaf0',
+                border: '1px solid rgba(141, 113, 75, 0.2)',
+              }}
+            >
               <Typography component='h2' variant='h6' sx={{ fontWeight: 800, mb: 2 }}>
                 次に見る業務
               </Typography>

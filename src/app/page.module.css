@@ -71,6 +71,7 @@
   font: inherit;
   font-weight: 800;
   color: #243039;
+  text-decoration: none;
   background: rgba(248, 244, 234, 0.82);
   border: 1px solid rgba(63, 106, 142, 0.42);
   border-radius: 6px;

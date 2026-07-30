@@ -21,10 +21,10 @@ export default function Home() {
             <Link className={styles.primaryAction} href='/dashboard'>
               ダッシュボードを見る
             </Link>
-            <button className={styles.secondaryAction} type='button' disabled>
+            <Link className={styles.secondaryAction} href='/lending'>
               本をかりる
-              <span>未実装</span>
-            </button>
+              <span>貸出・予約へ</span>
+            </Link>
           </div>
         </div>
       </section>

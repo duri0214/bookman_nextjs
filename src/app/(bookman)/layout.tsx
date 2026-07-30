@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { getLendingPageData } from '@/app/lending/_components/listData'
 import { CommonLayout } from '@/components/nav/CommonLayout'
 
 const routeTitles = {
@@ -11,6 +12,16 @@ const routeTitles = {
   '/reservation': '貸出・予約カウンター',
 } as const
 
-export default function BookmanLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <CommonLayout routeTitles={routeTitles}>{children}</CommonLayout>
+export default async function BookmanLayout({ children }: Readonly<{ children: ReactNode }>) {
+  const { heldReservations } = await getLendingPageData()
+
+  return (
+    <CommonLayout
+      routeTitles={routeTitles}
+      notificationCount={heldReservations.length}
+      notificationHref='/lending'
+    >
+      {children}
+    </CommonLayout>
+  )
 }

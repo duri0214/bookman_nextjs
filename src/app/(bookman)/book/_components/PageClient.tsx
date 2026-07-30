@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Alert, Button, MenuItem, Stack, TextField } from '@mui/material'
 import UploadFileIcon from '@mui/icons-material/UploadFile'
 import Grid from '@mui/material/Grid'
@@ -55,6 +56,7 @@ export function PageClient({
   errorMessage,
   isMockData,
 }: Props) {
+  const searchParams = useSearchParams()
   const [selectedMunicipalityId, setSelectedMunicipalityId] = useState(
     municipalities[0]?.id.toString() ?? '',
   )
@@ -63,7 +65,7 @@ export function PageClient({
     branchId: '',
     stockedOnly: false,
   })
-  const [isCsvDialogOpen, setIsCsvDialogOpen] = useState(false)
+  const [isCsvDialogOpen, setIsCsvDialogOpen] = useState(searchParams.get('csvImport') === '1')
   const filteredBranches = useMemo(
     () =>
       branches.filter(
