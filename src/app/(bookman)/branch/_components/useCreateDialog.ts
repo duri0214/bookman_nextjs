@@ -1,6 +1,7 @@
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Branch, IBranchFormValues, IBranchRequest } from '@/resource/branch'
+import { keepHalfWidthDigits } from '@/helpers/numericValidation'
 
 const CREATE_BRANCH_API_PATH = '/api/bookman/branches'
 
@@ -86,9 +87,12 @@ export function useCreateDialog() {
    * @returns {void}
    */
   const onInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const value =
+      event.target.name === 'phone' ? keepHalfWidthDigits(event.target.value) : event.target.value
+
     setFormValues((formValues) => ({
       ...formValues,
-      [event.target.name]: event.target.value,
+      [event.target.name]: value,
     }))
     setCreateErrorMessage(null)
   }
@@ -146,9 +150,12 @@ export function useCreateDialog() {
   }
 
   const onEditInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const value =
+      event.target.name === 'phone' ? keepHalfWidthDigits(event.target.value) : event.target.value
+
     setEditFormValues((currentValues) => ({
       ...currentValues,
-      [event.target.name]: event.target.value,
+      [event.target.name]: value,
     }))
     setUpdateErrorMessage(null)
   }

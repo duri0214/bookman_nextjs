@@ -1,4 +1,5 @@
 import { getBookmanApiUrl } from '@/helpers/apiClient'
+import { halfWidthDigitsError, isHalfWidthDigits } from '@/helpers/numericValidation'
 import type { IBookRequest } from '@/resource/book'
 
 const parseResponseBody = (responseText: string) => {
@@ -23,6 +24,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     const { bookId } = await context.params
     const requestBody = (await request.json()) as Partial<IBookRequest>
+    if (!isHalfWidthDigits(requestBody.isbn)) {
+      return Response.json(halfWidthDigitsError('isbn'), { status: 400 })
+    }
+
     const apiUrl = new URL(`${bookId}/`, getBookmanApiUrl('books'))
     const response = await fetch(apiUrl.toString(), {
       method: 'PATCH',

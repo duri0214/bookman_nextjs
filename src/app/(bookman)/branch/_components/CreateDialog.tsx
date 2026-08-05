@@ -94,8 +94,15 @@ export const CreateDialog = ({
           id='phone'
           name='phone'
           label='図書館の電話番号'
+          helperText='半角数字のみで入力してください。'
           fullWidth
           required
+          slotProps={{
+            htmlInput: {
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            },
+          }}
           value={formValues.phone}
           disabled={isCreating}
           onChange={onInputChange}

@@ -119,9 +119,12 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
   }
 
   const onInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    const value =
+      event.target.name === 'isbn' ? normalizeIsbn(event.target.value) : event.target.value
+
     setFormValues((formValues) => ({
       ...formValues,
-      [event.target.name]: event.target.value,
+      [event.target.name]: value,
     }))
     setUpdateErrorMessage(null)
   }
@@ -143,7 +146,7 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
 
     if (!isValidIsbn(formValues.isbn)) {
       setUpdateErrorMessage(
-        'ISBNはISBN-10またはISBN-13の正しい形式で入力してください。例: 978-4-06-293842-6',
+        'ISBNは半角数字のみでISBN-10またはISBN-13の正しい形式で入力してください。例: 9784062938426',
       )
       return
     }
