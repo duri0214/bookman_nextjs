@@ -1,4 +1,4 @@
-import { PATCH } from '@/app/api/bookman/customers/[customerId]/route'
+import { DELETE, PATCH } from '@/app/api/bookman/customers/[customerId]/route'
 
 jest.mock('@/helpers/apiClient', () => ({
   getBookmanApiUrl: jest.fn(() => 'http://127.0.0.1:8000/bookman/api/customers/'),
@@ -15,6 +15,13 @@ class JsonResponse {
 
   async json() {
     return this.body
+  }
+
+  async text() {
+    if (this.body === null) {
+      return ''
+    }
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
   }
 
   static json(body: unknown, init?: ResponseInit) {
@@ -69,5 +76,26 @@ describe('bookman customers detail API route', () => {
     })
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ id: 20, name: '新利用者' })
+  })
+
+  test('DELETEが利用者削除リクエストをbackend APIへ転送するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 利用者IDとbackendの204空レスポンス。
+     * - 処理: Next API route の DELETE を呼び出す。
+     * - 期待値: backend の customer detail API へDELETEし、204をそのまま返すこと。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({
+      status: 204,
+      text: async () => '',
+    } as Response)
+
+    const response = await DELETE({} as Request, { params: Promise.resolve({ customerId: '20' }) })
+
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/bookman/api/customers/20/', {
+      method: 'DELETE',
+      cache: 'no-store',
+    })
+    expect(response.status).toBe(204)
   })
 })

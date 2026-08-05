@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { List as AuthorList } from '@/app/author/_components/List'
 import { List as CategoryList } from '@/app/category/_components/List'
+import { List as CustomerList } from '@/app/customer/_components/List'
 import { List as MunicipalityList } from '@/app/municipality/_components/List'
 import { List as StaffList } from '@/app/staff/_components/List'
 import { Branch } from '@/resource/branch'
@@ -72,6 +73,33 @@ describe('management operation columns', () => {
     )
 
     expect(getHeaderLabels()).toEqual(['#', '職員名', '所属支店', 'ロール', '保存', '削除'])
+  })
+
+  test('利用者台帳は保存列と削除列を分けて表示するべき', () => {
+    /**
+     * シナリオ:
+     * - 入力: 利用者一覧の表示に必要な利用者データ。
+     * - 処理: 利用者一覧コンポーネントを表示する。
+     * - 期待値: 保存と削除が1つの操作列にまとまらず、独立した列として表示されること。
+     */
+    render(
+      <CustomerList
+        customers={[{ id: 1, name: '山田 太郎', phone: '03-0000-0000', maxLendingCount: 3 }]}
+        getEditingRow={(customer) => ({
+          name: customer.name,
+          phone: customer.phone,
+          max_lending_count: String(customer.maxLendingCount),
+        })}
+        onEditChange={() => jest.fn()}
+        onUpdate={jest.fn()}
+        savingCustomerId={null}
+        onDelete={jest.fn()}
+        deletingCustomerId={null}
+        updateErrorMessage={null}
+      />,
+    )
+
+    expect(getHeaderLabels()).toEqual(['#', '利用者名', '電話番号', '貸出上限数', '保存', '削除'])
   })
 
   test('著者管理は保存列と削除列を分けて表示するべき', () => {
