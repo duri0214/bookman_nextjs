@@ -1,10 +1,11 @@
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { useSearchConditions } from '@/app/(bookman)/_components/useSearchConditions'
 
 describe('useSearchConditions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   test('mock modeでは書籍一覧の保存条件ダミーを表示するべき', async () => {
@@ -61,5 +62,36 @@ describe('useSearchConditions', () => {
       reservationFilter: 'all',
       branchId: '1',
     })
+  })
+
+  test('mock modeでも保存条件削除はAPI経由で失敗時に成功メッセージを出さないべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: mock mode の保存条件ダミーと、削除 API が失敗する状態。
+     * - 処理: 保存条件の remove を呼び出す。
+     * - 期待値: ダミー表示中でもローカル削除成功にはせず、API 失敗メッセージを表示すること。
+     */
+    const { result } = renderHook(() =>
+      useSearchConditions({ targetScreen: 'books', staffId: 1, isMockData: true }),
+    )
+
+    await waitFor(() => {
+      expect(result.current.conditions.length).toBeGreaterThan(0)
+    })
+
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ message: '保存条件の削除に失敗しました。' }),
+    } as Response)
+
+    await act(async () => {
+      await result.current.remove(result.current.conditions[0])
+    })
+
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/search-conditions/9001?staff=1', {
+      method: 'DELETE',
+    })
+    expect(result.current.message).toBeNull()
+    expect(result.current.errorMessage).toBe('保存条件の削除に失敗しました。')
   })
 })

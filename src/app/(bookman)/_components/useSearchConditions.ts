@@ -199,28 +199,6 @@ export function useSearchConditions({
     setMessage(null)
     setErrorMessage(null)
     try {
-      if (isMockData) {
-        setConditions((currentConditionsRows) => [
-          {
-            id: Date.now(),
-            targetScreen,
-            name,
-            conditions: currentConditions,
-            createdBy: staffId,
-            createdByName: 'モック職員',
-            branchId: permission?.branch?.id ?? null,
-            branchName: permission?.branch?.name ?? '',
-            shareScope,
-            ownerType: 'mock',
-            canUpdate: true,
-            canDelete: true,
-          },
-          ...currentConditionsRows,
-        ])
-        setMessage('検索条件を保存しました。')
-        return true
-      }
-
       const response = await fetch('/api/bookman/search-conditions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -260,22 +238,6 @@ export function useSearchConditions({
 
     setErrorMessage(null)
     try {
-      if (isMockData) {
-        setConditions((currentConditionsRows) =>
-          currentConditionsRows.map((condition) =>
-            condition.id === conditionId
-              ? {
-                  ...condition,
-                  name: values.name?.trim() || condition.name,
-                  shareScope: values.share_scope ?? condition.shareScope,
-                }
-              : condition,
-          ),
-        )
-        setMessage('保存条件を更新しました。')
-        return
-      }
-
       const response = await fetch(
         `/api/bookman/search-conditions/${conditionId}?staff=${staffId}`,
         {
@@ -307,14 +269,6 @@ export function useSearchConditions({
 
     setErrorMessage(null)
     try {
-      if (isMockData) {
-        setConditions((currentConditionsRows) =>
-          currentConditionsRows.filter((conditionRow) => conditionRow.id !== condition.id),
-        )
-        setMessage('保存条件を削除しました。')
-        return
-      }
-
       const response = await fetch(
         `/api/bookman/search-conditions/${condition.id}?staff=${staffId}`,
         {
