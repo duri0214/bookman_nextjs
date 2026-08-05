@@ -1,4 +1,4 @@
-import { PATCH } from '@/app/api/bookman/municipalities/[municipalityId]/route'
+import { DELETE, PATCH } from '@/app/api/bookman/municipalities/[municipalityId]/route'
 
 class JsonResponse {
   status: number
@@ -11,6 +11,13 @@ class JsonResponse {
 
   async json() {
     return this.body
+  }
+
+  async text() {
+    if (this.body === null) {
+      return ''
+    }
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
   }
 
   static json(body: unknown, init?: ResponseInit) {
@@ -59,6 +66,32 @@ describe('municipality detail route', () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name: '六戸町' }),
+        cache: 'no-store',
+      },
+    )
+  })
+
+  test('DELETEが自治体削除リクエストをbackend APIへ転送するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 自治体IDとbackendの204空レスポンス。
+     * - 処理: Next API route の DELETE を呼び出す。
+     * - 期待値: backend の municipality detail API へDELETEし、204をそのまま返すこと。
+     */
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      status: 204,
+      text: async () => '',
+    } as Response)
+
+    const response = await DELETE({} as Request, {
+      params: Promise.resolve({ municipalityId: '10' }),
+    })
+
+    expect(response.status).toBe(204)
+    expect(global.fetch).toHaveBeenCalledWith(
+      'http://127.0.0.1:8000/bookman/api/municipalities/10/',
+      {
+        method: 'DELETE',
         cache: 'no-store',
       },
     )

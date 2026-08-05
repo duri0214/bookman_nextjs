@@ -18,6 +18,25 @@ const buildRequestBody = (formValues: IMunicipalityFormValues): IMunicipalityReq
   name: formValues.name,
 })
 
+const parseApiErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (typeof responseBody?.message === 'string' && responseBody.message) {
+      return responseBody.message
+    }
+    if (typeof responseBody?.detail === 'string' && responseBody.detail) {
+      return responseBody.detail
+    }
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
+
 export function useMunicipalityActions() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -26,11 +45,20 @@ export function useMunicipalityActions() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null)
   const [editingRows, setEditingRows] = useState<Record<number, IMunicipalityFormValues>>({})
   const [savingMunicipalityId, setSavingMunicipalityId] = useState<number | null>(null)
+  const [deletingMunicipalityId, setDeletingMunicipalityId] = useState<number | null>(null)
   const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionMessageSeverity, setActionMessageSeverity] = useState<'success' | 'error'>('success')
+
+  const showActionMessage = (message: string, severity: 'success' | 'error') => {
+    setActionMessage(message)
+    setActionMessageSeverity(severity)
+  }
 
   const openDialog = () => {
     setIsDialogOpen(true)
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseDialog = () => {
@@ -45,6 +73,7 @@ export function useMunicipalityActions() {
       [event.target.name]: event.target.value,
     }))
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCreate = async () => {
@@ -65,6 +94,7 @@ export function useMunicipalityActions() {
       }
 
       onCloseDialog()
+      showActionMessage('自治体データを登録しました。', 'success')
       router.refresh()
     } catch {
       setCreateErrorMessage(
@@ -92,6 +122,7 @@ export function useMunicipalityActions() {
         },
       }))
       setUpdateErrorMessage(null)
+      setActionMessage(null)
     }
 
   const onUpdate = async (municipality: Municipality) => {
@@ -117,6 +148,7 @@ export function useMunicipalityActions() {
         delete nextRows[municipality.id]
         return nextRows
       })
+      showActionMessage('自治体データを更新しました。', 'success')
       router.refresh()
     } catch {
       setUpdateErrorMessage(
@@ -124,6 +156,45 @@ export function useMunicipalityActions() {
       )
     } finally {
       setSavingMunicipalityId(null)
+    }
+  }
+
+  const onDelete = async (municipality: Municipality) => {
+    if (!window.confirm(`自治体「${municipality.name}」を削除します。よろしいですか？`)) {
+      return
+    }
+
+    setDeletingMunicipalityId(municipality.id)
+    setUpdateErrorMessage(null)
+    setActionMessage(null)
+
+    try {
+      const response = await fetch(`${MUNICIPALITY_API_PATH}/${municipality.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        showActionMessage(
+          await parseApiErrorMessage(response, '自治体データの削除に失敗しました。'),
+          'error',
+        )
+        return
+      }
+
+      setEditingRows((rows) => {
+        const nextRows = { ...rows }
+        delete nextRows[municipality.id]
+        return nextRows
+      })
+      showActionMessage('自治体データを削除しました。', 'success')
+      router.refresh()
+    } catch {
+      showActionMessage(
+        '自治体データの削除に失敗しました。関連データやバックエンドの状態を確認してください。',
+        'error',
+      )
+    } finally {
+      setDeletingMunicipalityId(null)
     }
   }
 
@@ -140,6 +211,10 @@ export function useMunicipalityActions() {
     onEditChange,
     onUpdate,
     savingMunicipalityId,
+    onDelete,
+    deletingMunicipalityId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   }
 }

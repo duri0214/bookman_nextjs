@@ -29,7 +29,11 @@ export function PageClient({ municipalities, errorMessage, isMockData }: Props) 
     onEditChange,
     onUpdate,
     savingMunicipalityId,
+    onDelete,
+    deletingMunicipalityId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   } = useMunicipalityActions()
 
   return (
@@ -57,12 +61,19 @@ export function PageClient({ municipalities, errorMessage, isMockData }: Props) 
           >
             自治体登録
           </Button>
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
           <List
             municipalities={municipalities}
             getEditingRow={getEditingRow}
             onEditChange={onEditChange}
             onUpdate={onUpdate}
             savingMunicipalityId={savingMunicipalityId}
+            onDelete={onDelete}
+            deletingMunicipalityId={deletingMunicipalityId}
             updateErrorMessage={updateErrorMessage}
           />
           <CreateDialog
