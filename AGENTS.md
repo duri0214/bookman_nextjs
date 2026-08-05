@@ -14,10 +14,11 @@
 - `.codex/rules/` 配下の各 Markdown は参照スタブであり、実体は `../portfolio/.codex/rules/` にある。
 - 着手前に `../portfolio/.codex/rules/` のうち、作業内容に関係するルールを確認する。
 - `main` へ直接コミットせず、Issue に対応するトピックブランチで作業する。
+- Next.js の build 前後で生成物を削除する場合、削除してよい対象は `.next*` に一致するものだけに限定する。Windows/OneDrive の `EPERM` が出る場合は、対象を `.next*` に限定したうえで読み取り専用属性を外してから削除し、削除した対象を作業報告に明記する。
 
 ## Skills
 
 - `.codex/skills/` 配下の各 `SKILL.md` は参照スタブであり、実体は `../portfolio/.codex/skills/` にある。
 - ブランチ作成、コミット、PR、Issue 作成などの運用手順は `../portfolio/.codex/skills/` を参照する。
 - ユーザー依頼が skill の `description` に該当する場合は、該当 `SKILL.md` を読んでから作業する。
-
+- ユーザーが GitHub Issue URL を貼った場合は、`/$branch /$pull-request go` と同義の定型指示として扱う。対象 Issue からブランチを作成し、必要な変更、確認、コミット、push、PR 作成まで追加確認なしで進める。

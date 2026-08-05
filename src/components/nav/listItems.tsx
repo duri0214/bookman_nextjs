@@ -64,7 +64,7 @@ export const mainListItems = (pathname: string) => (
       icon={<LocationCityIcon />}
       label='自治体管理'
     />
-    <NavItem href='/branch' pathname={pathname} icon={<AddHomeIcon />} label='館管理' />
+    <NavItem href='/branch' pathname={pathname} icon={<AddHomeIcon />} label='支店管理' />
     <NavItem href='/staff' pathname={pathname} icon={<BadgeIcon />} label='職員管理' />
     <NavItem href='/author' pathname={pathname} icon={<PersonAddIcon />} label='著者管理' />
     <NavItem href='/category' pathname={pathname} icon={<CategoryIcon />} label='カテゴリ管理' />

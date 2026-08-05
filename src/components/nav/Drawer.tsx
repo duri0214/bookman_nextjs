@@ -40,6 +40,17 @@ export const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 
           duration: theme.transitions.duration.leavingScreen,
         }),
         width: theme.spacing(7),
+        '& .MuiListItemButton-root': {
+          justifyContent: 'center',
+          px: 1,
+        },
+        '& .MuiListItemIcon-root': {
+          justifyContent: 'center',
+          minWidth: 0,
+        },
+        '& .MuiListItemText-root, & .MuiListSubheader-root': {
+          display: 'none',
+        },
         [theme.breakpoints.up('sm')]: {
           width: theme.spacing(9),
         },

@@ -4,8 +4,11 @@ import { CommonLayout } from '@/components/nav/CommonLayout'
 
 const routeTitles = {
   '/dashboard': '自治体ダッシュボード',
-  '/branch': '館管理',
+  '/branch': '支店管理',
   '/municipality': '自治体管理',
+  '/staff': '職員管理',
+  '/author': '著者管理',
+  '/category': 'カテゴリ管理',
   '/book': '書籍管理',
   '/customer': '利用者台帳',
   '/lending': '貸出・予約カウンター',
