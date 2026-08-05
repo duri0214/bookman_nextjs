@@ -29,7 +29,11 @@ export function PageClient({ categories, errorMessage, isMockData }: Props) {
     onEditChange,
     onUpdate,
     savingCategoryId,
+    onDelete,
+    deletingCategoryId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   } = useCategoryActions()
 
   return (
@@ -57,12 +61,19 @@ export function PageClient({ categories, errorMessage, isMockData }: Props) {
           >
             カテゴリ登録
           </Button>
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
           <List
             categories={categories}
             getEditingRow={getEditingRow}
             onEditChange={onEditChange}
             onUpdate={onUpdate}
             savingCategoryId={savingCategoryId}
+            onDelete={onDelete}
+            deletingCategoryId={deletingCategoryId}
             updateErrorMessage={updateErrorMessage}
           />
           <CreateDialog

@@ -1,4 +1,4 @@
-import { PATCH } from '@/app/api/bookman/categories/[categoryId]/route'
+import { DELETE, PATCH } from '@/app/api/bookman/categories/[categoryId]/route'
 
 class JsonResponse {
   status: number
@@ -11,6 +11,13 @@ class JsonResponse {
 
   async json() {
     return this.body
+  }
+
+  async text() {
+    if (this.body === null) {
+      return ''
+    }
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
   }
 
   static json(body: unknown, init?: ResponseInit) {
@@ -57,6 +64,27 @@ describe('category detail route', () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ name: '児童書', color: '#ffcc00' }),
+      cache: 'no-store',
+    })
+  })
+
+  test('DELETEがカテゴリ削除リクエストをbackend APIへ転送するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: カテゴリIDとbackendの204空レスポンス。
+     * - 処理: Next API route の DELETE を呼び出す。
+     * - 期待値: backend の category detail API へDELETEし、204をそのまま返すこと。
+     */
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      status: 204,
+      text: async () => '',
+    } as Response)
+
+    const response = await DELETE({} as Request, { params: Promise.resolve({ categoryId: '10' }) })
+
+    expect(response.status).toBe(204)
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/bookman/api/categories/10/', {
+      method: 'DELETE',
       cache: 'no-store',
     })
   })

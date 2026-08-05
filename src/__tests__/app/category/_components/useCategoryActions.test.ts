@@ -14,6 +14,7 @@ describe('useCategoryActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   test('onCreateが成功した時にカテゴリ登録APIへPOSTして一覧を再取得するべき', async () => {
@@ -89,5 +90,46 @@ describe('useCategoryActions', () => {
       body: JSON.stringify({ name: '新カテゴリ', color: '#00aa88' }),
     })
     expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  test('onDeleteが成功した時にカテゴリ削除APIへDELETEして一覧を再取得するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 削除確認済みのカテゴリ。
+     * - 処理: onDelete を呼び出す。
+     * - 期待値: カテゴリ削除APIへDELETEし、成功メッセージを保持して一覧を再取得すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(useCategoryActions)
+    const category = { id: 10, name: '児童書', color: '#ffcc00' }
+
+    await act(async () => {
+      await result.current.onDelete(category)
+    })
+
+    expect(window.confirm).toHaveBeenCalledWith('カテゴリ「児童書」を削除します。よろしいですか？')
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/categories/10', {
+      method: 'DELETE',
+    })
+    expect(result.current.actionMessage).toBe('カテゴリデータを削除しました。')
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  test('onDeleteが確認キャンセル時にカテゴリ削除APIを呼ばないべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 削除確認ダイアログでキャンセルする状態。
+     * - 処理: onDelete を呼び出す。
+     * - 期待値: カテゴリ削除APIを呼ばず、一覧も再取得しないこと。
+     */
+    jest.mocked(window.confirm).mockReturnValueOnce(false)
+    const { result } = renderHook(useCategoryActions)
+
+    await act(async () => {
+      await result.current.onDelete({ id: 10, name: '児童書', color: '#ffcc00' })
+    })
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(mockRefresh).not.toHaveBeenCalled()
   })
 })
