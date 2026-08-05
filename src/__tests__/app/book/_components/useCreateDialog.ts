@@ -278,7 +278,7 @@ describe('useCreateDialog', () => {
     // Then
     expect(global.fetch).not.toHaveBeenCalled()
     expect(result.current.createErrorMessage).toBe(
-      'ISBNはISBN-10またはISBN-13の正しい形式で入力してください。例: 978-4-06-293842-6',
+      'ISBNは半角数字のみでISBN-10またはISBN-13の正しい形式で入力してください。例: 9784062938426',
     )
     expect(mockRefresh).not.toHaveBeenCalled()
   })

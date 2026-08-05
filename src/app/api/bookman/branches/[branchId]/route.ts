@@ -1,4 +1,5 @@
 import { getBookmanApiUrl } from '@/helpers/apiClient'
+import { halfWidthDigitsError, isHalfWidthDigits } from '@/helpers/numericValidation'
 import type { IBranchRequest } from '@/resource/branch'
 
 const parseResponseBody = (responseText: string) => {
@@ -23,6 +24,10 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     const { branchId } = await context.params
     const requestBody = (await request.json()) as Partial<IBranchRequest>
+    if (!isHalfWidthDigits(requestBody.phone)) {
+      return Response.json(halfWidthDigitsError('phone'), { status: 400 })
+    }
+
     const apiUrl = new URL(`${branchId}/`, getBookmanApiUrl('branches'))
     const response = await fetch(apiUrl.toString(), {
       method: 'PATCH',

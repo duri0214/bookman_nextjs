@@ -135,10 +135,10 @@ export const EditDialog = ({
           id='edit-isbn'
           name='isbn'
           label='ISBN'
-          placeholder='例: 978-4-06-293842-6'
+          placeholder='例: 9784062938426'
           helperText={
             <>
-              ISBN-10またはISBN-13を入力してください。
+              ISBN-10またはISBN-13を半角数字のみで入力してください。
               <MuiLink
                 href='https://isbn.jpo.or.jp/index.php/fix__about/fix__about_3/'
                 target='_blank'
@@ -149,6 +149,12 @@ export const EditDialog = ({
             </>
           }
           fullWidth
+          slotProps={{
+            htmlInput: {
+              inputMode: 'numeric',
+              pattern: '[0-9]*',
+            },
+          }}
           value={formValues.isbn ?? ''}
           disabled={isUpdating}
           onChange={onInputChange}

@@ -68,4 +68,32 @@ describe('book detail route', () => {
       cache: 'no-store',
     })
   })
+
+  test('PATCHが半角数字以外を含むISBNをbackend APIへ転送しないべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: ハイフンを含むISBNの書籍更新リクエスト。
+     * - 処理: Next API route の PATCH を呼び出す。
+     * - 期待値: backend APIへ転送せず、400とISBNエラーを返すこと。
+     */
+    const response = await PATCH(
+      {
+        json: async () => ({
+          category: 2,
+          name: 'Bookman 改訂版',
+          authors: [1, 2],
+          lead_text: '紹介文を更新',
+          isbn: '978-4-06-293842-6',
+          publication_date: '2026-02-01',
+        }),
+      } as Request,
+      { params: Promise.resolve({ bookId: '10' }) },
+    )
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      isbn: ['半角数字のみで入力してください。'],
+    })
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
 })

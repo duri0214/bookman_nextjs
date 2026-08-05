@@ -87,7 +87,7 @@ describe('useCreateDialog', () => {
       municipality: '',
       name: '中央図書館',
       address: '',
-      phone: '000-9000-0000',
+      phone: '00090000000',
       remark: '',
     })
   })
@@ -137,7 +137,7 @@ describe('useCreateDialog', () => {
         municipality: 10,
         name: 'テスト図書館',
         address: 'テスト住所',
-        phone: '000-9000-0000',
+        phone: '00090000000',
         remark: 'テスト備考',
       }),
     })
@@ -170,7 +170,7 @@ describe('useCreateDialog', () => {
         municipalityName: '六戸町',
         name: '六戸町図書館',
         address: '旧住所',
-        phone: '000-9000-0000',
+        phone: '00090000000',
         remark: '本館',
       })
       result.current.onEditInputChange({
@@ -193,7 +193,7 @@ describe('useCreateDialog', () => {
         municipality: 10,
         name: '六戸町図書館',
         address: '新住所',
-        phone: '000-9000-0000',
+        phone: '00090000000',
         remark: '本館',
       }),
     })

@@ -1,4 +1,5 @@
 import { getBookmanApiUrl } from '@/helpers/apiClient'
+import { halfWidthDigitsError, isHalfWidthDigits } from '@/helpers/numericValidation'
 import type { IBranchRequest } from '@/resource/branch'
 
 const parseResponseBody = (responseText: string) => {
@@ -16,6 +17,10 @@ const parseResponseBody = (responseText: string) => {
 export async function POST(request: Request) {
   try {
     const requestBody = (await request.json()) as Partial<IBranchRequest>
+    if (!isHalfWidthDigits(requestBody.phone)) {
+      return Response.json(halfWidthDigitsError('phone'), { status: 400 })
+    }
+
     const response = await fetch(getBookmanApiUrl('branches'), {
       method: 'POST',
       headers: {

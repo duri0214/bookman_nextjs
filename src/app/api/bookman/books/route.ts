@@ -1,4 +1,5 @@
 import { getBookmanApiUrl } from '@/helpers/apiClient'
+import { halfWidthDigitsError, isHalfWidthDigits } from '@/helpers/numericValidation'
 import type { IBookRequest } from '@/resource/book'
 
 const parseResponseBody = (responseText: string) => {
@@ -16,6 +17,10 @@ const parseResponseBody = (responseText: string) => {
 export async function POST(request: Request) {
   try {
     const requestBody = (await request.json()) as Partial<IBookRequest>
+    if (!isHalfWidthDigits(requestBody.isbn)) {
+      return Response.json(halfWidthDigitsError('isbn'), { status: 400 })
+    }
+
     const response = await fetch(getBookmanApiUrl('booksCreate'), {
       method: 'POST',
       headers: {
