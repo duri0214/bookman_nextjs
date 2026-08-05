@@ -14,6 +14,7 @@ describe('useCreateDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   /**
@@ -272,5 +273,41 @@ describe('useCreateDialog', () => {
     expect(result.current.isDialogOpen).toBe(true)
     expect(result.current.createErrorMessage).toBe('備考: This field may not be blank.')
     expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  /**
+   * シナリオ:
+   * - 入力: 削除確認済みの支店。
+   * - 処理: onDelete を呼び出す。
+   * - 期待値: 支店削除APIへDELETEし、成功メッセージを保持して一覧を再取得すること。
+   */
+  test('onDeleteが成功した時に支店削除APIへDELETEして一覧を再取得するべき', async () => {
+    // Given
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(useCreateDialog)
+    const branch = {
+      id: 3,
+      municipalityId: 10,
+      municipalityName: '六戸町',
+      name: '六戸町図書館',
+      address: '住所',
+      phone: '00090000000',
+      remark: '本館',
+    }
+
+    // When
+    await act(async () => {
+      await result.current.onDelete(branch)
+    })
+
+    // Then
+    expect(window.confirm).toHaveBeenCalledWith(
+      '支店「六戸町図書館」を削除します。よろしいですか？',
+    )
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/branches/3', {
+      method: 'DELETE',
+    })
+    expect(result.current.actionMessage).toBe('支店データを削除しました。')
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 })

@@ -173,7 +173,7 @@ export function SearchConditionPanel({
         <Button
           variant='outlined'
           color='error'
-          onClick={() => selectedCondition && remove(selectedCondition.id)}
+          onClick={() => selectedCondition && remove(selectedCondition)}
           disabled={!selectedCondition?.canDelete}
           sx={{ whiteSpace: 'nowrap' }}
         >

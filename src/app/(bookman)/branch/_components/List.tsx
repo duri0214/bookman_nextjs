@@ -1,6 +1,7 @@
 import React from 'react'
+import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button, Stack, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import { Branch, BranchSummary } from '@/resource/branch'
 
@@ -8,9 +9,11 @@ interface Props {
   branches: Branch[]
   branchSummaries: BranchSummary[]
   onEdit: (branch: Branch) => void
+  onDelete: (branch: Branch) => void
+  deletingBranchId: number | null
 }
 
-export function List({ branches, branchSummaries, onEdit }: Props) {
+export function List({ branches, branchSummaries, onEdit, onDelete, deletingBranchId }: Props) {
   if (!branches || branches.length === 0) {
     return <Typography variant='body1'>支店データはまだありません。</Typography>
   }
@@ -37,7 +40,7 @@ export function List({ branches, branchSummaries, onEdit }: Props) {
     {
       field: 'actions',
       headerName: '操作',
-      width: 120,
+      width: 190,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -45,15 +48,29 @@ export function List({ branches, branchSummaries, onEdit }: Props) {
         if (!branch) {
           return null
         }
+        const isDeleting = deletingBranchId === branch.id
         return (
-          <Button
-            variant='outlined'
-            size='small'
-            startIcon={<EditIcon />}
-            onClick={() => onEdit(branch)}
-          >
-            編集
-          </Button>
+          <Stack direction='row' spacing={1}>
+            <Button
+              variant='outlined'
+              size='small'
+              startIcon={<EditIcon />}
+              disabled={isDeleting}
+              onClick={() => onEdit(branch)}
+            >
+              編集
+            </Button>
+            <Button
+              variant='outlined'
+              color='error'
+              size='small'
+              startIcon={<DeleteIcon />}
+              disabled={isDeleting}
+              onClick={() => onDelete(branch)}
+            >
+              {isDeleting ? '削除中' : '削除'}
+            </Button>
+          </Stack>
         )
       },
     },

@@ -94,6 +94,10 @@ export function PageClient({
     onUpdate,
     isUpdating,
     updateErrorMessage,
+    onDelete,
+    deletingBookId,
+    actionMessage,
+    actionMessageSeverity,
   } = useEditDialog(authors, categories)
   const {
     selectedBook,
@@ -258,10 +262,17 @@ export function PageClient({
               <MenuItem value='stocked'>所蔵あり</MenuItem>
             </TextField>
           </Stack>
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
           <List
             books={filteredBooks}
             onEditClick={openEditDialog}
+            onDeleteClick={onDelete}
             onTransferClick={openTransferDialog}
+            deletingBookId={deletingBookId}
           />
           <CreateDialog {...dialogProps} />
           <CsvImportDialog

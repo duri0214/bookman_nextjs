@@ -1,4 +1,4 @@
-import { PATCH } from '@/app/api/bookman/branches/[branchId]/route'
+import { DELETE, PATCH } from '@/app/api/bookman/branches/[branchId]/route'
 
 class JsonResponse {
   status: number
@@ -11,6 +11,13 @@ class JsonResponse {
 
   async json() {
     return this.body
+  }
+
+  async text() {
+    if (this.body === null) {
+      return ''
+    }
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
   }
 
   static json(body: unknown, init?: ResponseInit) {
@@ -94,5 +101,26 @@ describe('branch detail route', () => {
       phone: ['半角数字のみで入力してください。'],
     })
     expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  test('DELETEが支店削除リクエストをbackend APIへ転送するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 支店IDとbackendの204空レスポンス。
+     * - 処理: Next API route の DELETE を呼び出す。
+     * - 期待値: backend の branch detail API へDELETEし、204をそのまま返すこと。
+     */
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      status: 204,
+      text: async () => '',
+    } as Response)
+
+    const response = await DELETE({} as Request, { params: Promise.resolve({ branchId: '10' }) })
+
+    expect(response.status).toBe(204)
+    expect(global.fetch).toHaveBeenCalledWith('http://127.0.0.1:8000/bookman/api/branches/10/', {
+      method: 'DELETE',
+      cache: 'no-store',
+    })
   })
 })

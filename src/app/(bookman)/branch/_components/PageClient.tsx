@@ -45,6 +45,10 @@ export function PageClient({
     onUpdate,
     isUpdating,
     updateErrorMessage,
+    onDelete,
+    deletingBranchId,
+    actionMessage,
+    actionMessageSeverity,
   } = useCreateDialog()
 
   const dialogProps = {
@@ -76,7 +80,18 @@ export function PageClient({
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             新規登録
           </Button>
-          <List branches={branches} branchSummaries={branchSummaries} onEdit={openEditDialog} />
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
+          <List
+            branches={branches}
+            branchSummaries={branchSummaries}
+            onEdit={openEditDialog}
+            onDelete={onDelete}
+            deletingBranchId={deletingBranchId}
+          />
           <CreateDialog {...dialogProps} municipalities={municipalities} />
           <EditDialog
             branch={editingBranch}

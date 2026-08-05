@@ -48,6 +48,25 @@ const formatResponseError = async (response: Response): Promise<string> => {
   return '書籍データの更新に失敗しました。入力内容とバックエンドの状態を確認してください。'
 }
 
+const parseApiErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (typeof responseBody?.message === 'string' && responseBody.message) {
+      return responseBody.message
+    }
+    if (typeof responseBody?.detail === 'string' && responseBody.detail) {
+      return responseBody.detail
+    }
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
+
 const toCategoryId = (value: string | undefined, categories: Category[] = []): number => {
   const categoryId = toNumber(value)
   const availableCategoryIds = new Set(categories.map((category) => category.id))
@@ -105,11 +124,20 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
   const [formValues, setFormValues] = useState<Partial<IBookFormValues>>({})
   const [isUpdating, setIsUpdating] = useState(false)
   const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
+  const [deletingBookId, setDeletingBookId] = useState<number | null>(null)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionMessageSeverity, setActionMessageSeverity] = useState<'success' | 'error'>('success')
+
+  const showActionMessage = (message: string, severity: 'success' | 'error') => {
+    setActionMessage(message)
+    setActionMessageSeverity(severity)
+  }
 
   const openEditDialog = (book: Book) => {
     setSelectedBook(book)
     setFormValues(toFormValues(book))
     setUpdateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseEditDialog = () => {
@@ -127,6 +155,7 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
       [event.target.name]: value,
     }))
     setUpdateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onUpdate = async () => {
@@ -169,6 +198,7 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
       }
 
       onCloseEditDialog()
+      showActionMessage('書籍データを更新しました。', 'success')
       router.refresh()
     } catch {
       setUpdateErrorMessage(
@@ -176,6 +206,40 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
       )
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const onDelete = async (book: Book) => {
+    if (!window.confirm(`書籍「${book.name}」を削除します。よろしいですか？`)) {
+      return
+    }
+
+    setDeletingBookId(book.id)
+    setUpdateErrorMessage(null)
+    setActionMessage(null)
+
+    try {
+      const response = await fetch(`${BOOK_API_PATH}/${book.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        showActionMessage(
+          await parseApiErrorMessage(response, '書籍データの削除に失敗しました。'),
+          'error',
+        )
+        return
+      }
+
+      showActionMessage('書籍データを削除しました。', 'success')
+      router.refresh()
+    } catch {
+      showActionMessage(
+        '書籍データの削除に失敗しました。関連データやバックエンドの状態を確認してください。',
+        'error',
+      )
+    } finally {
+      setDeletingBookId(null)
     }
   }
 
@@ -189,5 +253,9 @@ export function useEditDialog(authors: Author[] = [], categories: Category[] = [
     onUpdate,
     isUpdating,
     updateErrorMessage,
+    onDelete,
+    deletingBookId,
+    actionMessage,
+    actionMessageSeverity,
   }
 }

@@ -29,7 +29,11 @@ export function PageClient({ authors, errorMessage, isMockData }: Props) {
     onEditChange,
     onUpdate,
     savingAuthorId,
+    onDelete,
+    deletingAuthorId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   } = useAuthorActions()
 
   return (
@@ -57,12 +61,19 @@ export function PageClient({ authors, errorMessage, isMockData }: Props) {
           >
             著者登録
           </Button>
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
           <List
             authors={authors}
             getEditingRow={getEditingRow}
             onEditChange={onEditChange}
             onUpdate={onUpdate}
             savingAuthorId={savingAuthorId}
+            onDelete={onDelete}
+            deletingAuthorId={deletingAuthorId}
             updateErrorMessage={updateErrorMessage}
           />
           <CreateDialog

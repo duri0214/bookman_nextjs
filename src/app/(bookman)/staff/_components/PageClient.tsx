@@ -31,7 +31,11 @@ export function PageClient({ branches, staff, errorMessage, isMockData }: Props)
     onEditChange,
     onUpdate,
     savingStaffId,
+    onDelete,
+    deletingStaffId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   } = useStaffActions()
 
   return (
@@ -59,6 +63,11 @@ export function PageClient({ branches, staff, errorMessage, isMockData }: Props)
           >
             職員登録
           </Button>
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
           <List
             branches={branches}
             staff={staff}
@@ -66,6 +75,8 @@ export function PageClient({ branches, staff, errorMessage, isMockData }: Props)
             onEditChange={onEditChange}
             onUpdate={onUpdate}
             savingStaffId={savingStaffId}
+            onDelete={onDelete}
+            deletingStaffId={deletingStaffId}
             updateErrorMessage={updateErrorMessage}
           />
           <CreateDialog

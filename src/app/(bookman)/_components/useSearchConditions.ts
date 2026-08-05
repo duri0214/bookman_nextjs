@@ -171,16 +171,19 @@ export function useSearchConditions({ targetScreen, staffId }: UseSearchConditio
     }
   }
 
-  const remove = async (conditionId: number) => {
+  const remove = async (condition: SearchCondition) => {
     if (!staffId) {
       setErrorMessage('職員を選択してください。')
+      return
+    }
+    if (!window.confirm(`保存条件「${condition.name}」を削除します。よろしいですか？`)) {
       return
     }
 
     setErrorMessage(null)
     try {
       const response = await fetch(
-        `/api/bookman/search-conditions/${conditionId}?staff=${staffId}`,
+        `/api/bookman/search-conditions/${condition.id}?staff=${staffId}`,
         {
           method: 'DELETE',
         },

@@ -2,11 +2,7 @@
 
 import { ChangeEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Branch,
-  IBranchClosedDayFormValues,
-  IBranchClosedDayRequest,
-} from '@/resource/branch'
+import { Branch, IBranchClosedDayFormValues, IBranchClosedDayRequest } from '@/resource/branch'
 
 const BRANCH_CLOSED_DAY_API_PATH = '/api/bookman/branch-closed-days'
 
@@ -124,7 +120,11 @@ export function useBranchClosedDayActions(branches: Branch[] = []) {
     }
   }
 
-  const onDelete = async (closedDayId: number) => {
+  const onDelete = async (closedDayId: number, closedDayLabel: string) => {
+    if (!window.confirm(`休館日「${closedDayLabel}」を削除します。よろしいですか？`)) {
+      return
+    }
+
     setDeletingClosedDayId(closedDayId)
     setMessage(null)
 

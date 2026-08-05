@@ -18,6 +18,25 @@ const buildRequestBody = (formValues: IStaffFormValues): IStaffRequest => ({
   role: formValues.role,
 })
 
+const parseApiErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (typeof responseBody?.message === 'string' && responseBody.message) {
+      return responseBody.message
+    }
+    if (typeof responseBody?.detail === 'string' && responseBody.detail) {
+      return responseBody.detail
+    }
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
+
 export function useStaffActions() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -26,11 +45,20 @@ export function useStaffActions() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null)
   const [editingRows, setEditingRows] = useState<Record<number, IStaffFormValues>>({})
   const [savingStaffId, setSavingStaffId] = useState<number | null>(null)
+  const [deletingStaffId, setDeletingStaffId] = useState<number | null>(null)
   const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionMessageSeverity, setActionMessageSeverity] = useState<'success' | 'error'>('success')
+
+  const showActionMessage = (message: string, severity: 'success' | 'error') => {
+    setActionMessage(message)
+    setActionMessageSeverity(severity)
+  }
 
   const openDialog = () => {
     setIsDialogOpen(true)
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseDialog = () => {
@@ -45,6 +73,7 @@ export function useStaffActions() {
       [event.target.name]: event.target.value,
     }))
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCreate = async () => {
@@ -65,6 +94,7 @@ export function useStaffActions() {
       }
 
       onCloseDialog()
+      showActionMessage('職員データを登録しました。', 'success')
       router.refresh()
     } catch {
       setCreateErrorMessage(
@@ -93,6 +123,7 @@ export function useStaffActions() {
         },
       }))
       setUpdateErrorMessage(null)
+      setActionMessage(null)
     }
 
   const onUpdate = async (staff: Staff) => {
@@ -118,6 +149,7 @@ export function useStaffActions() {
         delete nextRows[staff.id]
         return nextRows
       })
+      showActionMessage('職員データを更新しました。', 'success')
       router.refresh()
     } catch {
       setUpdateErrorMessage(
@@ -125,6 +157,45 @@ export function useStaffActions() {
       )
     } finally {
       setSavingStaffId(null)
+    }
+  }
+
+  const onDelete = async (staff: Staff) => {
+    if (!window.confirm(`職員「${staff.name}」を削除します。よろしいですか？`)) {
+      return
+    }
+
+    setDeletingStaffId(staff.id)
+    setUpdateErrorMessage(null)
+    setActionMessage(null)
+
+    try {
+      const response = await fetch(`${STAFF_API_PATH}/${staff.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        showActionMessage(
+          await parseApiErrorMessage(response, '職員データの削除に失敗しました。'),
+          'error',
+        )
+        return
+      }
+
+      setEditingRows((rows) => {
+        const nextRows = { ...rows }
+        delete nextRows[staff.id]
+        return nextRows
+      })
+      showActionMessage('職員データを削除しました。', 'success')
+      router.refresh()
+    } catch {
+      showActionMessage(
+        '職員データの削除に失敗しました。関連データやバックエンドの状態を確認してください。',
+        'error',
+      )
+    } finally {
+      setDeletingStaffId(null)
     }
   }
 
@@ -141,6 +212,10 @@ export function useStaffActions() {
     onEditChange,
     onUpdate,
     savingStaffId,
+    onDelete,
+    deletingStaffId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   }
 }

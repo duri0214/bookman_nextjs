@@ -60,6 +60,9 @@ export async function DELETE(
       cache: 'no-store',
     })
     const responseText = await response.text()
+    if (!responseText) {
+      return new Response(null, { status: response.status })
+    }
 
     return Response.json(parseResponseBody(responseText), { status: response.status })
   } catch {

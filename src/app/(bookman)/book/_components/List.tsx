@@ -1,4 +1,6 @@
 import React from 'react'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import { Box, Button, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import { Book } from '@/resource/book'
@@ -6,10 +8,18 @@ import { Book } from '@/resource/book'
 interface Props {
   books: Book[]
   onEditClick: (book: Book) => void
+  onDeleteClick: (book: Book) => void
   onTransferClick: (book: Book) => void
+  deletingBookId: number | null
 }
 
-export function List({ books, onEditClick, onTransferClick }: Props) {
+export function List({
+  books,
+  onEditClick,
+  onDeleteClick,
+  onTransferClick,
+  deletingBookId,
+}: Props) {
   if (!books || books.length === 0) {
     return <Typography variant='body1'>書籍データはまだありません。</Typography>
   }
@@ -40,13 +50,42 @@ export function List({ books, onEditClick, onTransferClick }: Props) {
     {
       field: 'edit',
       headerName: '編集',
-      width: 100,
+      width: 110,
       sortable: false,
       renderCell: (params) => {
         const book = books.find((book) => book.id === params.id)
+        const isDeleting = deletingBookId === Number(params.id)
         return (
-          <Button size='small' variant='outlined' onClick={() => book && onEditClick(book)}>
+          <Button
+            size='small'
+            variant='outlined'
+            startIcon={<EditIcon />}
+            disabled={isDeleting}
+            onClick={() => book && onEditClick(book)}
+          >
             編集
+          </Button>
+        )
+      },
+    },
+    {
+      field: 'delete',
+      headerName: '削除',
+      width: 110,
+      sortable: false,
+      renderCell: (params) => {
+        const book = books.find((book) => book.id === params.id)
+        const isDeleting = deletingBookId === Number(params.id)
+        return (
+          <Button
+            size='small'
+            variant='outlined'
+            color='error'
+            startIcon={<DeleteIcon />}
+            disabled={isDeleting}
+            onClick={() => book && onDeleteClick(book)}
+          >
+            {isDeleting ? '削除中' : '削除'}
           </Button>
         )
       },

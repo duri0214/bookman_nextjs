@@ -58,6 +58,25 @@ const formatResponseError = async (response: Response): Promise<string> => {
   return '支店データの登録に失敗しました。入力内容とバックエンドの状態を確認してください。'
 }
 
+const parseApiErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (typeof responseBody?.message === 'string' && responseBody.message) {
+      return responseBody.message
+    }
+    if (typeof responseBody?.detail === 'string' && responseBody.detail) {
+      return responseBody.detail
+    }
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
+
 export function useCreateDialog() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -68,10 +87,19 @@ export function useCreateDialog() {
   const [editFormValues, setEditFormValues] = useState<IBranchFormValues>(INITIAL_FORM_VALUES)
   const [isUpdating, setIsUpdating] = useState(false)
   const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
+  const [deletingBranchId, setDeletingBranchId] = useState<number | null>(null)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionMessageSeverity, setActionMessageSeverity] = useState<'success' | 'error'>('success')
+
+  const showActionMessage = (message: string, severity: 'success' | 'error') => {
+    setActionMessage(message)
+    setActionMessageSeverity(severity)
+  }
 
   const openDialog = () => {
     setIsDialogOpen(true)
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseDialog = () => {
@@ -95,6 +123,7 @@ export function useCreateDialog() {
       [event.target.name]: value,
     }))
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCreate = async () => {
@@ -121,6 +150,7 @@ export function useCreateDialog() {
       }
 
       onCloseDialog()
+      showActionMessage('支店データを登録しました。', 'success')
       router.refresh()
     } catch {
       setCreateErrorMessage(
@@ -141,12 +171,14 @@ export function useCreateDialog() {
       remark: branch.remark,
     })
     setUpdateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseEditDialog = () => {
     setEditingBranch(null)
     setEditFormValues(INITIAL_FORM_VALUES)
     setUpdateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onEditInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -188,6 +220,7 @@ export function useCreateDialog() {
       }
 
       onCloseEditDialog()
+      showActionMessage('支店データを更新しました。', 'success')
       router.refresh()
     } catch {
       setUpdateErrorMessage(
@@ -195,6 +228,39 @@ export function useCreateDialog() {
       )
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const onDelete = async (branch: Branch) => {
+    if (!window.confirm(`支店「${branch.name}」を削除します。よろしいですか？`)) {
+      return
+    }
+
+    setDeletingBranchId(branch.id)
+    setActionMessage(null)
+
+    try {
+      const response = await fetch(`${CREATE_BRANCH_API_PATH}/${branch.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        showActionMessage(
+          await parseApiErrorMessage(response, '支店データの削除に失敗しました。'),
+          'error',
+        )
+        return
+      }
+
+      showActionMessage('支店データを削除しました。', 'success')
+      router.refresh()
+    } catch {
+      showActionMessage(
+        '支店データの削除に失敗しました。関連データやバックエンドの状態を確認してください。',
+        'error',
+      )
+    } finally {
+      setDeletingBranchId(null)
     }
   }
 
@@ -215,5 +281,9 @@ export function useCreateDialog() {
     onUpdate,
     isUpdating,
     updateErrorMessage,
+    onDelete,
+    deletingBranchId,
+    actionMessage,
+    actionMessageSeverity,
   }
 }

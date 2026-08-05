@@ -34,6 +34,25 @@ const formatResponseError = async (response: Response): Promise<string> => {
   return '著者データの保存に失敗しました。著者名の重複や入力内容を確認してください。'
 }
 
+const parseApiErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (typeof responseBody?.message === 'string' && responseBody.message) {
+      return responseBody.message
+    }
+    if (typeof responseBody?.detail === 'string' && responseBody.detail) {
+      return responseBody.detail
+    }
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
+
 export function useAuthorActions() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -42,11 +61,20 @@ export function useAuthorActions() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null)
   const [editingRows, setEditingRows] = useState<Record<number, IAuthorFormValues>>({})
   const [savingAuthorId, setSavingAuthorId] = useState<number | null>(null)
+  const [deletingAuthorId, setDeletingAuthorId] = useState<number | null>(null)
   const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionMessageSeverity, setActionMessageSeverity] = useState<'success' | 'error'>('success')
+
+  const showActionMessage = (message: string, severity: 'success' | 'error') => {
+    setActionMessage(message)
+    setActionMessageSeverity(severity)
+  }
 
   const openDialog = () => {
     setIsDialogOpen(true)
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseDialog = () => {
@@ -61,6 +89,7 @@ export function useAuthorActions() {
       [event.target.name]: event.target.value,
     }))
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCreate = async () => {
@@ -87,6 +116,7 @@ export function useAuthorActions() {
       }
 
       onCloseDialog()
+      showActionMessage('著者データを登録しました。', 'success')
       router.refresh()
     } catch {
       setCreateErrorMessage(
@@ -114,6 +144,7 @@ export function useAuthorActions() {
         },
       }))
       setUpdateErrorMessage(null)
+      setActionMessage(null)
     }
 
   const onUpdate = async (author: Author) => {
@@ -145,6 +176,7 @@ export function useAuthorActions() {
         delete nextRows[author.id]
         return nextRows
       })
+      showActionMessage('著者データを更新しました。', 'success')
       router.refresh()
     } catch {
       setUpdateErrorMessage(
@@ -152,6 +184,45 @@ export function useAuthorActions() {
       )
     } finally {
       setSavingAuthorId(null)
+    }
+  }
+
+  const onDelete = async (author: Author) => {
+    if (!window.confirm(`著者「${author.name}」を削除します。よろしいですか？`)) {
+      return
+    }
+
+    setDeletingAuthorId(author.id)
+    setUpdateErrorMessage(null)
+    setActionMessage(null)
+
+    try {
+      const response = await fetch(`${AUTHOR_API_PATH}/${author.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        showActionMessage(
+          await parseApiErrorMessage(response, '著者データの削除に失敗しました。'),
+          'error',
+        )
+        return
+      }
+
+      setEditingRows((rows) => {
+        const nextRows = { ...rows }
+        delete nextRows[author.id]
+        return nextRows
+      })
+      showActionMessage('著者データを削除しました。', 'success')
+      router.refresh()
+    } catch {
+      showActionMessage(
+        '著者データの削除に失敗しました。関連データやバックエンドの状態を確認してください。',
+        'error',
+      )
+    } finally {
+      setDeletingAuthorId(null)
     }
   }
 
@@ -168,6 +239,10 @@ export function useAuthorActions() {
     onEditChange,
     onUpdate,
     savingAuthorId,
+    onDelete,
+    deletingAuthorId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   }
 }
