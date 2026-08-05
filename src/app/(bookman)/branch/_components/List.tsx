@@ -1,7 +1,7 @@
 import React from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
-import { Box, Button, Stack, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
 import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid'
 import { Branch, BranchSummary } from '@/resource/branch'
 
@@ -33,9 +33,9 @@ export function List({ branches, branchSummaries, onEdit, onDelete, deletingBran
     { field: 'municipalityName', headerName: '自治体', width: 160 },
     { field: 'name', headerName: '名前', width: 200 },
     {
-      field: 'actions',
-      headerName: '操作',
-      width: 190,
+      field: 'edit',
+      headerName: '編集',
+      width: 110,
       sortable: false,
       filterable: false,
       renderCell: (params) => {
@@ -45,27 +45,41 @@ export function List({ branches, branchSummaries, onEdit, onDelete, deletingBran
         }
         const isDeleting = deletingBranchId === branch.id
         return (
-          <Stack direction='row' spacing={1}>
-            <Button
-              variant='outlined'
-              size='small'
-              startIcon={<EditIcon />}
-              disabled={isDeleting}
-              onClick={() => onEdit(branch)}
-            >
-              編集
-            </Button>
-            <Button
-              variant='outlined'
-              color='error'
-              size='small'
-              startIcon={<DeleteIcon />}
-              disabled={isDeleting}
-              onClick={() => onDelete(branch)}
-            >
-              {isDeleting ? '削除中' : '削除'}
-            </Button>
-          </Stack>
+          <Button
+            variant='outlined'
+            size='small'
+            startIcon={<EditIcon />}
+            disabled={isDeleting}
+            onClick={() => onEdit(branch)}
+          >
+            編集
+          </Button>
+        )
+      },
+    },
+    {
+      field: 'delete',
+      headerName: '削除',
+      width: 110,
+      sortable: false,
+      filterable: false,
+      renderCell: (params) => {
+        const branch = branches.find((item) => item.id === params.row.id)
+        if (!branch) {
+          return null
+        }
+        const isDeleting = deletingBranchId === branch.id
+        return (
+          <Button
+            variant='outlined'
+            color='error'
+            size='small'
+            startIcon={<DeleteIcon />}
+            disabled={isDeleting}
+            onClick={() => onDelete(branch)}
+          >
+            {isDeleting ? '削除中' : '削除'}
+          </Button>
         )
       },
     },
