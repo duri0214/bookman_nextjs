@@ -14,6 +14,7 @@
 - `.codex/rules/` 配下の各 Markdown は参照スタブであり、実体は `../portfolio/.codex/rules/` にある。
 - 着手前に `../portfolio/.codex/rules/` のうち、作業内容に関係するルールを確認する。
 - `main` へ直接コミットせず、Issue に対応するトピックブランチで作業する。
+- Next.js の build 前後で `.next` や `.next-*` が残っている場合は生成物として扱い、必要に応じて削除してよい。Windows/OneDrive の `EPERM` が出る場合は、対象を `.next` / `.next-*` に限定し、読み取り専用属性を外してから削除する。
 
 ## Skills
 
