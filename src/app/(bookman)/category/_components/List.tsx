@@ -61,8 +61,11 @@ export function List({
               <TableCell sx={{ width: 80 }}>#</TableCell>
               <TableCell>カテゴリ名</TableCell>
               <TableCell sx={{ width: 260 }}>表示色</TableCell>
-              <TableCell align='right' sx={{ width: 210 }}>
-                操作
+              <TableCell align='right' sx={{ width: 110 }}>
+                保存
+              </TableCell>
+              <TableCell align='right' sx={{ width: 110 }}>
+                削除
               </TableCell>
             </TableRow>
           </TableHead>
@@ -109,27 +112,27 @@ export function List({
                     </Stack>
                   </TableCell>
                   <TableCell align='right'>
-                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                      <Button
-                        variant='outlined'
-                        size='small'
-                        startIcon={<SaveIcon />}
-                        disabled={isProcessing}
-                        onClick={() => onUpdate(category)}
-                      >
-                        {isSaving ? '保存中' : '保存'}
-                      </Button>
-                      <Button
-                        variant='outlined'
-                        color='error'
-                        size='small'
-                        startIcon={<DeleteIcon />}
-                        disabled={isProcessing}
-                        onClick={() => onDelete(category)}
-                      >
-                        {isDeleting ? '削除中' : '削除'}
-                      </Button>
-                    </Box>
+                    <Button
+                      variant='outlined'
+                      size='small'
+                      startIcon={<SaveIcon />}
+                      disabled={isProcessing}
+                      onClick={() => onUpdate(category)}
+                    >
+                      {isSaving ? '保存中' : '保存'}
+                    </Button>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      size='small'
+                      startIcon={<DeleteIcon />}
+                      disabled={isProcessing}
+                      onClick={() => onDelete(category)}
+                    >
+                      {isDeleting ? '削除中' : '削除'}
+                    </Button>
                   </TableCell>
                 </TableRow>
               )

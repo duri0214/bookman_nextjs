@@ -65,8 +65,11 @@ export function List({
               <TableCell>職員名</TableCell>
               <TableCell>所属支店</TableCell>
               <TableCell>ロール</TableCell>
-              <TableCell align='right' sx={{ width: 210 }}>
-                操作
+              <TableCell align='right' sx={{ width: 110 }}>
+                保存
+              </TableCell>
+              <TableCell align='right' sx={{ width: 110 }}>
+                削除
               </TableCell>
             </TableRow>
           </TableHead>
@@ -125,27 +128,27 @@ export function List({
                     </TextField>
                   </TableCell>
                   <TableCell align='right'>
-                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                      <Button
-                        variant='outlined'
-                        size='small'
-                        startIcon={<SaveIcon />}
-                        disabled={isProcessing}
-                        onClick={() => onUpdate(staffMember)}
-                      >
-                        {isSaving ? '保存中' : '保存'}
-                      </Button>
-                      <Button
-                        variant='outlined'
-                        color='error'
-                        size='small'
-                        startIcon={<DeleteIcon />}
-                        disabled={isProcessing}
-                        onClick={() => onDelete(staffMember)}
-                      >
-                        {isDeleting ? '削除中' : '削除'}
-                      </Button>
-                    </Box>
+                    <Button
+                      variant='outlined'
+                      size='small'
+                      startIcon={<SaveIcon />}
+                      disabled={isProcessing}
+                      onClick={() => onUpdate(staffMember)}
+                    >
+                      {isSaving ? '保存中' : '保存'}
+                    </Button>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      size='small'
+                      startIcon={<DeleteIcon />}
+                      disabled={isProcessing}
+                      onClick={() => onDelete(staffMember)}
+                    >
+                      {isDeleting ? '削除中' : '削除'}
+                    </Button>
                   </TableCell>
                 </TableRow>
               )
