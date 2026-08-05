@@ -14,6 +14,7 @@ describe('useAuthorActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   test('onCreateが成功した時に著者登録APIへPOSTして一覧を再取得するべき', async () => {
@@ -101,6 +102,29 @@ describe('useAuthorActions', () => {
       },
       body: JSON.stringify({ name: '新著者名' }),
     })
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  test('onDeleteが成功した時に著者削除APIへDELETEして一覧を再取得するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 削除確認済みの著者。
+     * - 処理: onDelete を呼び出す。
+     * - 期待値: 著者削除APIへDELETEし、成功メッセージを保持して一覧を再取得すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(useAuthorActions)
+    const author = { id: 10, name: '夏目漱石' }
+
+    await act(async () => {
+      await result.current.onDelete(author)
+    })
+
+    expect(window.confirm).toHaveBeenCalledWith('著者「夏目漱石」を削除します。よろしいですか？')
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/authors/10', {
+      method: 'DELETE',
+    })
+    expect(result.current.actionMessage).toBe('著者データを削除しました。')
     expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 })

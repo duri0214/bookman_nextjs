@@ -36,6 +36,7 @@ describe('useEditDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   test('openEditDialogが呼び出された時に選択書籍からフォーム初期値を作るべき', () => {
@@ -147,5 +148,31 @@ describe('useEditDialog', () => {
       '出版年月日: Date has wrong format. Use one of these formats instead: YYYY-MM-DD.',
     )
     expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  test('onDeleteが成功した時に書籍削除APIへDELETEして一覧を再取得するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 削除確認済みの書籍。
+     * - 処理: onDelete を呼び出す。
+     * - 期待値: 書籍削除APIへDELETEし、成功メッセージを保持して一覧を再取得すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+    } as Response)
+    const { result } = renderHook(() => useEditDialog(authors, categories))
+
+    await act(async () => {
+      await result.current.onDelete(book)
+    })
+
+    expect(window.confirm).toHaveBeenCalledWith(
+      '書籍「吾輩は猫である」を削除します。よろしいですか？',
+    )
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/books/10', {
+      method: 'DELETE',
+    })
+    expect(result.current.actionMessage).toBe('書籍データを削除しました。')
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 })

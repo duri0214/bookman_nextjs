@@ -16,6 +16,7 @@ interface Props {
   staffMembers: LibraryStaff[]
   currentConditions: Record<string, unknown>
   onApply: (conditions: Record<string, unknown>) => void
+  isMockData?: boolean
 }
 
 const canCreateScope = (
@@ -46,11 +47,13 @@ export function SearchConditionPanel({
   staffMembers,
   currentConditions,
   onApply,
+  isMockData = false,
 }: Props) {
   const [staffId, setStaffId] = useState<number | null>(staffMembers[0]?.id ?? null)
   const [selectedConditionId, setSelectedConditionId] = useState('')
   const [conditionName, setConditionName] = useState('')
   const [shareScope, setShareScope] = useState<SearchConditionShareScope>('personal')
+  const [applyMessage, setApplyMessage] = useState<string | null>(null)
   const {
     conditions,
     permission,
@@ -64,6 +67,7 @@ export function SearchConditionPanel({
   } = useSearchConditions({
     targetScreen,
     staffId,
+    isMockData,
   })
 
   const selectedCondition = useMemo(
@@ -73,10 +77,18 @@ export function SearchConditionPanel({
   const isStaffMissing = staffMembers.length === 0 || staffId === null
   const canSave =
     !isStaffMissing && conditionName.trim() !== '' && canCreateScope(shareScope, permission)
+  const handleApply = () => {
+    if (!selectedCondition) {
+      return
+    }
+    onApply(selectedCondition.conditions)
+    setApplyMessage(`保存条件「${selectedCondition.name}」を読み込みました。`)
+  }
   const handleSave = async () => {
     const saved = await save(conditionName.trim(), shareScope, currentConditions)
     if (saved) {
       setConditionName('')
+      setApplyMessage(null)
     }
   }
 
@@ -129,6 +141,7 @@ export function SearchConditionPanel({
         </Alert>
       )}
       {message && <Alert severity='success'>{message}</Alert>}
+      {applyMessage && <Alert severity='success'>{applyMessage}</Alert>}
       {errorMessage && <Alert severity='warning'>{errorMessage}</Alert>}
 
       <Stack
@@ -141,7 +154,10 @@ export function SearchConditionPanel({
           size='small'
           label='保存済み条件'
           value={selectedConditionId}
-          onChange={(event) => setSelectedConditionId(event.target.value)}
+          onChange={(event) => {
+            setSelectedConditionId(event.target.value)
+            setApplyMessage(null)
+          }}
           sx={{ minWidth: { xs: 0, md: 260 }, flex: 1 }}
           disabled={isStaffMissing || isLoading}
           helperText={conditions.length === 0 ? '保存済み条件はまだありません。' : ''}
@@ -154,7 +170,7 @@ export function SearchConditionPanel({
         </TextField>
         <Button
           variant='outlined'
-          onClick={() => selectedCondition && onApply(selectedCondition.conditions)}
+          onClick={handleApply}
           disabled={!selectedCondition}
           sx={{ whiteSpace: 'nowrap' }}
         >
@@ -173,7 +189,7 @@ export function SearchConditionPanel({
         <Button
           variant='outlined'
           color='error'
-          onClick={() => selectedCondition && remove(selectedCondition.id)}
+          onClick={() => selectedCondition && remove(selectedCondition)}
           disabled={!selectedCondition?.canDelete}
           sx={{ whiteSpace: 'nowrap' }}
         >

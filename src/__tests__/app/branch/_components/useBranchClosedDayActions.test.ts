@@ -14,6 +14,7 @@ describe('useBranchClosedDayActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   test('onCreateが成功した時に休館日登録APIへPOSTして一覧を再取得するべき', async () => {
@@ -86,7 +87,7 @@ describe('useBranchClosedDayActions', () => {
     const { result } = renderHook(useBranchClosedDayActions)
 
     await act(async () => {
-      await result.current.onDelete(3)
+      await result.current.onDelete(3, '渋谷中央図書館 2026-01-15')
     })
 
     expect(global.fetch).toHaveBeenCalledWith('/api/bookman/branch-closed-days/3', {
@@ -94,5 +95,23 @@ describe('useBranchClosedDayActions', () => {
     })
     expect(result.current.message).toBe('休館日を削除しました。')
     expect(mockRefresh).toHaveBeenCalledTimes(1)
+  })
+
+  test('onDeleteが確認キャンセル時に休館日削除APIを呼ばないべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 削除確認ダイアログでキャンセルする状態。
+     * - 処理: onDelete を呼び出す。
+     * - 期待値: 休館日削除APIを呼ばず、一覧も再取得しないこと。
+     */
+    jest.mocked(window.confirm).mockReturnValueOnce(false)
+    const { result } = renderHook(useBranchClosedDayActions)
+
+    await act(async () => {
+      await result.current.onDelete(3, '渋谷中央図書館 2026-01-15')
+    })
+
+    expect(global.fetch).not.toHaveBeenCalled()
+    expect(mockRefresh).not.toHaveBeenCalled()
   })
 })

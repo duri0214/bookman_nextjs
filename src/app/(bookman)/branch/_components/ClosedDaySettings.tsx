@@ -45,7 +45,7 @@ export function ClosedDaySettings({ branches, closedDays }: Props) {
           size='small'
           variant='outlined'
           color='error'
-          onClick={() => onDelete(Number(params.id))}
+          onClick={() => onDelete(Number(params.id), `${params.row.branchName} ${params.row.date}`)}
           disabled={deletingClosedDayId === Number(params.id)}
         >
           削除

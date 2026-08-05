@@ -14,6 +14,83 @@ import {
 interface UseSearchConditionsArgs {
   targetScreen: string
   staffId: number | null
+  isMockData?: boolean
+}
+
+const getMockPermission = (staffId: number): SearchConditionPermission => ({
+  staffId,
+  role: 'manager',
+  branch: { id: 1, name: '中央図書館' },
+  canCreatePersonal: true,
+  canCreateBranch: true,
+  canCreateAdmin: false,
+  recordScope: 'own_branch',
+  disabledReason: '',
+})
+
+const getMockConditions = (targetScreen: string, staffId: number): SearchCondition[] => {
+  const baseCondition = {
+    targetScreen,
+    createdBy: staffId,
+    createdByName: 'モック職員',
+    branchId: 1,
+    branchName: '中央図書館',
+    ownerType: 'mock',
+    canUpdate: true,
+    canDelete: true,
+  }
+
+  if (targetScreen === 'books') {
+    return [
+      {
+        ...baseCondition,
+        id: 9001,
+        name: 'モック: 中央図書館の所蔵本',
+        conditions: { keyword: '吾輩', branchId: '1', stockedOnly: true },
+        shareScope: 'branch',
+      },
+      {
+        ...baseCondition,
+        id: 9002,
+        name: 'モック: 全支店の登録本',
+        conditions: { keyword: '', branchId: '', stockedOnly: false },
+        shareScope: 'personal',
+      },
+    ]
+  }
+
+  if (targetScreen === 'lendings') {
+    return [
+      {
+        ...baseCondition,
+        id: 9101,
+        name: 'モック: 中央図書館の返却期限近い貸出',
+        conditions: { municipalityId: '1', branchId: '1', dueWithinDays: '7' },
+        shareScope: 'branch',
+      },
+    ]
+  }
+
+  if (targetScreen === 'reservations') {
+    return [
+      {
+        ...baseCondition,
+        id: 9201,
+        name: 'モック: 中央図書館の全予約',
+        conditions: { reservationFilter: 'all', branchId: '1' },
+        shareScope: 'branch',
+      },
+      {
+        ...baseCondition,
+        id: 9202,
+        name: 'モック: 対応中の予約',
+        conditions: { reservationFilter: 'open', branchId: '' },
+        shareScope: 'personal',
+      },
+    ]
+  }
+
+  return []
 }
 
 const getResponseMessage = async (response: Response, fallback: string): Promise<string> => {
@@ -38,7 +115,11 @@ const getResponseMessage = async (response: Response, fallback: string): Promise
   return fallback
 }
 
-export function useSearchConditions({ targetScreen, staffId }: UseSearchConditionsArgs) {
+export function useSearchConditions({
+  targetScreen,
+  staffId,
+  isMockData = false,
+}: UseSearchConditionsArgs) {
   const [conditions, setConditions] = useState<SearchCondition[]>([])
   const [permission, setPermission] = useState<SearchConditionPermission | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -67,6 +148,12 @@ export function useSearchConditions({ targetScreen, staffId }: UseSearchConditio
     setIsLoading(true)
     setErrorMessage(null)
     try {
+      if (isMockData) {
+        setConditions(getMockConditions(targetScreen, staffId))
+        setPermission(getMockPermission(staffId))
+        return
+      }
+
       const [conditionsResponse, permissionResponse] = await Promise.all([
         fetch(`/api/bookman/search-conditions?${query}`),
         fetch(`/api/bookman/search-conditions/permissions?staff=${staffId}`),
@@ -92,7 +179,7 @@ export function useSearchConditions({ targetScreen, staffId }: UseSearchConditio
     } finally {
       setIsLoading(false)
     }
-  }, [query, staffId])
+  }, [isMockData, query, staffId, targetScreen])
 
   useEffect(() => {
     void Promise.resolve().then(load)
@@ -171,16 +258,19 @@ export function useSearchConditions({ targetScreen, staffId }: UseSearchConditio
     }
   }
 
-  const remove = async (conditionId: number) => {
+  const remove = async (condition: SearchCondition) => {
     if (!staffId) {
       setErrorMessage('職員を選択してください。')
+      return
+    }
+    if (!window.confirm(`保存条件「${condition.name}」を削除します。よろしいですか？`)) {
       return
     }
 
     setErrorMessage(null)
     try {
       const response = await fetch(
-        `/api/bookman/search-conditions/${conditionId}?staff=${staffId}`,
+        `/api/bookman/search-conditions/${condition.id}?staff=${staffId}`,
         {
           method: 'DELETE',
         },

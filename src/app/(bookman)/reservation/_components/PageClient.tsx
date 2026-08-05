@@ -340,6 +340,7 @@ export function PageClient({
             staffMembers={staffMembers}
             currentConditions={filters}
             onApply={(conditions) => setFilters(normalizeReservationFilters(conditions))}
+            isMockData={isMockData}
           />
         </Paper>
       </Grid>

@@ -677,6 +677,7 @@ export function PageClient({
             staffMembers={staffMembers}
             currentConditions={filters}
             onApply={(conditions) => setFilters(normalizeLendingFilters(conditions))}
+            isMockData={isMockData}
           />
         </Paper>
       </Grid>
@@ -688,6 +689,7 @@ export function PageClient({
             staffMembers={staffMembers}
             currentConditions={reservationFilters}
             onApply={(conditions) => setReservationFilters(normalizeReservationFilters(conditions))}
+            isMockData={isMockData}
           />
         </Paper>
       </Grid>

@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import { ChangeEvent } from 'react'
 import { Category, ICategoryFormValues } from '@/resource/category'
@@ -27,6 +28,8 @@ interface Props {
   ) => (event: ChangeEvent<HTMLInputElement>) => void
   onUpdate: (category: Category) => Promise<void>
   savingCategoryId: number | null
+  onDelete: (category: Category) => Promise<void>
+  deletingCategoryId: number | null
   updateErrorMessage: string | null
 }
 
@@ -36,6 +39,8 @@ export function List({
   onEditChange,
   onUpdate,
   savingCategoryId,
+  onDelete,
+  deletingCategoryId,
   updateErrorMessage,
 }: Props) {
   if (!categories || categories.length === 0) {
@@ -56,8 +61,11 @@ export function List({
               <TableCell sx={{ width: 80 }}>#</TableCell>
               <TableCell>カテゴリ名</TableCell>
               <TableCell sx={{ width: 260 }}>表示色</TableCell>
-              <TableCell align='right' sx={{ width: 120 }}>
-                操作
+              <TableCell align='right' sx={{ width: 110 }}>
+                保存
+              </TableCell>
+              <TableCell align='right' sx={{ width: 110 }}>
+                削除
               </TableCell>
             </TableRow>
           </TableHead>
@@ -65,6 +73,8 @@ export function List({
             {categories.map((category) => {
               const rowValues = getEditingRow(category)
               const isSaving = savingCategoryId === category.id
+              const isDeleting = deletingCategoryId === category.id
+              const isProcessing = isSaving || isDeleting
               return (
                 <TableRow key={category.id}>
                   <TableCell>{category.id}</TableCell>
@@ -73,7 +83,7 @@ export function List({
                       size='small'
                       name='name'
                       value={rowValues.name}
-                      disabled={isSaving}
+                      disabled={isProcessing}
                       onChange={onEditChange(category, 'name')}
                       fullWidth
                     />
@@ -95,7 +105,7 @@ export function List({
                         size='small'
                         name='color'
                         value={rowValues.color}
-                        disabled={isSaving}
+                        disabled={isProcessing}
                         onChange={onEditChange(category, 'color')}
                         fullWidth
                       />
@@ -106,10 +116,22 @@ export function List({
                       variant='outlined'
                       size='small'
                       startIcon={<SaveIcon />}
-                      disabled={isSaving}
+                      disabled={isProcessing}
                       onClick={() => onUpdate(category)}
                     >
                       {isSaving ? '保存中' : '保存'}
+                    </Button>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      size='small'
+                      startIcon={<DeleteIcon />}
+                      disabled={isProcessing}
+                      onClick={() => onDelete(category)}
+                    >
+                      {isDeleting ? '削除中' : '削除'}
                     </Button>
                   </TableCell>
                 </TableRow>

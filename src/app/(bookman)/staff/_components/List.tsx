@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete'
 import SaveIcon from '@mui/icons-material/Save'
 import { ChangeEvent } from 'react'
 import { Branch } from '@/resource/branch'
@@ -29,6 +30,8 @@ interface Props {
   ) => (event: ChangeEvent<HTMLInputElement>) => void
   onUpdate: (staff: Staff) => Promise<void>
   savingStaffId: number | null
+  onDelete: (staff: Staff) => Promise<void>
+  deletingStaffId: number | null
   updateErrorMessage: string | null
 }
 
@@ -39,6 +42,8 @@ export function List({
   onEditChange,
   onUpdate,
   savingStaffId,
+  onDelete,
+  deletingStaffId,
   updateErrorMessage,
 }: Props) {
   if (!staff || staff.length === 0) {
@@ -60,8 +65,11 @@ export function List({
               <TableCell>職員名</TableCell>
               <TableCell>所属支店</TableCell>
               <TableCell>ロール</TableCell>
-              <TableCell align='right' sx={{ width: 120 }}>
-                操作
+              <TableCell align='right' sx={{ width: 110 }}>
+                保存
+              </TableCell>
+              <TableCell align='right' sx={{ width: 110 }}>
+                削除
               </TableCell>
             </TableRow>
           </TableHead>
@@ -69,6 +77,8 @@ export function List({
             {staff.map((staffMember) => {
               const rowValues = getEditingRow(staffMember)
               const isSaving = savingStaffId === staffMember.id
+              const isDeleting = deletingStaffId === staffMember.id
+              const isProcessing = isSaving || isDeleting
               return (
                 <TableRow key={staffMember.id}>
                   <TableCell>{staffMember.id}</TableCell>
@@ -77,7 +87,7 @@ export function List({
                       size='small'
                       name='name'
                       value={rowValues.name}
-                      disabled={isSaving}
+                      disabled={isProcessing}
                       onChange={onEditChange(staffMember, 'name')}
                       fullWidth
                     />
@@ -88,7 +98,7 @@ export function List({
                       size='small'
                       name='branch'
                       value={rowValues.branch}
-                      disabled={isSaving}
+                      disabled={isProcessing}
                       onChange={onEditChange(staffMember, 'branch')}
                       fullWidth
                     >
@@ -106,7 +116,7 @@ export function List({
                       size='small'
                       name='role'
                       value={rowValues.role}
-                      disabled={isSaving}
+                      disabled={isProcessing}
                       onChange={onEditChange(staffMember, 'role')}
                       fullWidth
                     >
@@ -122,10 +132,22 @@ export function List({
                       variant='outlined'
                       size='small'
                       startIcon={<SaveIcon />}
-                      disabled={isSaving}
+                      disabled={isProcessing}
                       onClick={() => onUpdate(staffMember)}
                     >
                       {isSaving ? '保存中' : '保存'}
+                    </Button>
+                  </TableCell>
+                  <TableCell align='right'>
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      size='small'
+                      startIcon={<DeleteIcon />}
+                      disabled={isProcessing}
+                      onClick={() => onDelete(staffMember)}
+                    >
+                      {isDeleting ? '削除中' : '削除'}
                     </Button>
                   </TableCell>
                 </TableRow>
