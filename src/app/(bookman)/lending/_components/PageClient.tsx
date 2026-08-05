@@ -182,11 +182,6 @@ export function PageClient({
   const lendingColumns: GridColDef[] = [
     { field: 'rowNumber', headerName: '#', width: 50 },
     { field: 'bookName', headerName: '本名', width: 220 },
-    { field: 'branchName', headerName: '支店名', width: 160 },
-    { field: 'customerName', headerName: '利用者名', width: 160 },
-    { field: 'contactStaffName', headerName: '対応職員名', width: 160 },
-    { field: 'returnDate', headerName: '返却予定日', width: 130 },
-    { field: 'active', headerName: '状態', width: 100 },
     {
       field: 'return',
       headerName: '返却',
@@ -203,6 +198,11 @@ export function PageClient({
         </Button>
       ),
     },
+    { field: 'branchName', headerName: '支店名', width: 160 },
+    { field: 'customerName', headerName: '利用者名', width: 160 },
+    { field: 'contactStaffName', headerName: '対応職員名', width: 160 },
+    { field: 'returnDate', headerName: '返却予定日', width: 130 },
+    { field: 'active', headerName: '状態', width: 100 },
   ]
   const reservationRows: GridRowsProp = filteredReservations.map((reservation, index) => ({
     id: reservation.id,
@@ -220,6 +220,25 @@ export function PageClient({
   const reservationColumns: GridColDef[] = [
     { field: 'rowNumber', headerName: '#', width: 50 },
     { field: 'bookName', headerName: '本名', width: 220 },
+    {
+      field: 'cancel',
+      headerName: '取消',
+      width: 110,
+      sortable: false,
+      renderCell: (params) => {
+        const canCancel = params.row.status === 'waiting' || params.row.status === 'held'
+        return (
+          <Button
+            size='small'
+            variant='outlined'
+            onClick={() => onCancel(Number(params.id))}
+            disabled={!canCancel || cancelingReservationId === Number(params.id)}
+          >
+            取消
+          </Button>
+        )
+      },
+    },
     { field: 'branchName', headerName: '支店名', width: 160 },
     { field: 'customerName', headerName: '利用者名', width: 160 },
     {
@@ -249,25 +268,6 @@ export function PageClient({
           return <Chip size='small' color='success' label='貸出準備' />
         }
         return <Typography variant='body2'>-</Typography>
-      },
-    },
-    {
-      field: 'cancel',
-      headerName: '取消',
-      width: 110,
-      sortable: false,
-      renderCell: (params) => {
-        const canCancel = params.row.status === 'waiting' || params.row.status === 'held'
-        return (
-          <Button
-            size='small'
-            variant='outlined'
-            onClick={() => onCancel(Number(params.id))}
-            disabled={!canCancel || cancelingReservationId === Number(params.id)}
-          >
-            取消
-          </Button>
-        )
       },
     },
   ]

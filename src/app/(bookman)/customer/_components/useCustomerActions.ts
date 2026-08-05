@@ -69,6 +69,25 @@ const formatResponseError = async (response: Response): Promise<string> => {
   return '利用者データの保存に失敗しました。入力内容とバックエンドの状態を確認してください。'
 }
 
+const parseApiErrorMessage = async (
+  response: Response,
+  fallbackMessage: string,
+): Promise<string> => {
+  try {
+    const responseBody = await response.json()
+    if (typeof responseBody?.message === 'string' && responseBody.message) {
+      return responseBody.message
+    }
+    if (typeof responseBody?.detail === 'string' && responseBody.detail) {
+      return responseBody.detail
+    }
+  } catch {
+    return fallbackMessage
+  }
+
+  return fallbackMessage
+}
+
 export function useCustomerActions() {
   const router = useRouter()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -77,11 +96,20 @@ export function useCustomerActions() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string | null>(null)
   const [editingRows, setEditingRows] = useState<Record<number, ICustomerFormValues>>({})
   const [savingCustomerId, setSavingCustomerId] = useState<number | null>(null)
+  const [deletingCustomerId, setDeletingCustomerId] = useState<number | null>(null)
   const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
+  const [actionMessageSeverity, setActionMessageSeverity] = useState<'success' | 'error'>('success')
+
+  const showActionMessage = (message: string, severity: 'success' | 'error') => {
+    setActionMessage(message)
+    setActionMessageSeverity(severity)
+  }
 
   const openDialog = () => {
     setIsDialogOpen(true)
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCloseDialog = () => {
@@ -96,6 +124,7 @@ export function useCustomerActions() {
       [event.target.name]: event.target.value,
     }))
     setCreateErrorMessage(null)
+    setActionMessage(null)
   }
 
   const onCreate = async () => {
@@ -156,6 +185,7 @@ export function useCustomerActions() {
         },
       }))
       setUpdateErrorMessage(null)
+      setActionMessage(null)
     }
 
   const onUpdate = async (customer: Customer) => {
@@ -197,6 +227,45 @@ export function useCustomerActions() {
     }
   }
 
+  const onDelete = async (customer: Customer) => {
+    if (!window.confirm(`利用者「${customer.name}」を削除します。よろしいですか？`)) {
+      return
+    }
+
+    setDeletingCustomerId(customer.id)
+    setUpdateErrorMessage(null)
+    setActionMessage(null)
+
+    try {
+      const response = await fetch(`${CUSTOMER_API_PATH}/${customer.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        showActionMessage(
+          await parseApiErrorMessage(response, '利用者データの削除に失敗しました。'),
+          'error',
+        )
+        return
+      }
+
+      setEditingRows((rows) => {
+        const nextRows = { ...rows }
+        delete nextRows[customer.id]
+        return nextRows
+      })
+      showActionMessage('利用者データを削除しました。', 'success')
+      router.refresh()
+    } catch {
+      showActionMessage(
+        '利用者データの削除に失敗しました。関連データやバックエンドの状態を確認してください。',
+        'error',
+      )
+    } finally {
+      setDeletingCustomerId(null)
+    }
+  }
+
   return {
     isDialogOpen,
     openDialog,
@@ -210,6 +279,10 @@ export function useCustomerActions() {
     onEditChange,
     onUpdate,
     savingCustomerId,
+    onDelete,
+    deletingCustomerId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   }
 }

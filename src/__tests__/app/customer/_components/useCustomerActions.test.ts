@@ -14,6 +14,7 @@ describe('useCustomerActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     global.fetch = jest.fn()
+    window.confirm = jest.fn(() => true)
   })
 
   test('onCreateが成功した時に利用者登録APIへPOSTして一覧を再取得するべき', async () => {
@@ -173,5 +174,33 @@ describe('useCustomerActions', () => {
       '利用者データの保存に失敗しました。入力内容とバックエンドの状態を確認してください。',
     )
     expect(mockRefresh).not.toHaveBeenCalled()
+  })
+
+  test('onDeleteが成功した時に利用者削除APIへDELETEして一覧を再取得するべき', async () => {
+    /**
+     * シナリオ:
+     * - 入力: 削除確認済みの利用者。
+     * - 処理: onDelete を呼び出す。
+     * - 期待値: 利用者削除APIへDELETEし、成功メッセージを保持して一覧を再取得すること。
+     */
+    jest.mocked(global.fetch).mockResolvedValue({ ok: true } as Response)
+    const { result } = renderHook(useCustomerActions)
+    const customer = {
+      id: 20,
+      name: '山田 太郎',
+      phone: '03-0000-0000',
+      maxLendingCount: 3,
+    }
+
+    await act(async () => {
+      await result.current.onDelete(customer)
+    })
+
+    expect(window.confirm).toHaveBeenCalledWith('利用者「山田 太郎」を削除します。よろしいですか？')
+    expect(global.fetch).toHaveBeenCalledWith('/api/bookman/customers/20', {
+      method: 'DELETE',
+    })
+    expect(result.current.actionMessage).toBe('利用者データを削除しました。')
+    expect(mockRefresh).toHaveBeenCalledTimes(1)
   })
 })

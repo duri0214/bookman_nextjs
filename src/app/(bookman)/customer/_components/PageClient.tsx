@@ -28,7 +28,11 @@ export function PageClient({ customers, errorMessage, isMockData }: Props) {
     onEditChange,
     onUpdate,
     savingCustomerId,
+    onDelete,
+    deletingCustomerId,
     updateErrorMessage,
+    actionMessage,
+    actionMessageSeverity,
   } = useCustomerActions()
 
   return (
@@ -50,12 +54,19 @@ export function PageClient({ customers, errorMessage, isMockData }: Props) {
           <Button variant='contained' color='primary' onClick={openDialog} sx={{ mb: 5 }}>
             利用者登録
           </Button>
+          {actionMessage && (
+            <Alert severity={actionMessageSeverity} sx={{ mb: 2 }}>
+              {actionMessage}
+            </Alert>
+          )}
           <List
             customers={customers}
             getEditingRow={getEditingRow}
             onEditChange={onEditChange}
             onUpdate={onUpdate}
             savingCustomerId={savingCustomerId}
+            onDelete={onDelete}
+            deletingCustomerId={deletingCustomerId}
             updateErrorMessage={updateErrorMessage}
           />
           <CreateDialog
