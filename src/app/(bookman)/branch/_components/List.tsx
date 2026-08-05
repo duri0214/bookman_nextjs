@@ -32,11 +32,6 @@ export function List({ branches, branchSummaries, onEdit, onDelete, deletingBran
     { field: 'id', headerName: '#', width: 50 },
     { field: 'municipalityName', headerName: '自治体', width: 160 },
     { field: 'name', headerName: '名前', width: 200 },
-    { field: 'address', headerName: '住所', width: 200 },
-    { field: 'phone', headerName: '問い合わせ先', width: 150 },
-    { field: 'bookCount', headerName: '取扱書籍数', type: 'number', width: 120 },
-    { field: 'totalStockAmount', headerName: '総所蔵冊数', type: 'number', width: 120 },
-    { field: 'remark', headerName: '備考', width: 300 },
     {
       field: 'actions',
       headerName: '操作',
@@ -74,6 +69,11 @@ export function List({ branches, branchSummaries, onEdit, onDelete, deletingBran
         )
       },
     },
+    { field: 'address', headerName: '住所', width: 200 },
+    { field: 'phone', headerName: '問い合わせ先', width: 150 },
+    { field: 'bookCount', headerName: '取扱書籍数', type: 'number', width: 120 },
+    { field: 'totalStockAmount', headerName: '総所蔵冊数', type: 'number', width: 120 },
+    { field: 'remark', headerName: '備考', width: 300 },
   ]
   return (
     <>
