@@ -16,6 +16,7 @@ interface Props {
   staffMembers: LibraryStaff[]
   currentConditions: Record<string, unknown>
   onApply: (conditions: Record<string, unknown>) => void
+  isMockData?: boolean
 }
 
 const canCreateScope = (
@@ -46,6 +47,7 @@ export function SearchConditionPanel({
   staffMembers,
   currentConditions,
   onApply,
+  isMockData = false,
 }: Props) {
   const [staffId, setStaffId] = useState<number | null>(staffMembers[0]?.id ?? null)
   const [selectedConditionId, setSelectedConditionId] = useState('')
@@ -64,6 +66,7 @@ export function SearchConditionPanel({
   } = useSearchConditions({
     targetScreen,
     staffId,
+    isMockData,
   })
 
   const selectedCondition = useMemo(
