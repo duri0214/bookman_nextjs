@@ -57,21 +57,22 @@ npm --version
 npm install
 ```
 
-バックエンド側も同じ親フォルダに配置しておきます。
+必要に応じて仮想環境を有効化し、DB migration と fixture 読み込みを実行します。fixture を入れ直す場合は backend 側のスクリプトを使います。
 
 ```console
-cd ../bookman_backend
-```
-
-必要に応じて仮想環境を有効化し、DB migration と fixture 読み込みを実行します。
-
-```console
+# bookman_nextjs のルートから実行する場合
+cd ..\bookman_backend
 .\venv\Scripts\Activate.ps1
 python manage.py migrate
-python manage.py loaddata bookman/fixtures/m_branch-data.json
-python manage.py loaddata bookman/fixtures/m_category-data.json
-python manage.py loaddata bookman/fixtures/author-data.json
-python manage.py loaddata bookman/fixtures/book-data.json
+.\scripts\import_data.ps1
+```
+
+Linux では backend のルートへ移動してから `scripts/import_data.sh` を実行してください。既存データを削除する場合は、投入前に backend 側で `python manage.py flush --noinput` を明示的に実行します。
+
+```bash
+cd ../bookman_backend
+chmod +x scripts/import_data.sh
+./scripts/import_data.sh
 ```
 
 ## サーバーの起動
