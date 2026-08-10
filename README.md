@@ -71,7 +71,7 @@ python manage.py migrate
 .\scripts\import_data.ps1
 ```
 
-Linux では `bookman_backend/scripts/import_data.sh` を実行してください。既存データを削除する場合は、投入前に backend 側で `python manage.py flush --noinput` を明示的に実行します。
+Linux では `scripts/import_data.sh` を実行してください。既存データを削除する場合は、投入前に backend 側で `python manage.py flush --noinput` を明示的に実行します。
 
 ## サーバーの起動
 
@@ -159,19 +159,6 @@ cd ../bookman_backend
 .\venv\Scripts\Activate.ps1
 python manage.py test
 ```
-
-## push 前の確認
-
-frontend の変更を push する前に、依存関係、lint、テスト、production build を確認します。
-
-```console
-npm ci
-npm run lint
-npm test
-npm run build
-```
-
-本番サーバーへの反映は portfolio の README にある 3 リポジトリの更新手順に従います。
 
 ## 主な画面
 
