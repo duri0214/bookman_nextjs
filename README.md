@@ -63,16 +63,15 @@ npm install
 cd ../bookman_backend
 ```
 
-必要に応じて仮想環境を有効化し、DB migration と fixture 読み込みを実行します。
+必要に応じて仮想環境を有効化し、DB migration と fixture 読み込みを実行します。fixture を入れ直す場合は backend 側のスクリプトを使います。
 
 ```console
 .\venv\Scripts\Activate.ps1
 python manage.py migrate
-python manage.py loaddata bookman/fixtures/m_branch-data.json
-python manage.py loaddata bookman/fixtures/m_category-data.json
-python manage.py loaddata bookman/fixtures/author-data.json
-python manage.py loaddata bookman/fixtures/book-data.json
+.\scripts\import_data.ps1
 ```
+
+Linux では `bookman_backend/scripts/import_data.sh` を実行してください。`flush --noinput` を含むため、開発・デモ環境専用です。
 
 ## サーバーの起動
 
@@ -160,6 +159,19 @@ cd ../bookman_backend
 .\venv\Scripts\Activate.ps1
 python manage.py test
 ```
+
+## push 前の確認
+
+frontend の変更を push する前に、依存関係、lint、テスト、production build を確認します。
+
+```console
+npm ci
+npm run lint
+npm test
+npm run build
+```
+
+本番サーバーへの反映は portfolio の README にある 3 リポジトリの更新手順に従います。
 
 ## 主な画面
 
