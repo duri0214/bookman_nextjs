@@ -71,7 +71,7 @@ python manage.py migrate
 .\scripts\import_data.ps1
 ```
 
-Linux では `bookman_backend/scripts/import_data.sh` を実行してください。`flush --noinput` を含むため、開発・デモ環境専用です。
+Linux では `bookman_backend/scripts/import_data.sh` を実行してください。既存データを削除する場合は、投入前に backend 側で `python manage.py flush --noinput` を明示的に実行します。
 
 ## サーバーの起動
 
